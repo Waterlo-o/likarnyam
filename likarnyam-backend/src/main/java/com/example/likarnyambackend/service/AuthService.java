@@ -1,4 +1,33 @@
 package com.example.likarnyambackend.service;
 
-// TODO Sprint 1 — логика авторизации, JWT
-public class AuthService {}
+
+import com.example.likarnyambackend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+
+    public String login(String email, String password) {
+
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return jwtService.generateToken(email, user.getRole().getName());
+    }
+}

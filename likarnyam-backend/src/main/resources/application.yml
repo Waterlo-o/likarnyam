@@ -14,3 +14,8 @@ spring:
 
 server:
   port: 8080
+
+# JWT настройки
+jwt:
+  secret: likarnyam-super-secret-key-for-jwt-token-signing-2024
+  expiration: 86400000  # 24 часа в миллисекундах
