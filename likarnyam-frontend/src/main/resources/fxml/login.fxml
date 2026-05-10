@@ -57,6 +57,10 @@
                            styleClass="login-error"
                            visible="false"/>
 
+                    <HBox spacing="10" alignment="CENTER_LEFT" prefWidth="320">
+                        <CheckBox fx:id="rememberMeCheckbox" text="Remember me for 30 days" />
+                    </HBox>
+
                     <Button fx:id="loginButton"
                             text="Sign In"
                             prefWidth="320"

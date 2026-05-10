@@ -6,10 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -18,6 +15,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
+    @FXML private CheckBox rememberMeCheckbox;
 
     @FXML
     public void handleLogin() {
@@ -38,8 +36,12 @@ public class LoginController {
             // Отправляем запрос на бэкенд
             String token = ApiClient.login(email, password);
 
-            // Сохраняем токен в сессии
-            UserSession.getInstance().setJwtToken(token);
+
+            if (rememberMeCheckbox.isSelected()) {
+                UserSession.getInstance().saveToken(token);
+            } else {
+                UserSession.getInstance().setJwtToken(token);
+            }
 
             // Переходим на главный экран
             navigateToHome();

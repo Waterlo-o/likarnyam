@@ -204,3 +204,15 @@
     -fx-text-fill: #e53e3e;
     -fx-font-size: 13px;
 }
+
+
+.clock-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 5 12 5 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+}

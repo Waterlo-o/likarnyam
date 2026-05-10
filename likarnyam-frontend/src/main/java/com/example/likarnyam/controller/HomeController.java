@@ -1,5 +1,7 @@
 package com.example.likarnyam.controller;
 
+
+import com.example.likarnyam.session.UserSession;
 import com.example.likarnyam.client.AppointmentApiClient;
 import com.example.likarnyam.client.DoctorApiClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +15,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class HomeController {
 
@@ -21,13 +27,19 @@ public class HomeController {
     @FXML private Label doctorNameLabel;
     @FXML private Text greetingText;
     @FXML private VBox patientListContainer;
+    @FXML private Label clockLabel;
 
     @FXML
     public void initialize() {
+        System.out.println("HomeController initialized!");
         new Thread(() -> {
+            System.out.println("Thread started!");
             try {
+                System.out.println("Fetching doctor...");
                 JsonNode doctor = DoctorApiClient.getMe();
+                System.out.println("Doctor fetched: " + doctor.toString());
                 JsonNode appointments = AppointmentApiClient.getTodayAppointments();
+                System.out.println("Appointments fetched: " + appointments.size());
 
                 String firstName = doctor.get("firstName").asText();
                 String lastName = doctor.get("lastName").asText();
@@ -51,8 +63,39 @@ public class HomeController {
                     }
                 });
 
+                javafx.animation.Timeline clock = new javafx.animation.Timeline(
+                        new javafx.animation.KeyFrame(
+                                javafx.util.Duration.seconds(1),
+                                e -> {
+                                    String time = java.time.LocalTime.now()
+                                            .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+                                    clockLabel.setText(time);
+                                }
+                        )
+                );
+                clock.setCycleCount(javafx.animation.Animation.INDEFINITE);
+                clock.play();
+
             } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println("Error loading home data: " + e.getMessage());
+                Platform.runLater(() -> {
+                    // Если токен просрочен — возвращаем на логин
+                    if (e.getMessage() != null && e.getMessage().contains("403")) {
+                        UserSession.getInstance().logout();
+                        try {
+                            Parent root = FXMLLoader.load(
+                                    getClass().getResource("/fxml/login.fxml")
+                            );
+                            Stage stage = (Stage) totalVisitsLabel.getScene().getWindow();
+                            stage.setScene(new Scene(root, 800, 500));
+                            stage.setResizable(false);
+                            stage.show();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
             }
         }).start();
     }

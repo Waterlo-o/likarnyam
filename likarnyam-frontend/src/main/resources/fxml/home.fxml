@@ -36,7 +36,7 @@
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                 <TextField fx:id="searchField" prefHeight="40.0" prefWidth="400.0" promptText="Search" styleClass="search-bar" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label text="🔔" />
+                <Label fx:id="clockLabel" text="" styleClass="clock-label" />
                 <HBox alignment="CENTER" spacing="10.0" styleClass="profile-badge">
                     <Circle fill="#ccc" radius="15.0" />
                     <Label fx:id="doctorNameLabel" text="">
@@ -67,7 +67,7 @@
                             <Label text="Visits for Today" textFill="#333333">
                                 <font><Font size="22.0" /></font>
                             </Label>
-                            <Label fx:id="totalVisitsLabel" text="104" textFill="BLACK">
+                            <Label fx:id="totalVisitsLabel" text=" " textFill="BLACK">
                                 <font><Font name="System Bold" size="64.0" /></font>
                             </Label>
                         </VBox>
