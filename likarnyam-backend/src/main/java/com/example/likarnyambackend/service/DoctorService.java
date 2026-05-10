@@ -12,13 +12,17 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-
     public Optional<Doctor> getDoctorById(Long id) {
         return doctorRepository.findById(id);
     }
 
-
     public Optional<Doctor> getDoctorByUserId(Long userId) {
         return doctorRepository.findByUserId(userId);
+    }
+
+    // Найти врача по email пользователя
+    // Используется для endpoint /api/doctors/me
+    public Optional<Doctor> getDoctorByEmail(String email) {
+        return doctorRepository.findByUserEmail(email);
     }
 }
