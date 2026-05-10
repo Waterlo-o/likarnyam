@@ -23,17 +23,21 @@ public class ApiClient {
                 email, password
         );
 
+        System.out.println("Sending login request for: " + email);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/auth/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
-
         HttpResponse<String> response = httpClient.send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
+
+        System.out.println("Response status: " + response.statusCode());
+        System.out.println("Response body: " + response.body());
 
         if (response.statusCode() != 200) {
             throw new RuntimeException("Login failed: " + response.statusCode());

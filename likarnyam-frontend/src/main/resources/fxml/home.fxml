@@ -97,25 +97,7 @@
                             <Label text="Patient List">
                                 <font><Font name="System Bold" size="16.0" /></font>
                             </Label>
-                            <VBox spacing="10.0">
-                                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="list-item">
-                                    <Circle fill="#ffd6e8" radius="20.0" />
-                                    <VBox>
-                                        <Label text="Stacy Mitchell" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                                        <Label text="Weekly Visit" textFill="#888" />
-                                    </VBox>
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label text="9:15 AM" styleClass="time-badge" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="list-item">
-                                    <Circle fill="#d6e4ff" radius="20.0" />
-                                    <VBox>
-                                        <Label text="Amy Dunham" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                                        <Label text="Routine Checkup" textFill="#888" />
-                                    </VBox>
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label text="9:30 AM" styleClass="time-badge-blue" />
-                                </HBox>
+                            <VBox fx:id="patientListContainer" spacing="10.0">
                             </VBox>
                         </VBox>
 
