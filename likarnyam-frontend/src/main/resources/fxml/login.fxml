@@ -1,1 +1,70 @@
-<!-- TODO Sprint 1 — экран логина -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.LoginController"
+            stylesheets="@../css/css.css">
+
+    <center>
+        <VBox alignment="CENTER" spacing="0" styleClass="login-wrapper">
+
+            <!-- Левая синяя панель + правая белая форма -->
+            <HBox prefWidth="800" prefHeight="500">
+
+                <!-- Левая панель — брендинг -->
+                <VBox alignment="CENTER" spacing="15" prefWidth="350"
+                      styleClass="login-brand-panel">
+                    <Text text="Likarnyam" styleClass="login-brand-title"/>
+                    <Text text="Medical Portal" styleClass="login-brand-subtitle"/>
+                    <Text text="Your patients. Your schedule.&#10;All in one place."
+                          styleClass="login-brand-desc" textAlignment="CENTER"/>
+                </VBox>
+
+                <!-- Правая панель — форма -->
+                <VBox alignment="CENTER" spacing="20" prefWidth="450"
+                      styleClass="login-form-panel">
+                    <padding>
+                        <Insets top="50" bottom="50" left="50" right="50"/>
+                    </padding>
+
+                    <Text text="Welcome back" styleClass="login-title"/>
+                    <Text text="Sign in to your account" styleClass="login-subtitle"/>
+
+                    <VBox spacing="8" prefWidth="320">
+                        <Label text="Email" styleClass="login-label"/>
+                        <TextField fx:id="emailField"
+                                   promptText="doctor@likarnyam.com"
+                                   styleClass="login-input"/>
+                    </VBox>
+
+                    <VBox spacing="8" prefWidth="320">
+                        <Label text="Password" styleClass="login-label"/>
+                        <PasswordField fx:id="passwordField"
+                                       promptText="••••••••"
+                                       styleClass="login-input"/>
+                    </VBox>
+
+                    <!-- Сообщение об ошибке -->
+                    <Label fx:id="errorLabel"
+                           text=""
+                           styleClass="login-error"
+                           visible="false"/>
+
+                    <Button fx:id="loginButton"
+                            text="Sign In"
+                            prefWidth="320"
+                            styleClass="login-btn"
+                            onAction="#handleLogin"/>
+
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

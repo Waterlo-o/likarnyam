@@ -8,7 +8,7 @@
 
 <?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.text.Text?>
-<BorderPane stylesheets="@classes/css.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.likarnyam.HelloController">
+<BorderPane stylesheets="@../css/css.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.likarnyam.controller.HomeController">
 
     <left>
         <VBox alignment="CENTER" prefWidth="80.0" spacing="30.0" styleClass="sidebar">

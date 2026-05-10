@@ -11,10 +11,12 @@ import java.util.Objects;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Убедись, что путь к fxml указан верно в зависимости от структуры папок (обычно src/main/resources/)
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("hello-view.fxml")));
-        primaryStage.setTitle("Medical Dashboard");
-        primaryStage.setScene(new Scene(root, 1200, 800));
+        Parent root = FXMLLoader.load(
+                Objects.requireNonNull(getClass().getResource("/fxml/login.fxml"))
+        );
+        primaryStage.setTitle("Likarnyam — Medical Portal");
+        primaryStage.setScene(new Scene(root, 800, 500));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
