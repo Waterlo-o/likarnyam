@@ -1,4 +1,30 @@
 package com.example.likarnyambackend.model;
 
-// TODO Sprint 2 — JPA сущность записи на приём
-public class Appointment {}
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+@Entity
+@Table(name = "appointments")
+public class Appointment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+    private LocalDateTime appointmentAt;
+    private Integer durationMinutes;
+    private String status;
+    private String reason;
+    private String notes;
+    private LocalDateTime createdAt;
+}
