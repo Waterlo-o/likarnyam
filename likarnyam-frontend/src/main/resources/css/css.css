@@ -50,16 +50,16 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 10, 0, 0, 5);
 }
 
-/* Блоки New и Old Patients */
 .mini-stat {
-    -fx-background-color: rgba(255, 255, 255, 0.5);
-    -fx-background-radius: 15;
-    -fx-padding: 10 20 10 20;
+    -fx-background-color: rgba(255, 255, 255, 0.4);
+    -fx-background-radius: 12;
+    -fx-padding: 8 20 8 20;
+    -fx-border-color: transparent;
 }
+
 .mini-stat:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-color: rgba(255, 255, 255, 0.7);
     -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 2);
 }
 
 /* Карточка консультации */

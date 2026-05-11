@@ -32,6 +32,8 @@ public class HomeController {
     @FXML private Label consultationInfo;
     @FXML private Label consultationReason;
     @FXML private Label consultationNotes;
+    @FXML private Label scheduledLabel;
+    @FXML private Label completedLabel;
 
     @FXML
     public void initialize() {
@@ -56,6 +58,21 @@ public class HomeController {
                             greetingText.setText("Dr. " + firstName + "!");
                         if (totalVisitsLabel != null)
                             totalVisitsLabel.setText(String.valueOf(totalVisits));
+
+                        int scheduled = 0;
+                        int completed = 0;
+                        for (JsonNode appointment : appointments) {
+                            String status = appointment.get("status").asText();
+                            if (status.equals("SCHEDULED")) scheduled++;
+                            if (status.equals("COMPLETED")) completed++;
+                        }
+
+                        // Обновляем лейблы
+                        if (scheduledLabel != null)
+                            scheduledLabel.setText(String.valueOf(scheduled));
+                        if (completedLabel != null)
+                            completedLabel.setText(String.valueOf(completed));
+
                         if (patientListContainer != null) {
                             patientListContainer.getChildren().clear();
                             for (JsonNode appointment : appointments) {
