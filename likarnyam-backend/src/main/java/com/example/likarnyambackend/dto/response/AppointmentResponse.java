@@ -14,6 +14,7 @@ public class AppointmentResponse {
     private String status;
     private LocalDateTime appointmentAt;
     private Integer durationMinutes;
+    private String notes;
 
     public static AppointmentResponse from(Appointment appointment) {
         AppointmentResponse dto = new AppointmentResponse();
@@ -24,6 +25,7 @@ public class AppointmentResponse {
         dto.setStatus(appointment.getStatus());
         dto.setAppointmentAt(appointment.getAppointmentAt());
         dto.setDurationMinutes(appointment.getDurationMinutes());
+        dto.setNotes(appointment.getNotes() != null ? appointment.getNotes() : "No notes");
         return dto;
     }
 }

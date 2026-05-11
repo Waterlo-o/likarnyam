@@ -216,3 +216,34 @@
     -fx-border-color: #e2e8f0;
     -fx-border-radius: 10;
 }
+
+.patient-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.patient-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Скроллбар — тонкий и красивый */
+.patient-scroll > .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+}
+
+.patient-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: #B8D3F5;
+    -fx-background-radius: 3px;
+}
+
+.patient-scroll > .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.patient-scroll > .scroll-bar:vertical .increment-button,
+.patient-scroll > .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-opacity: 0;
+}
