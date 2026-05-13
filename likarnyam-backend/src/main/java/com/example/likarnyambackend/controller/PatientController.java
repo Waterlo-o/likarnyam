@@ -1,10 +1,14 @@
 package com.example.likarnyambackend.controller;
 
+import com.example.likarnyambackend.dto.response.PatientResponse;
 import com.example.likarnyambackend.model.Patient;
+import com.example.likarnyambackend.service.DoctorService;
 import com.example.likarnyambackend.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -13,30 +17,41 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+    private final DoctorService doctorService;
 
-    // GET http://localhost:8080/api/patients
     @GetMapping
-    public List<Patient> getAllPatients() {
-        return patientService.getAllPatients();
-    }
-
-    // GET http://localhost:8080/api/patients/1
-    @GetMapping("/{id}")
-    public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
-        return patientService.getPatientById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<List<PatientResponse>> getMyPatients(Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .map(doctor -> ResponseEntity.ok(
+                        patientService.getAllPatients()
+                                .stream()
+                                .map(PatientResponse::from)
+                                .toList()
+                ))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // GET http://localhost:8080/api/patients/search?lastName=Митчелл
     @GetMapping("/search")
-    public List<Patient> search(@RequestParam String lastName) {
-        return patientService.searchByLastName(lastName);
+    public ResponseEntity<List<PatientResponse>> search(@RequestParam String lastName) {
+        return ResponseEntity.ok(
+                patientService.searchByLastName(lastName)
+                        .stream()
+                        .map(PatientResponse::from)
+                        .toList()
+        );
     }
 
-    // POST http://localhost:8080/api/patients
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponse> getById(@PathVariable Long id) {
+        return patientService.getPatientById(id)
+                .map(patient -> ResponseEntity.ok(PatientResponse.from(patient)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public Patient createPatient(@RequestBody Patient patient) {
-        return patientService.createPatient(patient);
+    public ResponseEntity<PatientResponse> createPatient(@RequestBody Patient patient) {
+        return ResponseEntity.ok(
+                PatientResponse.from(patientService.createPatient(patient))
+        );
     }
 }

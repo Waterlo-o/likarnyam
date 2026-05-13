@@ -4,6 +4,7 @@ package com.example.likarnyam.controller;
 import com.example.likarnyam.session.UserSession;
 import com.example.likarnyam.client.AppointmentApiClient;
 import com.example.likarnyam.client.DoctorApiClient;
+import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -154,5 +155,43 @@ public class HomeController {
         consultationInfo.setText("Appointment at " + time);
         consultationReason.setText(reason);
         consultationNotes.setText(notes);
+    }
+    @FXML
+    private void navigateHome() {
+        // Уже на Home — ничего не делаем
+    }
+
+    @FXML
+    private void navigatePatients() {
+        FxUtils.navigateFullscreen(totalVisitsLabel, "/fxml/patient-list.fxml");
+    }
+
+    @FXML
+    private void navigateSchedule() {
+        // TODO Sprint 2
+        System.out.println("Schedule — coming soon");
+    }
+
+    @FXML
+    private void navigateMessages() {
+        // TODO
+        System.out.println("Messages — coming soon");
+    }
+
+    @FXML
+    private void navigateSettings() {
+        // TODO Sprint 3
+        System.out.println("Settings — coming soon");
+    }
+
+    @FXML
+    private void handleLogout() {
+        javafx.application.Platform.exit();
+    }
+
+    @FXML
+    private void navigateAppointments() {
+        // TODO Sprint 2
+        System.out.println("Appointments — coming soon");
     }
 }

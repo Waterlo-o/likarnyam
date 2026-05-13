@@ -1,1 +1,76 @@
-<!-- TODO Sprint 1 — список пациентов -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@../css/css.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.PatientListController">
+
+    <left>
+        <VBox prefWidth="80.0" styleClass="sidebar">
+            <padding><Insets top="20" bottom="20"/></padding>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox alignment="CENTER" spacing="30.0">
+                <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />
+                <Button styleClass="menu-btn" text="📅" onAction="#navigateSchedule" />
+                <Button styleClass="menu-btn" text="👥" onAction="#navigatePatients" />
+                <Button styleClass="menu-btn" text="📋" onAction="#navigateAppointments" />
+                <Button styleClass="menu-btn" text="⚙" onAction="#navigateSettings" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER">
+                <Button styleClass="menu-btn-logout" text="↪" onAction="#handleLogout" />
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" styleClass="main-content">
+            <BorderPane.margin>
+                <Insets bottom="15.0" right="15.0" top="15.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+
+            <!-- Шапка -->
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+                <Label text="Patients" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="newPatientBtn" text="+ New Patient"
+                        styleClass="btn-primary"
+                        onAction="#handleNewPatient" />
+            </HBox>
+
+            <!-- Поиск -->
+            <HBox spacing="10">
+                <TextField fx:id="searchField"
+                           promptText="Search by last name..."
+                           prefHeight="40" prefWidth="400"
+                           styleClass="search-bar"
+                           onKeyReleased="#handleSearch" />
+            </HBox>
+
+            <!-- Таблица пациентов -->
+            <VBox styleClass="white-card" VBox.vgrow="ALWAYS">
+                <HBox styleClass="table-header" spacing="0">
+                    <Label text="Patient" prefWidth="250" styleClass="table-header-cell" />
+                    <Label text="Date of Birth" prefWidth="150" styleClass="table-header-cell" />
+                    <Label text="Gender" prefWidth="100" styleClass="table-header-cell" />
+                    <Label text="Phone" prefWidth="180" styleClass="table-header-cell" />
+                    <Label text="Blood Type" prefWidth="100" styleClass="table-header-cell" />
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            styleClass="patient-scroll">
+                    <VBox fx:id="patientTableContainer" spacing="0" />
+                </ScrollPane>
+            </VBox>
+
+        </VBox>
+    </center>
+</BorderPane>

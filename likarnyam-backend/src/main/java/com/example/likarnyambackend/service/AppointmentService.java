@@ -23,4 +23,8 @@ public class AppointmentService {
 
         return appointmentRepository.findTodayByDoctorId(doctorId, start, end);
     }
+    public List<Appointment> getPatientHistory(Long patientId) {
+        return appointmentRepository
+                .findByPatientIdOrderByAppointmentAtDesc(patientId);
+    }
 }

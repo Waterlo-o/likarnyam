@@ -1,1 +1,122 @@
-<!-- TODO Sprint 2 — карточка пациента -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@../css/css.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.PatientCardController">
+
+    <left>
+        <VBox prefWidth="80.0" styleClass="sidebar">
+            <padding><Insets top="20" bottom="20"/></padding>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox alignment="CENTER" spacing="30.0">
+                <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />
+                <Button styleClass="menu-btn" text="📅" onAction="#navigateSchedule" />
+                <Button styleClass="menu-btn" text="👥" onAction="#navigatePatients" />
+                <Button styleClass="menu-btn" text="📋" onAction="#navigateAppointments" />
+                <Button styleClass="menu-btn" text="⚙" onAction="#navigateSettings" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER">
+                <Button styleClass="menu-btn-logout" text="↪" onAction="#handleLogout" />
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" styleClass="main-content">
+            <BorderPane.margin>
+                <Insets bottom="15.0" right="15.0" top="15.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+
+            <!-- Шапка -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Button text="← Back" styleClass="btn-back"
+                        onAction="#navigatePatients" />
+                <Label fx:id="patientNameLabel" text=""
+                       style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+            </HBox>
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                <!-- Левая колонка — основные данные -->
+                <VBox spacing="15" prefWidth="300">
+
+                    <!-- Карточка профиля -->
+                    <VBox styleClass="white-card" spacing="15">
+                        <HBox alignment="CENTER">
+                            <Label fx:id="patientAvatarLabel" text="JM"
+                                   style="-fx-background-color: #d6e4ff;
+                                          -fx-background-radius: 40;
+                                          -fx-min-width: 80; -fx-min-height: 80;
+                                          -fx-alignment: center;
+                                          -fx-font-size: 24px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #4a90d9;" />
+                        </HBox>
+                        <Separator />
+                        <GridPane hgap="10" vgap="12">
+                            <Label text="Date of Birth:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="0" textFill="#888"/>
+                            <Label fx:id="dobLabel" text="—"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Gender:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="1" textFill="#888"/>
+                            <Label fx:id="genderLabel" text="—"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Blood Type:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="2" textFill="#888"/>
+                            <Label fx:id="bloodTypeLabel" text="—"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #e53e3e;"/>
+
+                            <Label text="Phone:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="3" textFill="#888"/>
+                            <Label fx:id="phoneLabel" text="—"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                            <Label text="Email:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="4" textFill="#888"/>
+                            <Label fx:id="emailLabel" text="—"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                            <Label text="Allergies:" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="5" textFill="#888"/>
+                            <Label fx:id="allergiesLabel" text="—"
+                                   wrapText="true"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                        </GridPane>
+
+                        <Button text="+ New Appointment" styleClass="btn-primary"
+                                prefWidth="Infinity" onAction="#handleNewAppointment" />
+                    </VBox>
+                </VBox>
+
+                <!-- Правая колонка — история визитов -->
+                <VBox spacing="15" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Visit History"
+                               style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                    </HBox>
+
+                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                styleClass="patient-scroll">
+                        <VBox fx:id="historyContainer" spacing="10" />
+                    </ScrollPane>
+                </VBox>
+
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

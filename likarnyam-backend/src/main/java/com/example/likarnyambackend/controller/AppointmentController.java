@@ -29,4 +29,15 @@ public class AppointmentController {
                 ))
                 .orElse(ResponseEntity.notFound().build());
     }
+    // GET /api/appointments/patient/{patientId}
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<AppointmentResponse>> getPatientHistory(
+            @PathVariable Long patientId) {
+        return ResponseEntity.ok(
+                appointmentService.getPatientHistory(patientId)
+                        .stream()
+                        .map(AppointmentResponse::from)
+                        .toList()
+        );
+    }
 }

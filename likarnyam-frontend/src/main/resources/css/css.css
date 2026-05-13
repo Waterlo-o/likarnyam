@@ -247,3 +247,90 @@
     -fx-pref-height: 0;
     -fx-opacity: 0;
 }
+
+
+.menu-btn-logout {
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+}
+
+.menu-btn-logout:hover {
+    -fx-background-color: rgba(220, 50, 50, 0.3);
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+}
+
+
+/* ===== PATIENTS SCREEN ===== */
+
+.btn-primary {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 8 20 8 20;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #42A5F5;
+}
+
+.table-header {
+    -fx-background-color: #f7fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 15 10 15;
+}
+
+.table-header-cell {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #718096;
+}
+
+.patient-row {
+    -fx-padding: 12 15 12 15;
+    -fx-border-color: #f0f0f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: white;
+}
+
+.patient-row:hover {
+    -fx-background-color: #f7fafc;
+    -fx-cursor: hand;
+}
+
+.btn-back {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64B5F6;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-border-color: #64B5F6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 5 15 5 15;
+}
+
+.btn-back:hover {
+    -fx-background-color: #EBF8FF;
+}
+
+.history-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.history-card:hover {
+    -fx-border-color: #64B5F6;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+}
