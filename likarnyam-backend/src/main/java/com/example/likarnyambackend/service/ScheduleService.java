@@ -5,6 +5,7 @@ import com.example.likarnyambackend.model.Doctor;
 import com.example.likarnyambackend.model.Schedule;
 import com.example.likarnyambackend.repository.AppointmentRepository;
 import com.example.likarnyambackend.repository.ScheduleRepository;
+import com.example.likarnyambackend.dto.response.CalendarDayResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentService appointmentService;
 
     // Получить расписание врача
     public List<Schedule> getDoctorSchedule(Long doctorId) {
@@ -73,5 +75,46 @@ public class ScheduleService {
         }
 
         return slots;
+    }
+    public List<CalendarDayResponse> getCalendarData(Doctor doctor, int year, int month) {
+        List<Schedule> schedules = getDoctorSchedule(doctor.getId());
+        List<Appointment> appointments = appointmentService.getMonthAppointments(
+                doctor.getId(), year, month
+        );
+
+        LocalDate today = LocalDate.now();
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        int daysInMonth = firstDay.lengthOfMonth();
+
+        List<CalendarDayResponse> result = new ArrayList<>();
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            LocalDate date = LocalDate.of(year, month, day);
+            int dayOfWeek = date.getDayOfWeek().getValue();
+
+            CalendarDayResponse dto = new CalendarDayResponse();
+            dto.setDay(day);
+            dto.setToday(date.equals(today));
+
+            // Проверяем рабочий ли день
+            boolean isWorking = schedules.stream()
+                    .anyMatch(s -> s.getDayOfWeek().equals(dayOfWeek));
+            dto.setWorkingDay(isWorking);
+
+            // Считаем приёмы на этот день
+            List<Appointment> dayAppts = appointments.stream()
+                    .filter(a -> a.getAppointmentAt().toLocalDate().equals(date))
+                    .toList();
+
+            dto.setAppointmentCount(dayAppts.size());
+            dto.setAppointmentTimes(dayAppts.stream()
+                    .map(a -> a.getAppointmentAt().toLocalTime()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")))
+                    .toList());
+
+            result.add(dto);
+        }
+
+        return result;
     }
 }

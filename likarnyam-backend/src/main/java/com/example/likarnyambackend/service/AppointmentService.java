@@ -27,4 +27,10 @@ public class AppointmentService {
         return appointmentRepository
                 .findByPatientIdOrderByAppointmentAtDesc(patientId);
     }
+    public List<Appointment> getMonthAppointments(Long doctorId, int year, int month) {
+        LocalDateTime start = LocalDate.of(year, month, 1).atStartOfDay();
+        LocalDateTime end = LocalDate.of(year, month, 1)
+                .plusMonths(1).atStartOfDay().minusSeconds(1);
+        return appointmentRepository.findByDoctorIdAndMonth(doctorId, start, end);
+    }
 }

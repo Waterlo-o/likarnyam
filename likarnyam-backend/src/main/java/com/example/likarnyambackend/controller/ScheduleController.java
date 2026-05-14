@@ -1,5 +1,6 @@
 package com.example.likarnyambackend.controller;
 
+import com.example.likarnyambackend.dto.response.CalendarDayResponse;
 import com.example.likarnyambackend.model.Schedule;
 import com.example.likarnyambackend.service.DoctorService;
 import com.example.likarnyambackend.service.ScheduleService;
@@ -56,6 +57,19 @@ public class ScheduleController {
         return doctorService.getDoctorByEmail(principal.getName())
                 .map(doctor -> ResponseEntity.ok(
                         scheduleService.getAvailableSlots(doctor, date)
+                ))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // GET /api/schedule/calendar?year=2026&month=5
+    @GetMapping("/calendar")
+    public ResponseEntity<List<CalendarDayResponse>> getCalendar(
+            @RequestParam int year,
+            @RequestParam int month,
+            Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .map(doctor -> ResponseEntity.ok(
+                        scheduleService.getCalendarData(doctor, year, month)
                 ))
                 .orElse(ResponseEntity.notFound().build());
     }

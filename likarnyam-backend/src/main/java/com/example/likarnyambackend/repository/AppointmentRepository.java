@@ -12,7 +12,8 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId " +
+    // Приёмы врача за сегодня
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId " +
             "AND a.appointmentAt BETWEEN :start AND :end " +
             "ORDER BY a.appointmentAt ASC")
     List<Appointment> findTodayByDoctorId(
@@ -20,5 +21,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    // История визитов пациента
     List<Appointment> findByPatientIdOrderByAppointmentAtDesc(Long patientId);
+
+    // Все приёмы врача за месяц
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId " +
+            "AND a.appointmentAt BETWEEN :start AND :end " +
+            "ORDER BY a.appointmentAt ASC")
+    List<Appointment> findByDoctorIdAndMonth(
+            @Param("doctorId") Long doctorId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 }
