@@ -82,6 +82,7 @@ public class ScheduleService {
                 doctor.getId(), year, month
         );
 
+
         LocalDate today = LocalDate.now();
         LocalDate firstDay = LocalDate.of(year, month, 1);
         int daysInMonth = firstDay.lengthOfMonth();
@@ -96,20 +97,35 @@ public class ScheduleService {
             dto.setDay(day);
             dto.setToday(date.equals(today));
 
-            // Проверяем рабочий ли день
             boolean isWorking = schedules.stream()
                     .anyMatch(s -> s.getDayOfWeek().equals(dayOfWeek));
             dto.setWorkingDay(isWorking);
 
-            // Считаем приёмы на этот день
             List<Appointment> dayAppts = appointments.stream()
                     .filter(a -> a.getAppointmentAt().toLocalDate().equals(date))
                     .toList();
 
+            // Создаём AppointmentInfo для каждого приёма
+            List<CalendarDayResponse.AppointmentInfo> aptInfos = dayAppts.stream()
+                    .map(a -> {
+                        CalendarDayResponse.AppointmentInfo info =
+                                new CalendarDayResponse.AppointmentInfo();
+                        info.setTime(a.getAppointmentAt().toLocalTime()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+                        info.setPatientName(
+                                a.getPatient().getFirstName() + " " + a.getPatient().getLastName()
+                        );
+                        info.setReason(a.getReason());
+                        info.setAppointmentId(a.getId());
+                        info.setStatus(a.getStatus());
+                        return info;
+                    })
+                    .toList();
+
             dto.setAppointmentCount(dayAppts.size());
-            dto.setAppointmentTimes(dayAppts.stream()
-                    .map(a -> a.getAppointmentAt().toLocalTime()
-                            .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")))
+            dto.setAppointments(aptInfos);
+            dto.setAppointmentTimes(aptInfos.stream()
+                    .map(CalendarDayResponse.AppointmentInfo::getTime)
                     .toList());
 
             result.add(dto);

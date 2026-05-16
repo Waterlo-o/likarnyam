@@ -36,4 +36,27 @@ public class AppointmentApiClient {
 
         return objectMapper.readTree(response.body());
     }
+
+    public static void updateStatus(Long appointmentId, String status) throws Exception {
+        System.out.println("Updating status: id=" + appointmentId + " status=" + status);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(
+                baseRequest("/appointments/" + appointmentId + "/status?status=" + status)
+                        .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        System.out.println("Update status response: " + response.statusCode());
+        System.out.println("Update status body: " + response.body());
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
+    }
+
+    private static HttpRequest.Builder baseRequest(String path) {
+        String token = UserSession.getInstance().getJwtToken();
+        return HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/api" + path))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token);
+    }
 }

@@ -1,1 +1,92 @@
-<!-- TODO Sprint 2 — расписание врача -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@../css/css.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.ScheduleController">
+
+    <left>
+        <VBox prefWidth="80.0" styleClass="sidebar">
+            <padding><Insets top="20" bottom="20"/></padding>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox alignment="CENTER" spacing="30.0">
+                <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />
+                <Button styleClass="menu-btn" text="📅" onAction="#navigateSchedule" />
+                <Button styleClass="menu-btn" text="👥" onAction="#navigatePatients" />
+                <Button styleClass="menu-btn" text="📋" onAction="#navigateAppointments" />
+                <Button styleClass="menu-btn" text="⚙" onAction="#navigateSettings" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER">
+                <Button styleClass="menu-btn-logout" text="↪" onAction="#handleLogout" />
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" styleClass="main-content">
+            <BorderPane.margin>
+                <Insets bottom="15.0" right="15.0" top="15.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+
+            <!-- Шапка -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="Schedule"
+                       style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="prevMonthBtn" text="◀"
+                        styleClass="btn-nav" onAction="#prevMonth" />
+                <Label fx:id="monthLabel" text="May 2026"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-min-width: 140; -fx-alignment: center;" />
+                <Button fx:id="nextMonthBtn" text="▶"
+                        styleClass="btn-nav" onAction="#nextMonth" />
+            </HBox>
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                <!-- Календарь -->
+                <VBox styleClass="white-card" HBox.hgrow="ALWAYS"
+                      spacing="15" maxWidth="Infinity">
+
+                    <HBox spacing="5" maxWidth="Infinity">
+                        <Label text="Mon" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Tue" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Wed" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Thu" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Fri" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Sat" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Sun" styleClass="cal-weekday"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    </HBox>
+
+                    <VBox fx:id="calendarGrid" spacing="5"
+                          VBox.vgrow="ALWAYS" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Правая панель -->
+                <VBox fx:id="dayDetailPanel" styleClass="white-card"
+                      prefWidth="280" minWidth="280" maxWidth="280" spacing="15">
+                    <Label text="Select a day"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Click on any day to see details"
+                           textFill="#888" wrapText="true"/>
+                </VBox>
+
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

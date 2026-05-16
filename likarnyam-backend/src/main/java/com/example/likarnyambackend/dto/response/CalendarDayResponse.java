@@ -10,4 +10,14 @@ public class CalendarDayResponse {
     private boolean isToday;
     private int appointmentCount;
     private List<String> appointmentTimes;
+    private List<AppointmentInfo> appointments;
+
+    @Data
+    public static class AppointmentInfo {
+        private String time;
+        private String patientName;
+        private String reason;
+        private Long appointmentId;
+        private String status;
+    }
 }

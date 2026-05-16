@@ -168,8 +168,7 @@ public class HomeController {
 
     @FXML
     private void navigateSchedule() {
-        // TODO Sprint 2
-        System.out.println("Schedule — coming soon");
+        FxUtils.navigateFullscreen(totalVisitsLabel, "/fxml/schedule.fxml");
     }
 
     @FXML

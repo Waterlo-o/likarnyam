@@ -40,4 +40,13 @@ public class AppointmentController {
                         .toList()
         );
     }
+    // PATCH /api/appointments/{id}/status
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AppointmentResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        return appointmentService.updateStatus(id, status)
+                .map(apt -> ResponseEntity.ok(AppointmentResponse.from(apt)))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

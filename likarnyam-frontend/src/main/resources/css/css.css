@@ -334,3 +334,117 @@
     -fx-border-color: #64B5F6;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
 }
+
+
+
+/* ===== SCHEDULE SCREEN ===== */
+
+.btn-nav {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-padding: 6 14 6 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 4, 0, 0, 2);
+}
+
+.btn-nav:hover {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-border-color: #64B5F6;
+}
+
+.cal-weekday {
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-text-fill: #a0aec0;
+    -fx-max-width: Infinity;
+    -fx-padding: 0 0 8 0;
+}
+
+.cal-day {
+    -fx-background-color: #fafbfc;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-pref-height: 80px;
+    -fx-alignment: top-left;
+    -fx-padding: 10;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+}
+
+.cal-day:hover {
+    -fx-background-color: #EBF4FF;
+    -fx-border-color: #64B5F6;
+    -fx-effect: dropshadow(three-pass-box, rgba(100,181,246,0.2), 8, 0, 0, 3);
+}
+
+.cal-day-working {
+    -fx-background-color: #F0F7FF;
+    -fx-border-color: #dbeafe;
+}
+
+.cal-day-today {
+    -fx-background-color: #64B5F6;
+    -fx-border-color: #42A5F5;
+    -fx-effect: dropshadow(three-pass-box, rgba(100,181,246,0.4), 12, 0, 0, 4);
+}
+
+.cal-day-today:hover {
+    -fx-background-color: #42A5F5;
+    -fx-border-color: #2196F3;
+}
+
+.cal-day-empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: default;
+}
+
+.cal-day-empty:hover {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+.cal-day-number {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: #2d3748;
+}
+
+.cal-apt-dot {
+    -fx-background-color: #4299e1;
+    -fx-background-radius: 4;
+    -fx-min-width: 7;
+    -fx-min-height: 7;
+    -fx-max-width: 7;
+    -fx-max-height: 7;
+}
+
+.cal-apt-dot-today {
+    -fx-background-color: rgba(255,255,255,0.9);
+    -fx-background-radius: 4;
+    -fx-min-width: 7;
+    -fx-min-height: 7;
+    -fx-max-width: 7;
+    -fx-max-height: 7;
+}
+
+.detail-time-card {
+    -fx-background-color: #F0F7FF;
+    -fx-background-radius: 10;
+    -fx-padding: 10 15 10 15;
+    -fx-border-color: #dbeafe;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.detail-time-card:hover {
+    -fx-background-color: #dbeafe;
+    -fx-cursor: hand;
+}

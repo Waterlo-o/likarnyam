@@ -134,8 +134,9 @@ public class PatientListController {
         FxUtils.navigateFullscreen(patientTableContainer, "/fxml/home.fxml");
     }
     @FXML private void navigatePatients() { }
-    @FXML private void navigateSchedule() {
-        System.out.println("Schedule — coming soon");
+    @FXML
+    private void navigateSchedule() {
+        FxUtils.navigateFullscreen(patientTableContainer, "/fxml/schedule.fxml");
     }
     @FXML private void navigateAppointments() {
         System.out.println("Appointments — coming soon");

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,5 +33,11 @@ public class AppointmentService {
         LocalDateTime end = LocalDate.of(year, month, 1)
                 .plusMonths(1).atStartOfDay().minusSeconds(1);
         return appointmentRepository.findByDoctorIdAndMonth(doctorId, start, end);
+    }
+    public Optional<Appointment> updateStatus(Long id, String status) {
+        return appointmentRepository.findById(id).map(apt -> {
+            apt.setStatus(status);
+            return appointmentRepository.save(apt);
+        });
     }
 }
