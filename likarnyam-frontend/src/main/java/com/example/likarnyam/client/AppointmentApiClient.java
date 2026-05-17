@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 
 public class AppointmentApiClient {
 
@@ -35,6 +36,23 @@ public class AppointmentApiClient {
         }
 
         return objectMapper.readTree(response.body());
+    }
+
+    public static void createAppointment(Long patientId, LocalDateTime appointmentAt,
+                                         String reason, String notes) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        String body = String.format(
+                "{\"patientId\":%d,\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\"}",
+                patientId, appointmentAt.toString(), reason, notes
+        );
+        HttpResponse<String> response = client.send(
+                baseRequest("/appointments")
+                        .POST(HttpRequest.BodyPublishers.ofString(body))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
     }
 
     public static void updateStatus(Long appointmentId, String status) throws Exception {

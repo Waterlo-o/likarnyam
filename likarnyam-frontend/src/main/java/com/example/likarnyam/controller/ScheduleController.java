@@ -21,7 +21,9 @@ import javafx.scene.control.ScrollPane;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ScheduleController {
@@ -324,7 +326,6 @@ public class ScheduleController {
                     }
                 }
             }
-            // Выделение ячейки
             if (selectedCell != null) {
                 selectedCell.setStyle(selectedCellStyle);
             }
@@ -340,13 +341,25 @@ public class ScheduleController {
         return cell;
     }
 
+    private javafx.stage.Popup activePopup = null;
+    private VBox activePopupContent = null;
+
+    private int currentOpenDay = -1;
+    private boolean currentOpenDayWorking = false;
+    private int currentOpenDayAptCount = 0;
+
     private void showDayDetail(int dayNum, boolean isWorking,
                                int aptCount, JsonNode day) {
+        currentOpenDay = dayNum;
+        currentOpenDayWorking = isWorking;
+        currentOpenDayAptCount = aptCount;
+
         dayDetailPanel.getChildren().clear();
         dayDetailPanel.setPadding(new Insets(20));
 
         LocalDate date = LocalDate.of(currentYear, currentMonth, dayNum);
         String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d"));
+        
 
         Label dateLabel = new Label(dateStr);
         dateLabel.setStyle(
@@ -540,197 +553,382 @@ public class ScheduleController {
         dayDetailPanel.getChildren().add(scrollPane);
     }
 
+    private int currentAptIndex = 0;
+    private List<JsonNode> currentApts = new ArrayList<>();
+
     private void showAppointmentPopup(JsonNode apt, HBox anchor, HBox card) {
+        // Находим индекс текущего приёма в списке
+        if (currentDays != null) {
+            currentApts.clear();
+            for (JsonNode day : currentDays) {
+                if (day.has("appointments")) {
+                    for (JsonNode a : day.get("appointments")) {
+                        if (a.get("appointmentId").asLong() == apt.get("appointmentId").asLong()) {
+                            // Нашли день — берём все приёмы этого дня
+                            for (JsonNode da : day.get("appointments")) {
+                                currentApts.add(da);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            currentAptIndex = currentApts.indexOf(apt);
+            if (currentAptIndex < 0) currentAptIndex = 0;
+        }
+
+        buildPopup(apt, anchor, card);
+    }
+
+    private JsonNode currentPopupApt = null;
+
+    private void buildPopup(JsonNode apt, HBox anchor, HBox card) {
         String timeStr = apt.get("time").asText();
         String patientName = apt.get("patientName").asText();
         String reason = apt.get("reason").asText();
         Long aptId = apt.get("appointmentId").asLong();
+        String aptStatus = apt.has("status") ? apt.get("status").asText() : "SCHEDULED";
 
-        javafx.stage.Popup popup = new javafx.stage.Popup();
-        popup.setAutoHide(true);
+        java.util.concurrent.atomic.AtomicReference<String> currentStatus =
+                new java.util.concurrent.atomic.AtomicReference<>(aptStatus);
 
-        VBox content = new VBox(12);
+        currentPopupApt = apt;
+
+
+        if (activePopup == null || !activePopup.isShowing()) {
+            activePopup = new javafx.stage.Popup();
+            activePopup.setAutoHide(true);
+        }
+        javafx.stage.Popup popup = activePopup;
+
+        VBox content = new VBox(0);
         content.setStyle(
                 "-fx-background-color: white;" +
-                        "-fx-background-radius: 16;" +
+                        "-fx-background-radius: 20;" +
                         "-fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 16;" +
+                        "-fx-border-radius: 20;" +
                         "-fx-border-width: 1;" +
-                        "-fx-padding: 20;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 20, 0, 0, 8);"
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 30, 0, 0, 10);"
         );
-        content.setPrefWidth(340);
+        content.setPrefWidth(380);
 
-        Label title = new Label("Appointment Details");
-        title.setStyle(
-                "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2d3748;"
+        // ── Шапка ──────────────────────────────────────────
+        HBox header = new HBox(10);
+        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        header.setStyle(
+                "-fx-background-color: #64B5F6;" +
+                        "-fx-background-radius: 20 20 0 0;" +
+                        "-fx-padding: 16 20 16 20;"
         );
 
-        Separator sep = new Separator();
+        VBox headerInfo = new VBox(4);
+        HBox.setHgrow(headerInfo, Priority.ALWAYS);
 
-        HBox timeRow = createPopupRow("Time", timeStr);
-        HBox patientRow = createPopupRow("Patient", patientName);
-        HBox reasonRow = createPopupRow("Reason", reason);
+        Label headerTime = new Label("🕐 " + timeStr);
+        headerTime.setStyle(
+                "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"
+        );
 
-        Separator sep2 = new Separator();
+        // Статус бейдж в шапке
+        String statusText = switch (aptStatus) {
+            case "COMPLETED" -> "✓ Completed";
+            case "CANCELLED" -> "✕ Cancelled";
+            case "NO_SHOW" -> "? No Show";
+            default -> "● Scheduled";
+        };
+        String statusBg = switch (aptStatus) {
+            case "COMPLETED" -> "rgba(198,246,213,0.9)";
+            case "CANCELLED" -> "rgba(254,215,215,0.9)";
+            case "NO_SHOW" -> "rgba(254,252,191,0.9)";
+            default -> "rgba(255,255,255,0.3)";
+        };
+        String statusFg = switch (aptStatus) {
+            case "COMPLETED" -> "#276749";
+            case "CANCELLED" -> "#c53030";
+            case "NO_SHOW" -> "#744210";
+            default -> "white";
+        };
 
-        // Статус кнопки
-        Label statusTitle = new Label("Change Status");
+        Label statusBadge = new Label(statusText);
+        statusBadge.setStyle(
+                "-fx-background-color: " + statusBg + ";" +
+                        "-fx-text-fill: " + statusFg + ";" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 3 10 3 10;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        headerInfo.getChildren().addAll(headerTime, statusBadge);
+
+        // Навигация ◀ ▶
+        Button prevBtn = new Button("◀");
+        Button nextBtn = new Button("▶");
+        String navStyle =
+                "-fx-background-color: rgba(255,255,255,0.2);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 4 10 4 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-size: 12px;";
+        prevBtn.setStyle(navStyle);
+        nextBtn.setStyle(navStyle);
+        prevBtn.setDisable(currentAptIndex <= 0);
+        nextBtn.setDisable(currentAptIndex >= currentApts.size() - 1);
+
+        Label navCounter = new Label((currentAptIndex + 1) + "/" + currentApts.size());
+        navCounter.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px;");
+
+        VBox navBox = new VBox(4);
+        navBox.setAlignment(javafx.geometry.Pos.CENTER);
+        navBox.getChildren().addAll(
+                new HBox(4, prevBtn, nextBtn),
+                navCounter
+        );
+        ((HBox) navBox.getChildren().get(0)).setAlignment(javafx.geometry.Pos.CENTER);
+
+        header.getChildren().addAll(headerInfo, navBox);
+
+        // ── Тело ───────────────────────────────────────────
+        VBox body = new VBox(12);
+        body.setStyle("-fx-padding: 20;");
+
+        // Инфо о пациенте
+        VBox patientCard = new VBox(8);
+        patientCard.setStyle(
+                "-fx-background-color: #f7fafc;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 12 16 12 16;" +
+                        "-fx-border-color: #e2e8f0;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-width: 1;"
+        );
+
+        // Аватар + имя
+        HBox patientHeader = new HBox(12);
+        patientHeader.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        String initials = patientName.contains(" ")
+                ? String.valueOf(patientName.charAt(0)) +
+                String.valueOf(patientName.split(" ")[1].charAt(0))
+                : String.valueOf(patientName.charAt(0));
+
+        Label avatar = new Label(initials);
+        avatar.setStyle(
+                "-fx-background-color: #d6e4ff;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-min-width: 40; -fx-min-height: 40;" +
+                        "-fx-max-width: 40; -fx-max-height: 40;" +
+                        "-fx-alignment: center;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-text-fill: #4a90d9;"
+        );
+
+        VBox patientInfo = new VBox(2);
+        Label patientNameLabel = new Label(patientName);
+        patientNameLabel.setStyle(
+                "-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2d3748;"
+        );
+        Label patientSubLabel = new Label("Patient");
+        patientSubLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #a0aec0;");
+        patientInfo.getChildren().addAll(patientNameLabel, patientSubLabel);
+
+        patientHeader.getChildren().addAll(avatar, patientInfo);
+        patientCard.getChildren().add(patientHeader);
+
+        // Детали приёма
+        Separator infoSep = new Separator();
+        infoSep.setStyle("-fx-padding: 4 0 4 0;");
+        patientCard.getChildren().add(infoSep);
+
+        patientCard.getChildren().add(createDetailRow("Duration", "30 minutes"));
+        patientCard.getChildren().add(createDetailRow("Reason", reason));
+
+        body.getChildren().add(patientCard);
+
+        // ── Смена статуса ──────────────────────────────────
+        Label statusTitle = new Label("Update Status");
         statusTitle.setStyle(
-                "-fx-font-size: 12px; -fx-text-fill: #718096; -fx-font-weight: bold;"
+                "-fx-font-size: 12px; -fx-text-fill: #718096; " +
+                        "-fx-font-weight: bold; -fx-padding: 4 0 4 0;"
         );
+        body.getChildren().add(statusTitle);
 
         HBox statusButtons = new HBox(8);
-        statusButtons.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        statusButtons.setAlignment(javafx.geometry.Pos.CENTER);
 
-        Button completedBtn = new Button("✓ Completed");
-        completedBtn.setStyle(
-                "-fx-background-color: #c6f6d5;" +
-                        "-fx-text-fill: #276749;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-padding: 6 12 6 12;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;"
-        );
+        Button completedBtn = createStatusBtn("✓", "Completed", "#c6f6d5", "#276749");
+        Button noShowBtn = createStatusBtn("?", "No Show", "#fefcbf", "#744210");
+        Button cancelBtn = createStatusBtn("✕", "Cancelled", "#fed7d7", "#c53030");
 
-        Button noShowBtn = new Button("? No Show");
-        noShowBtn.setStyle(
-                "-fx-background-color: #fefcbf;" +
-                        "-fx-text-fill: #744210;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-padding: 6 12 6 12;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;"
-        );
+        // Выделяем активный статус
+        highlightActiveStatus(aptStatus, completedBtn, noShowBtn, cancelBtn);
 
-        Button cancelBtn = new Button("✕ Cancelled");
-        cancelBtn.setStyle(
-                "-fx-background-color: #fed7d7;" +
-                        "-fx-text-fill: #c53030;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-padding: 6 12 6 12;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        completedBtn.setMaxWidth(Double.MAX_VALUE);
-        cancelBtn.setMaxWidth(Double.MAX_VALUE);
-        noShowBtn.setMaxWidth(Double.MAX_VALUE);
-
-        // Результат действия
         Label resultLabel = new Label("");
-        resultLabel.setStyle("-fx-font-size: 12px;");
+        resultLabel.setStyle("-fx-font-size: 11px;");
 
-        completedBtn.setOnAction(e -> {
-            new Thread(() -> {
-                try {
-                    VBox info = (VBox) card.getChildren().get(1);
-                    boolean alreadyCompleted = info.getChildren().size() >= 4 &&
-                            ((Label) info.getChildren().get(3)).getText().contains("Completed");
+        completedBtn.setOnAction(e -> handleStatusChange(
+                aptId, "COMPLETED", currentStatus, card, popup, resultLabel,
+                completedBtn, noShowBtn, cancelBtn
+        ));
+        noShowBtn.setOnAction(e -> handleStatusChange(
+                aptId, "NO_SHOW", currentStatus, card, popup, resultLabel,
+                completedBtn, noShowBtn, cancelBtn
+        ));
+        cancelBtn.setOnAction(e -> handleStatusChange(
+                aptId, "CANCELLED", currentStatus, card, popup, resultLabel,
+                completedBtn, noShowBtn, cancelBtn
+        ));
 
-                    String newStatus = alreadyCompleted ? "SCHEDULED" : "COMPLETED";
-                    AppointmentApiClient.updateStatus(aptId, newStatus);
+        HBox.setHgrow(completedBtn, Priority.ALWAYS);
+        HBox.setHgrow(noShowBtn, Priority.ALWAYS);
+        HBox.setHgrow(cancelBtn, Priority.ALWAYS);
+        completedBtn.setMaxWidth(Double.MAX_VALUE);
+        noShowBtn.setMaxWidth(Double.MAX_VALUE);
+        cancelBtn.setMaxWidth(Double.MAX_VALUE);
 
-                    Platform.runLater(() -> {
-                        if (newStatus.equals("SCHEDULED")) {
-                            resetCardVisual(card);
-                        } else {
-                            updateCardVisual(card, "COMPLETED");
-                        }
-                        popup.hide();
-                        // Перезагружаем данные календаря в фоне
-                        reloadCalendarData();
-                    });
-                } catch (Exception ex) {
-                    Platform.runLater(() -> resultLabel.setText("Failed to update"));
-                }
-            }).start();
-        });
+        statusButtons.getChildren().addAll(completedBtn, noShowBtn, cancelBtn);
+        body.getChildren().addAll(statusButtons, resultLabel);
 
-        noShowBtn.setOnAction(e -> {
-            new Thread(() -> {
-                try {
-                    VBox info = (VBox) card.getChildren().get(1);
-                    boolean alreadyNoShow = info.getChildren().size() >= 4 &&
-                            ((Label) info.getChildren().get(3)).getText().contains("No Show");
-
-                    String newStatus = alreadyNoShow ? "SCHEDULED" : "NO_SHOW";
-                    System.out.println("Setting status to: " + newStatus);
-                    AppointmentApiClient.updateStatus(aptId, newStatus);
-
-                    Platform.runLater(() -> {
-                        if (newStatus.equals("SCHEDULED")) {
-                            resetCardVisual(card);
-                        } else {
-                            updateCardVisual(card, "NO_SHOW");
-                        }
-                        popup.hide();
-                        reloadCalendarData();
-                    });
-                } catch (Exception ex) {
-                    Platform.runLater(() -> resultLabel.setText("Failed to update"));
-                }
-            }).start();
-        });
-
-        cancelBtn.setOnAction(e -> {
-            new Thread(() -> {
-                try {
-                    VBox info = (VBox) card.getChildren().get(1);
-                    boolean alreadyCancelled = info.getChildren().size() >= 4 &&
-                            ((Label) info.getChildren().get(3)).getText().contains("Cancelled");
-
-                    String newStatus = alreadyCancelled ? "SCHEDULED" : "CANCELLED";
-                    AppointmentApiClient.updateStatus(aptId, newStatus);
-
-                    Platform.runLater(() -> {
-                        if (newStatus.equals("SCHEDULED")) {
-                            resetCardVisual(card);
-                        } else {
-                            updateCardVisual(card, "CANCELLED");
-                        }
-                        popup.hide();
-                        reloadCalendarData();
-                    });
-                } catch (Exception ex) {
-                    Platform.runLater(() -> resultLabel.setText("Failed to update"));
-                }
-            }).start();
-        });
-
-        statusButtons.getChildren().addAll(completedBtn, noShowBtn, cancelBtn );
-
+        // ── Кнопка закрыть ─────────────────────────────────
         Button closeBtn = new Button("Close");
+        closeBtn.setMaxWidth(Double.MAX_VALUE);
         closeBtn.setStyle(
                 "-fx-background-color: #f7fafc;" +
                         "-fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-padding: 6 20 6 20;" +
-                        "-fx-cursor: hand;"
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 8 20 8 20;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-text-fill: #4a5568;" +
+                        "-fx-font-weight: bold;"
         );
         closeBtn.setOnAction(e -> popup.hide());
+        body.getChildren().add(closeBtn);
 
-        content.getChildren().add(title);
-        content.getChildren().add(sep);
-        content.getChildren().add(timeRow);
-        content.getChildren().add(patientRow);
-        content.getChildren().add(reasonRow);
-        content.getChildren().add(sep2);
-        content.getChildren().add(statusTitle);
-        content.getChildren().add(statusButtons);
-        content.getChildren().add(resultLabel);
-        content.getChildren().add(closeBtn);
-
+        content.getChildren().addAll(header, body);
+        popup.getContent().clear();
         popup.getContent().add(content);
 
+        if (!popup.isShowing()) {
+            javafx.stage.Window window = anchor.getScene().getWindow();
+            double centerX = window.getX() + window.getWidth() / 2 - 190;
+            double centerY = window.getY() + window.getHeight() / 2 - 220;
+            popup.show(anchor, centerX, centerY);
+        }
+
+        // Навигация между приёмами
+        prevBtn.setOnAction(e -> {
+            if (currentAptIndex > 0) {
+                currentAptIndex--;
+                popup.hide();
+                buildPopup(currentApts.get(currentAptIndex), anchor, card);
+            }
+        });
+        nextBtn.setOnAction(e -> {
+            if (currentAptIndex < currentApts.size() - 1) {
+                currentAptIndex++;
+                popup.hide();
+                buildPopup(currentApts.get(currentAptIndex), anchor, card);
+            }
+        });
+
         javafx.stage.Window window = anchor.getScene().getWindow();
-        double centerX = window.getX() + window.getWidth() / 2 - 160;
-        double centerY = window.getY() + window.getHeight() / 2 - 200;
+        double centerX = window.getX() + window.getWidth() / 2 - 190;
+        double centerY = window.getY() + window.getHeight() / 2 - 220;
         popup.show(anchor, centerX, centerY);
+    }
+
+    // Вспомогательные методы
+    private HBox createDetailRow(String label, String value) {
+        HBox row = new HBox(10);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label l = new Label(label + ":");
+        l.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 12px; -fx-min-width: 70;");
+        Label v = new Label(value);
+        v.setStyle("-fx-text-fill: #2d3748; -fx-font-size: 12px; -fx-font-weight: bold;");
+        v.setWrapText(true);
+        row.getChildren().addAll(l, v);
+        return row;
+    }
+
+    private Button createStatusBtn(String icon, String text, String bg, String fg) {
+        Button btn = new Button(icon + " " + text);
+        btn.setStyle(
+                "-fx-background-color: " + bg + ";" +
+                        "-fx-text-fill: " + fg + ";" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-padding: 8 12 8 12;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 12px;"
+        );
+        return btn;
+    }
+
+    private void highlightActiveStatus(String status, Button completed,
+                                       Button noShow, Button cancel) {
+        String activeStyle = "-fx-border-width: 2; -fx-border-color: #2d3748;";
+        if (status.equals("COMPLETED"))
+            completed.setStyle(completed.getStyle() + activeStyle);
+        else if (status.equals("NO_SHOW"))
+            noShow.setStyle(noShow.getStyle() + activeStyle);
+        else if (status.equals("CANCELLED"))
+            cancel.setStyle(cancel.getStyle() + activeStyle);
+    }
+
+    private void handleStatusChange(Long aptId, String newStatusRaw,
+                                    java.util.concurrent.atomic.AtomicReference<String> currentStatus,
+                                    HBox card, javafx.stage.Popup popup, Label resultLabel,
+                                    Button completedBtn, Button noShowBtn, Button cancelBtn) {
+
+        String newStatus = currentStatus.get().equals(newStatusRaw)
+                ? "SCHEDULED" : newStatusRaw;
+
+        new Thread(() -> {
+            try {
+                AppointmentApiClient.updateStatus(aptId, newStatus);
+                Platform.runLater(() -> {
+                    currentStatus.set(newStatus); // обновляем текущий статус
+                    reloadCalendarData();
+                    updatePopupStatus(newStatus);
+
+                    resetButtonStyle(completedBtn, "#c6f6d5", "#276749");
+                    resetButtonStyle(noShowBtn, "#fefcbf", "#744210");
+                    resetButtonStyle(cancelBtn, "#fed7d7", "#c53030");
+
+                    if (!newStatus.equals("SCHEDULED")) {
+                        Button activeBtn = switch (newStatus) {
+                            case "COMPLETED" -> completedBtn;
+                            case "NO_SHOW" -> noShowBtn;
+                            case "CANCELLED" -> cancelBtn;
+                            default -> null;
+                        };
+                        if (activeBtn != null) {
+                            activeBtn.setStyle(activeBtn.getStyle() +
+                                    "-fx-border-width: 2; -fx-border-color: #2d3748;");
+                        }
+                    }
+                });
+            } catch (Exception ex) {
+                Platform.runLater(() -> resultLabel.setText("Failed to update"));
+            }
+        }).start();
+    }
+
+    private void resetButtonStyle(Button btn, String bg, String fg) {
+        btn.setStyle(
+                "-fx-background-color: " + bg + ";" +
+                        "-fx-text-fill: " + fg + ";" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-padding: 8 12 8 12;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 12px;"
+        );
     }
 
     private void resetCardVisual(HBox card) {
@@ -816,13 +1014,86 @@ public class ScheduleController {
                 JsonNode days = ScheduleApiClient.getCalendar(currentYear, currentMonth);
                 Platform.runLater(() -> {
                     currentDays = days;
-                    // Обновляем только точки на ячейках без полной перестройки
                     updateDotCounts(days);
+
+                    // Обновляем правую панель если день открыт
+                    if (currentOpenDay > 0) {
+                        for (JsonNode d : days) {
+                            if (d.get("day").asInt() == currentOpenDay) {
+                                showDayDetail(
+                                        currentOpenDay,
+                                        d.get("workingDay").asBoolean(),
+                                        d.get("appointmentCount").asInt(),
+                                        d
+                                );
+                                break;
+                            }
+                        }
+                    }
+
+                    if (activePopup != null && activePopup.isShowing()
+                            && currentPopupApt != null) {
+                        Long aptId = currentPopupApt.get("appointmentId").asLong();
+                        for (JsonNode day : days) {
+                            if (day.has("appointments")) {
+                                for (JsonNode a : day.get("appointments")) {
+                                    if (a.get("appointmentId").asLong() == aptId) {
+                                        currentPopupApt = a;
+                                        updatePopupStatus(a.has("status") ?
+                                                a.get("status").asText() : "SCHEDULED");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private void updatePopupStatus(String status) {
+        if (activePopup == null || activePopup.getContent().isEmpty()) return;
+
+        VBox content = (VBox) activePopup.getContent().get(0);
+        HBox header = (HBox) content.getChildren().get(0);
+        VBox headerInfo = (VBox) header.getChildren().get(0);
+
+        // Второй элемент headerInfo — это statusBadge
+        if (headerInfo.getChildren().size() >= 2) {
+            Label statusBadge = (Label) headerInfo.getChildren().get(1);
+
+            String statusText = switch (status) {
+                case "COMPLETED" -> "✓ Completed";
+                case "CANCELLED" -> "✕ Cancelled";
+                case "NO_SHOW" -> "? No Show";
+                default -> "● Scheduled";
+            };
+            String statusBg = switch (status) {
+                case "COMPLETED" -> "rgba(198,246,213,0.9)";
+                case "CANCELLED" -> "rgba(254,215,215,0.9)";
+                case "NO_SHOW" -> "rgba(254,252,191,0.9)";
+                default -> "rgba(255,255,255,0.3)";
+            };
+            String statusFg = switch (status) {
+                case "COMPLETED" -> "#276749";
+                case "CANCELLED" -> "#c53030";
+                case "NO_SHOW" -> "#744210";
+                default -> "white";
+            };
+
+            statusBadge.setText(statusText);
+            statusBadge.setStyle(
+                    "-fx-background-color: " + statusBg + ";" +
+                            "-fx-text-fill: " + statusFg + ";" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 3 10 3 10;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-font-weight: bold;"
+            );
+        }
     }
 
     private void updateDotCounts(JsonNode days) {

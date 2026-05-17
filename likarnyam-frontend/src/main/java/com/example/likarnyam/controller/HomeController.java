@@ -10,7 +10,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -19,7 +21,14 @@ import javafx.scene.text.Text;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.stage.Stage;import com.example.likarnyam.client.ScheduleApiClient;
+import javafx.geometry.Pos;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class HomeController {
 
@@ -35,6 +44,8 @@ public class HomeController {
     @FXML private Label consultationNotes;
     @FXML private Label scheduledLabel;
     @FXML private Label completedLabel;
+    @FXML private Label calMonthLabel;
+    @FXML private VBox homeCalendarGrid;
 
     @FXML
     public void initialize() {
@@ -109,6 +120,214 @@ public class HomeController {
                 }
             }
         }).start();
+
+        loadHomeCalendar();
+    }
+
+    private void loadHomeCalendar() {
+        LocalDate now = LocalDate.now();
+        calMonthLabel.setText(
+                now.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+        );
+
+        new Thread(() -> {
+            try {
+                JsonNode days = ScheduleApiClient.getCalendar(
+                        now.getYear(), now.getMonthValue()
+                );
+                Platform.runLater(() -> buildHomeCalendar(days));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void buildHomeCalendar(JsonNode days) {
+        homeCalendarGrid.getChildren().clear();
+
+        LocalDate firstDay = LocalDate.now().withDayOfMonth(1);
+        int startDayOfWeek = firstDay.getDayOfWeek().getValue();
+
+        GridPane grid = new GridPane();
+        grid.setHgap(3);
+        grid.setVgap(3);
+        grid.setMaxWidth(Double.MAX_VALUE);
+
+        for (int i = 0; i < 7; i++) {
+            ColumnConstraints col = new ColumnConstraints();
+            col.setPercentWidth(100.0 / 7);
+            col.setHgrow(Priority.ALWAYS);
+            grid.getColumnConstraints().add(col);
+        }
+
+        int col = startDayOfWeek - 1;
+        int row = 0;
+
+        // Дни предыдущего месяца
+        LocalDate prevMonth = firstDay.minusMonths(1);
+        int daysInPrevMonth = prevMonth.lengthOfMonth();
+        for (int i = startDayOfWeek - 1; i > 0; i--) {
+            int prevDay = daysInPrevMonth - i + 1;
+            Label cell = createHomeCalCell(
+                    String.valueOf(prevDay), false, false, 0, true
+            );
+            grid.add(cell, startDayOfWeek - i - 1, 0);
+        }
+
+        // Дни текущего месяца
+        for (JsonNode day : days) {
+            int dayNum = day.get("day").asInt();
+            boolean isWorking = day.get("workingDay").asBoolean();
+            boolean isToday = day.get("today").asBoolean();
+            int aptCount = day.get("appointmentCount").asInt();
+
+            Label cell = createHomeCalCell(
+                    String.valueOf(dayNum), isWorking, isToday, aptCount, false
+            );
+
+            // Клик → Schedule
+            if (isWorking) {
+                cell.setOnMouseClicked(e ->
+                        FxUtils.navigateFullscreen(homeCalendarGrid, "/fxml/schedule.fxml")
+                );
+            }
+
+            grid.add(cell, col, row);
+            col++;
+            if (col == 7) { col = 0; row++; }
+        }
+
+        // Дни следующего месяца
+        int nextDay = 1;
+        while (col < 7 && col > 0) {
+            Label cell = createHomeCalCell(
+                    String.valueOf(nextDay), false, false, 0, true
+            );
+            grid.add(cell, col, row);
+            col++;
+            nextDay++;
+        }
+
+        homeCalendarGrid.getChildren().add(grid);
+
+        // Мини статистика снизу
+        addCalendarFooter(days);
+    }
+
+    private Label createHomeCalCell(String text, boolean isWorking,
+                                    boolean isToday, int aptCount,
+                                    boolean isAdjacent) {
+        Label cell = new Label(text);
+        cell.setMaxWidth(Double.MAX_VALUE);
+        cell.setAlignment(Pos.CENTER);
+        cell.setPrefHeight(26);
+
+        if (isAdjacent) {
+            cell.setStyle("-fx-text-fill: #cbd5e0; -fx-font-size: 11px;");
+            return cell;
+        }
+
+        if (isToday) {
+            cell.setStyle(
+                    "-fx-background-color: #64B5F6;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-cursor: hand;"
+            );
+        } else if (isWorking && aptCount > 0) {
+            String intensity = aptCount >= 5 ? "#FED7D7" : aptCount >= 3 ? "#BEE3F8" : "#EBF4FF";
+            String textColor = aptCount >= 5 ? "#c53030" : "#2b6cb0";
+            cell.setStyle(
+                    "-fx-background-color: " + intensity + ";" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;"
+            );
+            // Tooltip с количеством
+            Tooltip tooltip = new Tooltip(aptCount + " appointment" + (aptCount > 1 ? "s" : ""));
+            tooltip.setStyle("-fx-font-size: 11px;");
+            Tooltip.install(cell, tooltip);
+        } else if (isWorking) {
+            cell.setStyle(
+                    "-fx-background-color: #F0FFF4;" +
+                            "-fx-text-fill: #276749;" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-cursor: hand;"
+            );
+        } else {
+            cell.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 11px;");
+        }
+
+        return cell;
+    }
+
+    private void addCalendarFooter(JsonNode days) {
+        int totalApts = 0;
+        int totalSlots = 0;
+
+        for (JsonNode day : days) {
+            totalApts += day.get("appointmentCount").asInt();
+            // Считаем рабочие дни — в каждом ~16 слотов (8 часов / 30 мин)
+            if (day.get("workingDay").asBoolean()) {
+                totalSlots += 16;
+            }
+        }
+
+        int freeSlots = totalSlots - totalApts;
+
+        Separator sep = new Separator();
+        VBox.setMargin(sep, new Insets(8, 0, 15, 0));
+
+        // Статистика
+        HBox stats = new HBox(10);
+        stats.setAlignment(Pos.CENTER);
+
+        VBox aptsBox = createStatBox(
+                String.valueOf(totalApts),
+                "booked",
+                "#EBF4FF", "#2b6cb0"
+        );
+
+        VBox freeBox = createStatBox(
+                String.valueOf(freeSlots),
+                "available",
+                "#F0FFF4", "#276749"
+        );
+
+        HBox.setHgrow(aptsBox, Priority.ALWAYS);
+        HBox.setHgrow(freeBox, Priority.ALWAYS);
+        stats.getChildren().addAll(aptsBox, freeBox);
+
+        homeCalendarGrid.getChildren().addAll(sep, stats);
+    }
+
+    private VBox createStatBox(String number, String label,
+                               String bg, String fg) {
+        VBox box = new VBox(2);
+        box.setAlignment(Pos.CENTER);
+        box.setStyle(
+                "-fx-background-color: " + bg + ";" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 8 12 8 12;"
+        );
+
+        Label numLabel = new Label(number);
+        numLabel.setStyle(
+                "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + fg + ";"
+        );
+
+        Label textLabel = new Label(label);
+        textLabel.setStyle(
+                "-fx-font-size: 11px; -fx-text-fill: " + fg + "; -fx-opacity: 0.8;"
+        );
+
+        box.getChildren().addAll(numLabel, textLabel);
+        return box;
     }
 
     private HBox createPatientListItem(JsonNode appointment) {

@@ -1,7 +1,11 @@
 package com.example.likarnyambackend.service;
 
+import com.example.likarnyambackend.dto.request.AppointmentCreateRequest;
+import com.example.likarnyambackend.dto.response.AppointmentResponse;
 import com.example.likarnyambackend.model.Appointment;
+import com.example.likarnyambackend.model.Doctor;
 import com.example.likarnyambackend.repository.AppointmentRepository;
+import com.example.likarnyambackend.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +38,30 @@ public class AppointmentService {
                 .plusMonths(1).atStartOfDay().minusSeconds(1);
         return appointmentRepository.findByDoctorIdAndMonth(doctorId, start, end);
     }
+
     public Optional<Appointment> updateStatus(Long id, String status) {
         return appointmentRepository.findById(id).map(apt -> {
             apt.setStatus(status);
             return appointmentRepository.save(apt);
         });
+    }
+
+    private final PatientRepository patientRepository;
+
+    public AppointmentResponse createAppointment(
+            AppointmentCreateRequest request, Doctor doctor) {
+
+        Appointment appointment = new Appointment();
+        appointment.setDoctor(doctor);
+        appointment.setPatient(patientRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new RuntimeException("Patient not found")));
+        appointment.setAppointmentAt(request.getAppointmentAt());
+        appointment.setDurationMinutes(30);
+        appointment.setStatus("SCHEDULED");
+        appointment.setReason(request.getReason());
+        appointment.setNotes(request.getNotes());
+        appointment.setCreatedAt(java.time.LocalDateTime.now());
+
+        return AppointmentResponse.from(appointmentRepository.save(appointment));
     }
 }

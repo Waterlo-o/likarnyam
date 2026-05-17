@@ -1,5 +1,6 @@
 package com.example.likarnyambackend.controller;
 
+import com.example.likarnyambackend.dto.request.AppointmentCreateRequest;
 import com.example.likarnyambackend.dto.response.AppointmentResponse;
 import com.example.likarnyambackend.service.AppointmentService;
 import com.example.likarnyambackend.service.DoctorService;
@@ -47,6 +48,16 @@ public class AppointmentController {
             @RequestParam String status) {
         return appointmentService.updateStatus(id, status)
                 .map(apt -> ResponseEntity.ok(AppointmentResponse.from(apt)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @PostMapping
+    public ResponseEntity<AppointmentResponse> createAppointment(
+            @RequestBody AppointmentCreateRequest request,
+            Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .map(doctor -> ResponseEntity.ok(
+                        appointmentService.createAppointment(request, doctor)
+                ))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

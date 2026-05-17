@@ -5,12 +5,16 @@ import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class PatientCardController {
 
@@ -124,10 +128,27 @@ public class PatientCardController {
         return "—";
     }
 
-    @FXML private void handleNewAppointment() {
-        System.out.println("New Appointment — coming soon");
-    }
+    @FXML
+    private void handleNewAppointment() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/new-appointment.fxml")
+            );
+            Parent root = loader.load();
+            AppointmentController controller = loader.getController();
+            controller.setPatient(patientId,
+                    patientNameLabel.getText());
 
+            Stage stage = new Stage();
+            stage.setTitle("New Appointment");
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @FXML private void navigateHome() {
         FxUtils.navigateFullscreen(patientNameLabel, "/fxml/home.fxml");
     }

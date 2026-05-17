@@ -1,4 +1,12 @@
 package com.example.likarnyambackend.dto.request;
 
-// TODO Sprint 2 — { doctorId, patientId, appointmentAt, reason }
-public class AppointmentCreateRequest {}
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+public class AppointmentCreateRequest {
+    private Long patientId;
+    private LocalDateTime appointmentAt;
+    private String reason;
+    private String notes;
+}

@@ -154,10 +154,25 @@
 
                 <VBox spacing="20.0" prefWidth="350.0">
                     <VBox styleClass="white-card" spacing="10.0" prefHeight="350.0">
-                        <Label text="Calendar">
-                            <font><Font name="System Bold" size="16.0" /></font>
-                        </Label>
-                        <Label text="Календарь" textFill="#aaa" alignment="CENTER" prefHeight="250.0" prefWidth="300.0"/>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Calendar" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="calMonthLabel" text=""
+                                   style="-fx-font-size: 12px; -fx-text-fill: #718096;"/>
+                        </HBox>
+
+                        <!-- Дни недели -->
+                        <HBox spacing="2">
+                            <Label text="Mo" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="Tu" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="We" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="Th" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="Fr" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="Sa" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Label text="Su" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+
+                        <VBox fx:id="homeCalendarGrid" spacing="2" VBox.vgrow="ALWAYS"/>
                     </VBox>
 
                     <VBox styleClass="white-card" spacing="15.0" VBox.vgrow="ALWAYS">

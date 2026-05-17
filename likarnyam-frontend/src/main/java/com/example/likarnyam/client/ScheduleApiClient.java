@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 
 public class ScheduleApiClient {
 
@@ -26,6 +27,17 @@ public class ScheduleApiClient {
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = client.send(
                 baseRequest("/schedule/calendar?year=" + year + "&month=" + month)
+                        .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
+        return objectMapper.readTree(response.body());
+    }
+    public static JsonNode getAvailableSlots(LocalDate date) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(
+                baseRequest("/schedule/slots?date=" + date.toString())
                         .GET().build(),
                 HttpResponse.BodyHandlers.ofString()
         );
