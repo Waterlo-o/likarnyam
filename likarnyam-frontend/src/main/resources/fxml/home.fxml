@@ -182,13 +182,7 @@
                             <Label text="View All" textFill="#117c7f" />
                         </HBox>
 
-                        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="event-badge">
-                            <Circle fill="#6fa8dc" radius="20.0" />
-                            <VBox>
-                                <Label text="Monthly doctor's meet"><font><Font name="System Bold" size="14.0" /></font></Label>
-                                <Label text="8 April, 2021 | 04:00 PM" textFill="#888" />
-                            </VBox>
-                        </HBox>
+                        <VBox fx:id="upcomingContainer" spacing="10"/>
                     </VBox>
                 </VBox>
 

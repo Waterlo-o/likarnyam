@@ -9,10 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -26,12 +23,15 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import com.example.likarnyam.client.EventApiClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class HomeController {
 
+
+    @FXML private VBox upcomingContainer;
     @FXML private TextField searchField;
     @FXML private Label totalVisitsLabel;
     @FXML private Label doctorNameLabel;
@@ -121,7 +121,293 @@ public class HomeController {
             }
         }).start();
 
+        loadUpcomingEvents();
         loadHomeCalendar();
+    }
+
+    private void loadUpcomingEvents() {
+        new Thread(() -> {
+            try {
+                JsonNode events = EventApiClient.getUpcoming();
+                Platform.runLater(() -> {
+                    upcomingContainer.getChildren().clear();
+                    if (events.size() == 0) {
+                        Label empty = new Label("No upcoming events");
+                        empty.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 13px;");
+                        upcomingContainer.getChildren().add(empty);
+                        return;
+                    }
+                    // Показываем максимум 3 события
+                    int limit = Math.min(events.size(), 3);
+                    for (int i = 0; i < limit; i++) {
+                        JsonNode event = events.get(i);
+                        upcomingContainer.getChildren().add(createEventCard(event));
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private HBox createEventCard(JsonNode event) {
+        String title = event.get("title").asText();
+        String eventAt = event.get("eventAt").asText();
+        String location = event.has("location") &&
+                !event.get("location").asText().equals("null")
+                ? event.get("location").asText() : "—";
+        String type = event.has("eventType") ? event.get("eventType").asText() : "MEETING";
+        String description = event.has("description") &&
+                !event.get("description").asText().equals("null")
+                ? event.get("description").asText() : "—";
+
+        String date = eventAt.substring(0, 10);
+        String time = eventAt.substring(11, 16);
+
+        String color = switch (type) {
+            case "CONFERENCE" -> "#9F7AEA";
+            case "TRAINING" -> "#38A169";
+            default -> "#64B5F6";
+        };
+
+        VBox stripe = new VBox();
+        stripe.setStyle(
+                "-fx-background-color: " + color + ";" +
+                        "-fx-background-radius: 3;" +
+                        "-fx-min-width: 4; -fx-max-width: 4; -fx-min-height: 40;"
+        );
+
+        VBox info = new VBox(3);
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle(
+                "-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2d3748;"
+        );
+        titleLabel.setWrapText(true);
+
+        String subText = date + " | " + time + " | " + location;
+        Label subLabel = new Label(subText);
+        subLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #a0aec0;");
+        subLabel.setWrapText(true);
+
+        info.getChildren().addAll(titleLabel, subLabel);
+        HBox.setHgrow(info, Priority.ALWAYS);
+
+        HBox card = new HBox(10, stripe, info);
+        card.getStyleClass().add("event-badge");
+        card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        card.setStyle(card.getStyle() + "-fx-cursor: hand;");
+
+        // Клик → popup
+        card.setOnMouseClicked(e -> showEventPopup(event, card));
+
+        return card;
+    }
+
+    private void showEventPopup(JsonNode event, HBox anchor) {
+        String title = event.get("title").asText();
+        String eventAt = event.get("eventAt").asText();
+        String location = event.has("location") &&
+                !event.get("location").asText().equals("null")
+                ? event.get("location").asText() : "—";
+        String type = event.has("eventType") ? event.get("eventType").asText() : "MEETING";
+        String description = event.has("description") &&
+                !event.get("description").asText().equals("null")
+                ? event.get("description").asText() : "—";
+
+        String date = eventAt.substring(0, 10);
+        String time = eventAt.substring(11, 16);
+
+        // Цвет и иконка по типу
+        String color = switch (type) {
+            case "CONFERENCE" -> "#7C3AED";
+            case "TRAINING" -> "#059669";
+            default -> "#1E40AF";
+        };
+        String lightColor = switch (type) {
+            case "CONFERENCE" -> "#EDE9FE";
+            case "TRAINING" -> "#D1FAE5";
+            default -> "#EFF6FF";
+        };
+        String typeLabel = switch (type) {
+            case "CONFERENCE" -> "Conference";
+            case "TRAINING" -> "Training";
+            default -> "Meeting";
+        };
+
+        javafx.stage.Popup popup = new javafx.stage.Popup();
+        popup.setAutoHide(true);
+
+        VBox content = new VBox(0);
+        content.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 30, 0, 0, 12);"
+        );
+        content.setPrefWidth(320);
+
+        // ── Шапка с градиентом ──
+        VBox header = new VBox(8);
+        header.setStyle(
+                "-fx-background-color: linear-gradient(to right, #64B5F6, #42A5F5);" +
+                        "-fx-background-radius: 20 20 0 0;" +
+                        "-fx-padding: 20 20 20 20;"
+        );
+
+
+
+        // Тип бейдж
+        Label typeBadge = new Label(typeLabel.toUpperCase());
+        typeBadge.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.25);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-padding: 3 10 3 10;" +
+                        "-fx-font-size: 10px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle(
+                "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+        );
+        titleLabel.setWrapText(true);
+
+        // Дата и время в шапке
+        Label dateTimeLabel = new Label(date + "  •  " + time);
+        dateTimeLabel.setStyle(
+                "-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);"
+        );
+
+        header.getChildren().addAll(typeBadge, titleLabel, dateTimeLabel);
+
+        // ── Тело ──
+        VBox body = new VBox(0);
+        body.setStyle("-fx-padding: 0;");
+
+        // Карточка локации
+        if (!location.equals("—")) {
+            HBox locationCard = new HBox(12);
+            locationCard.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            locationCard.setStyle(
+                    "-fx-background-color: " + lightColor + ";" +
+                            "-fx-padding: 14 20 14 20;"
+            );
+            locationCard.setOnMouseEntered(e -> locationCard.setStyle(
+                    "-fx-background-color: #BFDBFE;" +
+                            "-fx-padding: 14 20 14 20;"
+            ));
+            locationCard.setOnMouseExited(e -> locationCard.setStyle(
+                    "-fx-background-color: " + lightColor + ";" +
+                            "-fx-padding: 14 20 14 20;"
+            ));
+            VBox locationIcon = new VBox();
+            locationIcon.setStyle(
+                    "-fx-background-color: white;" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-min-width: 32; -fx-min-height: 32;" +
+                            "-fx-max-width: 32; -fx-max-height: 32;" +
+                            "-fx-alignment: center;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(100,181,246,0.3), 6, 0, 0, 2);"
+            );
+            Label locIconLabel = new Label("📍");
+            locIconLabel.setStyle("-fx-font-size: 14px;");
+            locationIcon.getChildren().add(locIconLabel);
+            locationIcon.setAlignment(javafx.geometry.Pos.CENTER);
+
+            VBox locInfo = new VBox(2);
+            Label locTitle = new Label("Location");
+            locTitle.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 11px;");
+            Label locValue = new Label(location);
+            locValue.setStyle(
+                    "-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #111827;"
+            );
+            locInfo.getChildren().addAll(locTitle, locValue);
+
+            locationCard.getChildren().addAll(locationIcon, locInfo);
+            body.getChildren().add(locationCard);
+        }
+
+        // Описание
+        if (!description.equals("—")) {
+            VBox descBox = new VBox(6);
+            descBox.setStyle("-fx-padding: 16 20 0 20;");
+            Label descTitle = new Label("Notes");
+            descTitle.setStyle(
+                    "-fx-font-size: 11px; -fx-font-weight: bold; " +
+                            "-fx-text-fill: #6B7280; -fx-letter-spacing: 0.5px;"
+            );
+            Label descValue = new Label(description);
+            descValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
+            descValue.setWrapText(true);
+            descBox.getChildren().addAll(descTitle, descValue);
+            body.getChildren().add(descBox);
+        }
+
+        // Кнопка закрыть
+        VBox btnBox = new VBox();
+        btnBox.setStyle("-fx-padding: 16 20 20 20;");
+        Button closeBtn = new Button("Close");
+        closeBtn.setMaxWidth(Double.MAX_VALUE);
+        closeBtn.setStyle(
+                "-fx-background-color: #64B5F6;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 13px;"
+        );
+        closeBtn.setOnAction(ev -> popup.hide());
+        btnBox.getChildren().add(closeBtn);
+        body.getChildren().add(btnBox);
+
+        content.getChildren().addAll(header, body);
+        popup.getContent().add(content);
+
+        javafx.stage.Window window = anchor.getScene().getWindow();
+        double centerX = window.getX() + window.getWidth() / 2 - 160;
+        double centerY = window.getY() + window.getHeight() / 2 - 160;
+        popup.show(anchor, centerX, centerY);
+
+
+// Hover на кнопку Close
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(
+                "-fx-background-color: #42A5F5;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 13px;"
+        ));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(
+                "-fx-background-color: #64B5F6;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 13px;"
+        ));
+    }
+
+    private HBox createEventRow(String label, String value) {
+        HBox row = new HBox(10);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label l = new Label(label + ":");
+        l.setStyle(
+                "-fx-text-fill: #a0aec0; -fx-font-size: 12px; -fx-min-width: 65;"
+        );
+        Label v = new Label(value);
+        v.setStyle(
+                "-fx-text-fill: #2d3748; -fx-font-size: 12px; -fx-font-weight: bold;"
+        );
+        v.setWrapText(true);
+        row.getChildren().addAll(l, v);
+        return row;
     }
 
     private void loadHomeCalendar() {
@@ -269,12 +555,20 @@ public class HomeController {
     private void addCalendarFooter(JsonNode days) {
         int totalApts = 0;
         int totalSlots = 0;
+        LocalDate today = LocalDate.now();
 
         for (JsonNode day : days) {
-            totalApts += day.get("appointmentCount").asInt();
-            // Считаем рабочие дни — в каждом ~16 слотов (8 часов / 30 мин)
-            if (day.get("workingDay").asBoolean()) {
-                totalSlots += 16;
+            LocalDate date = LocalDate.of(
+                    today.getYear(), today.getMonthValue(),
+                    day.get("day").asInt()
+            );
+
+            if (!date.isBefore(today)) {
+                // Только будущие и сегодняшние
+                totalApts += day.get("appointmentCount").asInt();
+                if (day.get("workingDay").asBoolean()) {
+                    totalSlots += 16;
+                }
             }
         }
 
