@@ -60,4 +60,18 @@ public class AppointmentController {
                 ))
                 .orElse(ResponseEntity.notFound().build());
     }
+    // GET /api/appointments — все приёмы врача
+    @GetMapping
+    public ResponseEntity<List<AppointmentResponse>> getAllAppointments(
+            Principal principal,
+            @RequestParam(required = false) String status) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .map(doctor -> ResponseEntity.ok(
+                        appointmentService.getDoctorAppointments(doctor.getId(), status)
+                                .stream()
+                                .map(AppointmentResponse::from)
+                                .toList()
+                ))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

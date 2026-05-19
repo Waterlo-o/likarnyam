@@ -64,4 +64,14 @@ public class AppointmentService {
 
         return AppointmentResponse.from(appointmentRepository.save(appointment));
     }
+
+
+    public List<Appointment> getDoctorAppointments(Long doctorId, String status) {
+        if (status != null && !status.isEmpty()) {
+            return appointmentRepository
+                    .findByDoctorIdAndStatus(doctorId, status);
+        }
+        return appointmentRepository
+                .findByDoctorIdOrderByAppointmentAtDesc(doctorId);
+    }
 }

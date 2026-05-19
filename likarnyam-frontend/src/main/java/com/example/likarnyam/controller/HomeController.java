@@ -703,7 +703,7 @@ public class HomeController {
 
     @FXML
     private void navigateAppointments() {
-        // TODO Sprint 2
-        System.out.println("Appointments — coming soon");
+        FxUtils.navigateFullscreen(doctorNameLabel, "/fxml/appointments.fxml");
     }
+
 }

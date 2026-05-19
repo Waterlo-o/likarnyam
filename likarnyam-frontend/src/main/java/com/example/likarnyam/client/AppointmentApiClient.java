@@ -77,4 +77,19 @@ public class AppointmentApiClient {
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + token);
     }
+
+    public static JsonNode getAllAppointments(String status) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        String path = "/appointments";
+        if (status != null && !status.isEmpty()) {
+            path += "?status=" + status;
+        }
+        HttpResponse<String> response = client.send(
+                baseRequest(path).GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
+        return objectMapper.readTree(response.body());
+    }
 }

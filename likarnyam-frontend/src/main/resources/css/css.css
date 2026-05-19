@@ -448,3 +448,34 @@
     -fx-background-color: #dbeafe;
     -fx-cursor: hand;
 }
+
+
+/* ===== FILTER BUTTONS ===== */
+.filter-btn {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-text-fill: #4a5568;
+}
+
+.filter-btn:hover {
+    -fx-background-color: #EBF4FF;
+    -fx-border-color: #64B5F6;
+    -fx-text-fill: #2b6cb0;
+}
+
+.filter-btn-active {
+    -fx-background-color: #64B5F6;
+    -fx-border-color: #64B5F6;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
