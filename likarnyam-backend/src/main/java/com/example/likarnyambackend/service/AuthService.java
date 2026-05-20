@@ -1,6 +1,8 @@
 package com.example.likarnyambackend.service;
 
 
+import com.example.likarnyambackend.dto.request.ChangePasswordRequest;
+import com.example.likarnyambackend.model.User;
 import com.example.likarnyambackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,5 +31,18 @@ public class AuthService {
         }
 
         return jwtService.generateToken(email, user.getRole().getName());
+    }
+
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(),
+                user.getPasswordHash())) {
+            throw new RuntimeException("Invalid current password");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

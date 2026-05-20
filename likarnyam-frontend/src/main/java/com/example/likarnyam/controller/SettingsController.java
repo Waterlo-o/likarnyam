@@ -1,6 +1,8 @@
 package com.example.likarnyam.controller;
 
+import com.example.likarnyam.client.ApiClient;
 import com.example.likarnyam.client.DoctorApiClient;
+import com.example.likarnyam.session.UserSession;
 import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
@@ -375,15 +377,58 @@ public class SettingsController {
 
         Button changePassBtn = new Button("Change Password");
         changePassBtn.getStyleClass().add("settings-save-btn");
+
         changePassBtn.setOnAction(e -> {
-            if (newPass.getText().equals(confirmPass.getText()) &&
-                    !newPass.getText().isEmpty()) {
-                passResult.setText("Password changed successfully ✓");
-                passResult.setStyle("-fx-text-fill: #38a169; -fx-font-size: 12px;");
-            } else {
+            String current = currentPass.getText();
+            String newP = newPass.getText();
+            String confirm = confirmPass.getText();
+
+            if (current.isEmpty() || newP.isEmpty()) {
+                passResult.setText("Please fill all fields");
+                passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
+                return;
+            }
+
+            if (!newP.equals(confirm)) {
                 passResult.setText("Passwords don't match");
                 passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
+                return;
             }
+
+            if (newP.length() < 6) {
+                passResult.setText("Password must be at least 6 characters");
+                passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
+                return;
+            }
+
+            changePassBtn.setDisable(true);
+            changePassBtn.setText("Saving...");
+
+            new Thread(() -> {
+                try {
+                    ApiClient.changePassword(current, newP);
+                    Platform.runLater(() -> {
+                        passResult.setText("Password changed successfully ✓");
+                        passResult.setStyle(
+                                "-fx-text-fill: #38a169; -fx-font-size: 12px;"
+                        );
+                        changePassBtn.setText("Change Password");
+                        changePassBtn.setDisable(false);
+                        currentPass.clear();
+                        newPass.clear();
+                        confirmPass.clear();
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        passResult.setText("Invalid current password");
+                        passResult.setStyle(
+                                "-fx-text-fill: #e53e3e; -fx-font-size: 12px;"
+                        );
+                        changePassBtn.setText("Change Password");
+                        changePassBtn.setDisable(false);
+                    });
+                }
+            }).start();
         });
 
         Separator sep2 = new Separator();
@@ -403,7 +448,11 @@ public class SettingsController {
                         "-fx-padding: 10 30 10 30;" +
                         "-fx-cursor: hand;"
         );
-        logoutBtn.setOnAction(e -> javafx.application.Platform.exit());
+
+        logoutBtn.setOnAction(e -> {
+            UserSession.getInstance().logout();
+            FxUtils.navigate(settingsContent, "/fxml/login.fxml", 800, 500);
+        });
 
         settingsContent.getChildren().addAll(
                 title, sep,

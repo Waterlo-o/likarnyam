@@ -1,5 +1,6 @@
 package com.example.likarnyam.client;
 
+import com.example.likarnyam.session.UserSession;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,5 +46,26 @@ public class ApiClient {
 
         JsonNode json = objectMapper.readTree(response.body());
         return json.get("token").asText();
+    }
+    public static void changePassword(String currentPassword,
+                                      String newPassword) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        String body = String.format(
+                "{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",
+                currentPassword, newPassword
+        );
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/auth/password"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " +
+                        UserSession.getInstance().getJwtToken())
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(
+                request, HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Invalid current password");
     }
 }
