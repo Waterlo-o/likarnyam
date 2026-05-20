@@ -1,1 +1,73 @@
-<!-- TODO Sprint 3 — настройки -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane stylesheets="@../css/css.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.SettingsController">
+
+    <left>
+        <VBox prefWidth="80.0" styleClass="sidebar">
+            <padding><Insets top="20" bottom="20"/></padding>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox alignment="CENTER" spacing="30.0">
+                <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />
+                <Button styleClass="menu-btn" text="📅" onAction="#navigateSchedule" />
+                <Button styleClass="menu-btn" text="👥" onAction="#navigatePatients" />
+                <Button styleClass="menu-btn" text="📋" onAction="#navigateAppointments" />
+                <Button styleClass="menu-btn" text="⚙" onAction="#navigateSettings" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER">
+                <Button styleClass="menu-btn-logout" text="↪" onAction="#handleLogout" />
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" styleClass="main-content">
+            <BorderPane.margin>
+                <Insets bottom="15.0" right="15.0" top="15.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+
+            <Label text="Settings"
+                   style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                <!-- Левая колонка — навигация по секциям -->
+                <VBox spacing="8" prefWidth="200">
+                    <Button fx:id="btnProfile" text="👤  Profile"
+                            styleClass="settings-nav-active"
+                            maxWidth="Infinity"
+                            onAction="#showProfile"/>
+                    <Button fx:id="btnAppearance" text="🎨  Appearance"
+                            styleClass="settings-nav"
+                            maxWidth="Infinity"
+                            onAction="#showAppearance"/>
+                    <Button fx:id="btnSchedule" text="📅  Working Hours"
+                            styleClass="settings-nav"
+                            maxWidth="Infinity"
+                            onAction="#showSchedule"/>
+                    <Button fx:id="btnAccount" text="🔒  Account"
+                            styleClass="settings-nav"
+                            maxWidth="Infinity"
+                            onAction="#showAccount"/>
+                </VBox>
+
+                <!-- Правая колонка — контент секции -->
+                <VBox fx:id="settingsContent" styleClass="white-card"
+                      HBox.hgrow="ALWAYS" spacing="20">
+                </VBox>
+
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

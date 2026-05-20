@@ -1,5 +1,6 @@
 package com.example.likarnyambackend.service;
 
+import com.example.likarnyambackend.dto.request.UpdateDoctorRequest;
 import com.example.likarnyambackend.model.Doctor;
 import com.example.likarnyambackend.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,15 @@ public class DoctorService {
     // Используется для endpoint /api/doctors/me
     public Optional<Doctor> getDoctorByEmail(String email) {
         return doctorRepository.findByUserEmail(email);
+    }
+
+    public Doctor updateDoctor(Doctor doctor, UpdateDoctorRequest request) {
+        if (request.getFirstName() != null)
+            doctor.setFirstName(request.getFirstName());
+        if (request.getLastName() != null)
+            doctor.setLastName(request.getLastName());
+        if (request.getPhone() != null)
+            doctor.setPhone(request.getPhone());
+        return doctorRepository.save(doctor);
     }
 }

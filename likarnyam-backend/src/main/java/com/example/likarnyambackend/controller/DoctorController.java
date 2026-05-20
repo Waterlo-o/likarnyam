@@ -1,5 +1,6 @@
 package com.example.likarnyambackend.controller;
 
+import com.example.likarnyambackend.dto.request.UpdateDoctorRequest;
 import com.example.likarnyambackend.dto.response.DoctorResponse;
 import com.example.likarnyambackend.service.DoctorService;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,18 @@ public class DoctorController {
         return doctorService.getDoctorByEmail(email)
                 .map(doctor -> ResponseEntity.ok(DoctorResponse.from(doctor)))
                 .orElse(ResponseEntity.notFound().<DoctorResponse>build());
+    }
+    // PATCH /api/doctors/me
+    @PatchMapping("/me")
+    public ResponseEntity<DoctorResponse> updateProfile(
+            @RequestBody UpdateDoctorRequest request,
+            Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .map(doctor -> ResponseEntity.ok(
+                        DoctorResponse.from(
+                                doctorService.updateDoctor(doctor, request)
+                        )
+                ))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

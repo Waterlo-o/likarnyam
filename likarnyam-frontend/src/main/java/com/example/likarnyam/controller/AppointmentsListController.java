@@ -221,8 +221,9 @@ public class AppointmentsListController {
         FxUtils.navigateFullscreen(appointmentsContainer, "/fxml/schedule.fxml");
     }
     @FXML private void navigateAppointments() { }
-    @FXML private void navigateSettings() {
-        System.out.println("Settings — coming soon");
+    @FXML
+    private void navigateSettings() {
+        FxUtils.navigateFullscreen(appointmentsContainer, "/fxml/settings.fxml");
     }
     @FXML private void handleLogout() {
         javafx.application.Platform.exit();

@@ -1156,11 +1156,14 @@ public class ScheduleController {
     @FXML private void navigatePatients() {
         FxUtils.navigateFullscreen(calendarGrid, "/fxml/patient-list.fxml");
     }
-    @FXML private void navigateAppointments() {
-        System.out.println("Appointments — coming soon");
+    @FXML
+    private void navigateSettings() {
+        FxUtils.navigateFullscreen(calendarGrid, "/fxml/settings.fxml");
     }
-    @FXML private void navigateSettings() {
-        System.out.println("Settings — coming soon");
+
+    @FXML
+    private void navigateAppointments() {
+        FxUtils.navigateFullscreen(calendarGrid, "/fxml/appointments.fxml");
     }
     @FXML private void handleLogout() {
         javafx.application.Platform.exit();

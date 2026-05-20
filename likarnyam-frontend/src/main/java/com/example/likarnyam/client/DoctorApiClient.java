@@ -53,4 +53,38 @@ public class DoctorApiClient {
             throw e;
         }
     }
+
+    public static JsonNode updateProfile(String firstName, String lastName,
+                                         String phone) throws Exception {
+        System.out.println("Updating profile: " + firstName + " " + lastName);
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(5))
+                .build();
+
+        String body = String.format(
+                "{\"firstName\":\"%s\",\"lastName\":\"%s\",\"phone\":\"%s\"}",
+                firstName, lastName, phone
+        );
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/doctors/me"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " +
+                        UserSession.getInstance().getJwtToken())
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = client.send(
+                request, HttpResponse.BodyHandlers.ofString()
+        );
+
+        System.out.println("Update response: " + response.statusCode());
+        System.out.println("Update body: " + response.body());
+
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
+
+        return objectMapper.readTree(response.body());
+    }
 }

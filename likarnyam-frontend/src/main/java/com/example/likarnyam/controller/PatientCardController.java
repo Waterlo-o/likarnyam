@@ -159,11 +159,14 @@ public class PatientCardController {
     private void navigateSchedule() {
         FxUtils.navigateFullscreen(patientNameLabel, "/fxml/schedule.fxml");
     }
-    @FXML private void navigateAppointments() {
-        System.out.println("Appointments — coming soon");
+    @FXML
+    private void navigateSettings() {
+        FxUtils.navigateFullscreen(patientNameLabel, "/fxml/settings.fxml");
     }
-    @FXML private void navigateSettings() {
-        System.out.println("Settings — coming soon");
+
+    @FXML
+    private void navigateAppointments() {
+        FxUtils.navigateFullscreen(patientNameLabel, "/fxml/appointments.fxml");
     }
     @FXML private void handleLogout() {
         javafx.application.Platform.exit();

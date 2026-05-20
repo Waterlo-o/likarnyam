@@ -479,3 +479,77 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }
+
+
+/* ===== SETTINGS ===== */
+.settings-nav {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 15 10 15;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-text-fill: #4a5568;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.settings-nav:hover {
+    -fx-background-color: #EBF4FF;
+    -fx-border-color: #64B5F6;
+    -fx-text-fill: #2b6cb0;
+}
+
+.settings-nav-active {
+    -fx-background-color: #64B5F6;
+    -fx-border-color: #64B5F6;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 15 10 15;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.settings-field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #718096;
+}
+
+.settings-input {
+    -fx-background-color: #f7fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 15 10 15;
+    -fx-font-size: 13px;
+    -fx-pref-height: 42px;
+}
+
+.settings-input:focused {
+    -fx-border-color: #64B5F6;
+    -fx-background-color: white;
+}
+
+.settings-section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+
+.settings-save-btn {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 30 10 30;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.settings-save-btn:hover {
+    -fx-background-color: #42A5F5;
+}

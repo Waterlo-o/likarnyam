@@ -691,19 +691,17 @@ public class HomeController {
     }
 
     @FXML
-    private void navigateSettings() {
-        // TODO Sprint 3
-        System.out.println("Settings — coming soon");
+    private void handleLogout() {
+        javafx.application.Platform.exit();
     }
 
     @FXML
-    private void handleLogout() {
-        javafx.application.Platform.exit();
+    private void navigateSettings() {
+        FxUtils.navigateFullscreen(doctorNameLabel, "/fxml/settings.fxml");
     }
 
     @FXML
     private void navigateAppointments() {
         FxUtils.navigateFullscreen(doctorNameLabel, "/fxml/appointments.fxml");
     }
-
 }
