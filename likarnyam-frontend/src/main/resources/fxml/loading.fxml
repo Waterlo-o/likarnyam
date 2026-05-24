@@ -3,21 +3,65 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.DropShadow?>
 
-<StackPane xmlns="http://javafx.com/javafx/17"
+<StackPane fx:id="rootPane"
+           fx:controller="com.example.likarnyam.controller.LoadingController"
+           xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
-           style="-fx-background-color: #64B5F6;">
+           style="-fx-background-color: linear-gradient(to bottom, #67a6f8, #4d92ef);">
 
-    <VBox alignment="CENTER" spacing="20">
-        <Label text="Likarnyam"
-               style="-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-        <Label text="Medical Portal"
-               style="-fx-font-size: 18px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+    <VBox alignment="CENTER" spacing="30">
 
-        <ProgressBar fx:id="progressBar" prefWidth="200"
-                     style="-fx-accent: white;"/>
+        <StackPane>
+            <Circle radius="50" fill="white">
+                <effect>
+                    <DropShadow color="rgba(0,0,0,0.15)" radius="20" offsetY="8"/>
+                </effect>
+            </Circle>
+            <SVGPath fx:id="iconPath"
+                     content="M 14 2 C 12.9 2 12 2.9 12 4 L 12 12 L 4 12 C 2.9 12 2 12.9 2 14 L 2 18 C 2 19.1 2.9 20 4 20 L 12 20 L 12 28 C 12 29.1 12.9 30 14 30 L 18 30 C 19.1 30 20 29.1 20 28 L 20 20 L 28 20 C 29.1 20 30 19.1 30 18 L 30 14 C 30 12.9 29.1 12 28 12 L 20 12 L 20 4 C 20 2.9 19.1 2 18 2 L 14 2 Z"
+                     fill="#4d92ef" scaleX="1.3" scaleY="1.3">
+            </SVGPath>
+        </StackPane>
 
-        <Label fx:id="statusLabel" text="Loading..."
-               style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+        <VBox alignment="CENTER" spacing="3">
+            <Label text="Likarnyam"
+                   style="-fx-font-size: 48px; -fx-font-family: 'Segoe UI'; -fx-font-weight: 900; -fx-text-fill: white;">
+                <effect>
+                    <DropShadow color="rgba(0,0,0,0.1)" radius="5" offsetY="2"/>
+                </effect>
+            </Label>
+            <Label text="MEDICAL PORTAL"
+                   style="-fx-font-size: 14px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 0.35em;"/>
+        </VBox>
+
+        <Region prefHeight="10"/>
+
+        <VBox alignment="CENTER" spacing="15">
+
+            <StackPane alignment="CENTER_LEFT" maxWidth="300" prefHeight="6"
+                       style="-fx-background-color: rgba(255,255,255,0.25); -fx-background-radius: 10;">
+                <Rectangle fx:id="progressFill" height="6" width="0" fill="white" arcWidth="6" arcHeight="6">
+                    <effect>
+                        <DropShadow color="rgba(255,255,255,0.5)" radius="10"/>
+                    </effect>
+                </Rectangle>
+            </StackPane>
+
+            <Label fx:id="statusLabel" text="Waking up services..."
+                   style="-fx-font-size: 13px; -fx-font-family: 'Segoe UI'; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+        </VBox>
+
     </VBox>
+
+    <Label text="Version 1.0.0  •  © 2026 Likarnyam"
+           StackPane.alignment="BOTTOM_CENTER"
+           style="-fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-text-fill: rgba(255,255,255,0.6);">
+        <StackPane.margin>
+            <Insets bottom="20"/>
+        </StackPane.margin>
+    </Label>
+
 </StackPane>
