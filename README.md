@@ -109,9 +109,8 @@ Password: password123
 | GET | `/api/events/upcoming` | Get upcoming events |
 
 ## Screenshots
-![Home](screenshots/home.png)
 > Home Dashboard — daily overview with patient list, calendar and upcoming events
-![Home](screenshots/home.png)![Schedule](screenshots/schedule.png)
+![Home](screenshots/home.png)
 > Schedule — interactive monthly calendar with appointment density and status management
 ![Schedule](screenshots/schedule.png)
 > Patient Card — detailed patient information with visit history
