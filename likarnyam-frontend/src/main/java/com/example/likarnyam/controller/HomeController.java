@@ -46,6 +46,8 @@ public class HomeController {
     @FXML private Label completedLabel;
     @FXML private Label calMonthLabel;
     @FXML private VBox homeCalendarGrid;
+    @FXML private Text greetingPrefix;
+
 
     @FXML
     public void initialize() {
@@ -64,6 +66,13 @@ public class HomeController {
                     int totalVisits = appointments.size();
 
                     Platform.runLater(() -> {
+
+                        int hour = java.time.LocalTime.now().getHour();
+                        String greeting = hour < 12 ? "Good Morning "
+                                : hour < 17 ? "Good Afternoon "
+                                : "Good Evening ";
+                        if (greetingPrefix != null) greetingPrefix.setText(greeting);
+
                         if (doctorNameLabel != null)
                             doctorNameLabel.setText("Dr. " + lastName);
                         if (greetingText != null)
@@ -87,10 +96,8 @@ public class HomeController {
 
                         if (patientListContainer != null) {
                             patientListContainer.getChildren().clear();
-                            for (JsonNode appointment : appointments) {
-                                HBox item = createPatientListItem(appointment);
-                                patientListContainer.getChildren().add(item);
-                            }
+                            currentAppointments = appointments;
+                            updatePatientList(appointments);
                         }
                     });
                     break; // успешно — выходим из цикла
@@ -280,6 +287,8 @@ public class HomeController {
 
         header.getChildren().addAll(typeBadge, titleLabel, dateTimeLabel);
 
+
+
         // ── Тело ──
         VBox body = new VBox(0);
         body.setStyle("-fx-padding: 0;");
@@ -392,6 +401,46 @@ public class HomeController {
                         "-fx-font-weight: bold;" +
                         "-fx-font-size: 13px;"
         ));
+    }
+
+    private JsonNode currentAppointments = null;
+
+    private void updatePatientList(JsonNode appointments) {
+        patientListContainer.getChildren().clear();
+        for (JsonNode appointment : appointments) {
+            HBox item = createPatientListItem(appointment);
+            patientListContainer.getChildren().add(item);
+        }
+    }
+
+
+    @FXML
+    public void handleSearch() {
+        String query = searchField.getText().trim().toLowerCase();
+
+        if (query.isEmpty()) {
+            // Показываем все приёмы
+            if (currentAppointments != null) {
+                updatePatientList(currentAppointments);
+            }
+            return;
+        }
+
+        // Фильтруем по имени пациента
+        if (currentAppointments != null) {
+            java.util.List<JsonNode> filtered = new java.util.ArrayList<>();
+            for (JsonNode apt : currentAppointments) {
+                String firstName = apt.get("patientFirstName").asText().toLowerCase();
+                String lastName = apt.get("patientLastName").asText().toLowerCase();
+                if (firstName.contains(query) || lastName.contains(query)) {
+                    filtered.add(apt);
+                }
+            }
+            patientListContainer.getChildren().clear();
+            for (JsonNode apt : filtered) {
+                patientListContainer.getChildren().add(createPatientListItem(apt));
+            }
+        }
     }
 
     private HBox createEventRow(String label, String value) {

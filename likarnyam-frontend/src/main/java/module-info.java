@@ -3,6 +3,7 @@ module com.example.likarnyam {
     requires javafx.fxml;
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
+    requires java.desktop;
 
     opens com.example.likarnyam to javafx.fxml;
     opens com.example.likarnyam.controller to javafx.fxml;
