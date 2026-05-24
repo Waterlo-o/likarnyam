@@ -28,6 +28,11 @@ public class PatientListController {
 
     // Загрузка пациентов — если lastName null то все пациенты
     private void loadPatients(String lastName) {
+        // Показываем loading пока грузим
+        Platform.runLater(() ->
+                FxUtils.showLoading(patientTableContainer, "Loading patients...")
+        );
+
         new Thread(() -> {
             try {
                 JsonNode patients = lastName == null || lastName.isEmpty()
@@ -36,6 +41,10 @@ public class PatientListController {
 
                 Platform.runLater(() -> {
                     patientTableContainer.getChildren().clear();
+                    if (patients.size() == 0) {
+                        FxUtils.showEmpty(patientTableContainer, "No patients found");
+                        return;
+                    }
                     for (JsonNode patient : patients) {
                         HBox row = createPatientRow(patient);
                         patientTableContainer.getChildren().add(row);
@@ -43,6 +52,9 @@ public class PatientListController {
                 });
 
             } catch (Exception e) {
+                Platform.runLater(() ->
+                        FxUtils.showEmpty(patientTableContainer, "Failed to load patients")
+                );
                 e.printStackTrace();
             }
         }).start();
@@ -128,6 +140,8 @@ public class PatientListController {
 
         return row;
     }
+
+
 
     // Навигация
     @FXML private void navigateHome() {

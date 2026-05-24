@@ -34,6 +34,10 @@ public class AppointmentsListController {
     }
 
     private void loadAppointments(String status) {
+        Platform.runLater(() ->
+                FxUtils.showLoading(appointmentsContainer, "Loading appointments...")
+        );
+
         new Thread(() -> {
             try {
                 JsonNode appointments = AppointmentApiClient.getAllAppointments(status);
@@ -42,6 +46,9 @@ public class AppointmentsListController {
                     displayAppointments(appointments);
                 });
             } catch (Exception e) {
+                Platform.runLater(() ->
+                        FxUtils.showEmpty(appointmentsContainer, "Failed to load appointments")
+                );
                 e.printStackTrace();
             }
         }).start();
