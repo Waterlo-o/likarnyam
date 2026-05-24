@@ -111,12 +111,13 @@ Password: password123
 ## Screenshots
 ![Home](screenshots/home.png)
 > Home Dashboard — daily overview with patient list, calendar and upcoming events
-![Schedule](screenshots/schedule.png)
+![Home](screenshots/home.png)![Schedule](screenshots/schedule.png)
 > Schedule — interactive monthly calendar with appointment density and status management
-![Patient Card](screenshots/patient-card.png)
+![Schedule](screenshots/schedule.png)
 > Patient Card — detailed patient information with visit history
-![Settings](screenshots/settings.png)
+![Patient Card](screenshots/patient-card.png)
 > Settings — profile management and account settings
+![Settings](screenshots/settings.png)
 
 ## Project Status
 
