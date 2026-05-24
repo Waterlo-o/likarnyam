@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           style="-fx-background-color: #64B5F6;">
+
+    <VBox alignment="CENTER" spacing="20">
+        <Label text="Likarnyam"
+               style="-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        <Label text="Medical Portal"
+               style="-fx-font-size: 18px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+
+        <ProgressBar fx:id="progressBar" prefWidth="200"
+                     style="-fx-accent: white;"/>
+
+        <Label fx:id="statusLabel" text="Loading..."
+               style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+    </VBox>
+</StackPane>
