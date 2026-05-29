@@ -63,7 +63,7 @@ public class PatientCardController {
                     historyContainer.getChildren().clear();
                     if (history.size() == 0) {
                         Label empty = new Label("No visit history");
-                        empty.setStyle("-fx-text-fill: #888;");
+                        empty.getStyleClass().add("history-empty-label");
                         historyContainer.getChildren().add(empty);
                     } else {
                         for (JsonNode visit : history) {
@@ -85,19 +85,16 @@ public class PatientCardController {
         String status = visit.get("status").asText();
         String notes = getValue(visit, "notes");
 
-        // Статус с цветом
+        // Статус с классом вместо setStyle
         Label statusLabel = new Label(status);
-        statusLabel.setStyle(
-                status.equals("COMPLETED")
-                        ? "-fx-background-color: #c6f6d5; -fx-text-fill: #276749; " +
-                        "-fx-background-radius: 8; -fx-padding: 3 10 3 10; -fx-font-size: 11px;"
-                        : "-fx-background-color: #bee3f8; -fx-text-fill: #2b6cb0; " +
-                        "-fx-background-radius: 8; -fx-padding: 3 10 3 10; -fx-font-size: 11px;"
+        statusLabel.getStyleClass().addAll(
+                "history-status-badge",
+                status.equals("COMPLETED") ? "history-status-completed" : "history-status-other"
         );
 
         // Шапка карточки
         Label dateLabel = new Label(date + " at " + time);
-        dateLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        dateLabel.getStyleClass().add("history-date-label");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -107,11 +104,11 @@ public class PatientCardController {
 
         // Причина
         Label reasonLabel = new Label("Reason: " + reason);
-        reasonLabel.setStyle("-fx-text-fill: #4a5568;");
+        reasonLabel.getStyleClass().add("history-reason-label");
 
         // Заметки
         Label notesLabel = new Label("Notes: " + notes);
-        notesLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
+        notesLabel.getStyleClass().add("history-notes-label");
         notesLabel.setWrapText(true);
 
         VBox card = new VBox(8, header, reasonLabel, notesLabel);
@@ -139,11 +136,20 @@ public class PatientCardController {
             controller.setPatient(patientId,
                     patientNameLabel.getText());
 
+            FxUtils.applyTheme(root);
+
+            javafx.scene.layout.StackPane wrapper = new javafx.scene.layout.StackPane(root);
+            wrapper.setStyle("-fx-background-color: transparent; -fx-padding: 20;");
+
+            Scene scene = new Scene(wrapper);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
             Stage stage = new Stage();
             stage.setTitle("New Appointment");
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.setResizable(false);
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

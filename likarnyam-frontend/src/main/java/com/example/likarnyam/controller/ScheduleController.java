@@ -136,12 +136,9 @@ public class ScheduleController {
                         // Визуально выделяем ячейку
                         VBox cell = dayCells.get(dayToOpen);
                         if (cell != null) {
-                            selectedCellStyle = cell.getStyle();
+                            if (selectedCell != null) selectedCell.getStyleClass().remove("sched-day-selected");
                             selectedCell = cell;
-                            cell.setStyle(cell.getStyle() +
-                                    "-fx-border-color: #2196F3;" +
-                                    "-fx-effect: dropshadow(three-pass-box, rgba(33,150,243,0.3), 8, 0, 0, 2);"
-                            );
+                            cell.getStyleClass().add("sched-day-selected");
                         }
 
                         showDayDetail(dayToOpen, isWorking, aptCount, day);
@@ -162,54 +159,21 @@ public class ScheduleController {
 
     private VBox createAdjacentDayCell(int dayNum, boolean isNext) {
         Label numberLabel = new Label(String.valueOf(dayNum));
-        numberLabel.setStyle(
-                "-fx-text-fill: #cbd5e0; -fx-font-size: 15px; -fx-font-weight: bold;"
-        );
+        numberLabel.getStyleClass().addAll("sched-day-number", "sched-day-number-adjacent");
 
         VBox cell = new VBox(numberLabel);
-        cell.setStyle(
-                "-fx-background-color: #fafafa;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-border-color: #edf2f7;" +
-                        "-fx-border-radius: 12;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;"
-        );
+        cell.getStyleClass().addAll("sched-day", "sched-day-adjacent");
         cell.setMinHeight(80);
         cell.setMaxHeight(80);
         cell.setPrefHeight(80);
 
         cell.setOnMouseClicked(e -> {
-            // Переключаем месяц и открываем нужный день
-            if (isNext) {
-                nextMonth();
-            } else {
-                prevMonth();
-            }
-            // После переключения ищем нужный день и открываем
+            if (isNext) nextMonth();
+            else prevMonth();
             openDayAfterNavigation(dayNum);
         });
 
-        cell.setOnMouseEntered(e -> cell.setStyle(
-                "-fx-background-color: #EBF4FF;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-border-color: #64B5F6;" +
-                        "-fx-border-radius: 12;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;"
-        ));
-        cell.setOnMouseExited(e -> cell.setStyle(
-                "-fx-background-color: #fafafa;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-border-color: #edf2f7;" +
-                        "-fx-border-radius: 12;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;"
-        ));
-
+        // Ховеры удалены! Теперь они работают через CSS.
         return cell;
     }
 
@@ -226,15 +190,12 @@ public class ScheduleController {
         return empty;
     }
 
-    private VBox selectedCell = null;
-    private String selectedCellStyle = "";
+    private VBox selectedCell = null; // selectedCellStyle удалена
 
-    private VBox createDayCell(int dayNum, boolean isWorking,
-                               boolean isToday, int aptCount, JsonNode day) {
+    private VBox createDayCell(int dayNum, boolean isWorking, boolean isToday, int aptCount, JsonNode day) {
         Label numberLabel = new Label(String.valueOf(dayNum));
-        numberLabel.getStyleClass().add("cal-day-number");
+        numberLabel.getStyleClass().add("sched-day-number");
 
-        // Точки приёмов — фиксированный размер контейнера
         HBox dots = new HBox(3);
         dots.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         dots.setPrefHeight(14);
@@ -261,80 +222,39 @@ public class ScheduleController {
         }
 
         VBox cell = new VBox(4, numberLabel, dots);
-        cell.getStyleClass().add("cal-day");
+        cell.getStyleClass().add("sched-day");
         cell.setMinWidth(0);
         cell.setMinHeight(80);
         cell.setMaxHeight(80);
         cell.setPrefHeight(80);
         cell.setPadding(new Insets(10));
 
+        // Добавляем классы состояний
         if (isToday) {
-            cell.getStyleClass().add("cal-day-today");
-            numberLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;");
+            cell.getStyleClass().add("sched-day-today");
         } else if (isWorking) {
-            // Цвет по загруженности
-            if (aptCount == 0) {
-                cell.setStyle(
-                        "-fx-background-color: #F0FFF4;" + // зелёный — свободно
-                                "-fx-background-radius: 12;" +
-                                "-fx-border-color: #c6f6d5;" +
-                                "-fx-border-radius: 12;" +
-                                "-fx-border-width: 1.5;" +
-                                "-fx-padding: 10;"
-                );
-            } else if (aptCount <= 3) {
-                cell.setStyle(
-                        "-fx-background-color: #EBF4FF;" + // синий — средне
-                                "-fx-background-radius: 12;" +
-                                "-fx-border-color: #bee3f8;" +
-                                "-fx-border-radius: 12;" +
-                                "-fx-border-width: 1.5;" +
-                                "-fx-padding: 10;"
-                );
-            } else {
-                cell.setStyle(
-                        "-fx-background-color: #FFF5F5;" + // красный — загружено
-                                "-fx-background-radius: 12;" +
-                                "-fx-border-color: #fed7d7;" +
-                                "-fx-border-radius: 12;" +
-                                "-fx-border-width: 1.5;" +
-                                "-fx-padding: 10;"
-                );
-            }
+            if (aptCount == 0) cell.getStyleClass().add("sched-day-free");
+            else if (aptCount <= 3) cell.getStyleClass().add("sched-day-light");
+            else cell.getStyleClass().add("sched-day-busy");
         } else {
-            // Выходной
-            cell.setStyle(
-                    "-fx-background-color: #fafafa;" +
-                            "-fx-background-radius: 12;" +
-                            "-fx-border-color: #edf2f7;" +
-                            "-fx-border-radius: 12;" +
-                            "-fx-border-width: 1.5;" +
-                            "-fx-padding: 10;"
-            );
-            numberLabel.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 15px;");
+            cell.getStyleClass().add("sched-day-off");
         }
 
         cell.setOnMouseClicked(e -> {
-            // Берём актуальные данные из currentDays
             if (currentDays != null) {
                 for (JsonNode d : currentDays) {
                     if (d.get("day").asInt() == dayNum) {
-                        boolean actualWorking = d.get("workingDay").asBoolean();
-                        int actualAptCount = d.get("appointmentCount").asInt();
-                        showDayDetail(dayNum, actualWorking, actualAptCount, d);
+                        showDayDetail(dayNum, d.get("workingDay").asBoolean(), d.get("appointmentCount").asInt(), d);
                         break;
                     }
                 }
             }
+            // Выделение ячейки через классы
             if (selectedCell != null) {
-                selectedCell.setStyle(selectedCellStyle);
+                selectedCell.getStyleClass().remove("sched-day-selected");
             }
-            selectedCellStyle = cell.getStyle();
             selectedCell = cell;
-            cell.setStyle(cell.getStyle() +
-                    "-fx-border-color: #2196F3;" +
-                    "-fx-effect: dropshadow(three-pass-box, rgba(33,150,243,0.3), 8, 0, 0, 2);"
-            );
+            cell.getStyleClass().add("sched-day-selected");
         });
 
         dayCells.put(dayNum, cell);
@@ -368,14 +288,7 @@ public class ScheduleController {
         dateLabel.setWrapText(true);
 
         Label statusLabel = new Label(isWorking ? "  Working day  " : "  Day off  ");
-        statusLabel.setStyle(isWorking
-                ? "-fx-background-color: #c6f6d5; -fx-text-fill: #276749; " +
-                "-fx-background-radius: 20; -fx-padding: 4 12 4 12; " +
-                "-fx-font-size: 11px; -fx-font-weight: bold;"
-                : "-fx-background-color: #fed7d7; -fx-text-fill: #c53030; " +
-                "-fx-background-radius: 20; -fx-padding: 4 12 4 12; " +
-                "-fx-font-size: 11px; -fx-font-weight: bold;"
-        );
+        statusLabel.getStyleClass().addAll("day-badge", isWorking ? "day-badge-working" : "day-badge-off");
 
         dayDetailPanel.getChildren().addAll(dateLabel, statusLabel);
 
@@ -424,10 +337,7 @@ public class ScheduleController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         Label countBadge = new Label(aptCount + " appointments");
-        countBadge.setStyle(
-                "-fx-background-color: #ebf8ff; -fx-text-fill: #2b6cb0; " +
-                        "-fx-background-radius: 10; -fx-padding: 2 8 2 8; -fx-font-size: 11px;"
-        );
+        countBadge.getStyleClass().addAll("day-badge", "day-badge-count");
         aptHeader.getChildren().addAll(aptsTitle, spacer, countBadge);
         VBox.setMargin(aptHeader, new Insets(0, 0, 10, 0));
         dayDetailPanel.getChildren().add(aptHeader);
@@ -512,39 +422,10 @@ public class ScheduleController {
 
                 HBox card = new HBox(12);
                 card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                card.setStyle(
-                        "-fx-background-color: white;" +
-                                "-fx-background-radius: 10;" +
-                                "-fx-border-color: #e2e8f0;" +
-                                "-fx-border-radius: 10;" +
-                                "-fx-border-width: 1;" +
-                                "-fx-padding: 10 14 10 14;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 4, 0, 0, 2);"
-                );
+                card.getStyleClass().add("sched-apt-card"); // <--- Добавили класс
                 card.getChildren().addAll(stripe, info);
 
                 card.setOnMouseClicked(e -> showAppointmentPopup(apt, card, card));
-                card.setOnMouseEntered(e -> card.setStyle(
-                        "-fx-background-color: #EBF4FF;" +
-                                "-fx-background-radius: 10;" +
-                                "-fx-border-color: #64B5F6;" +
-                                "-fx-border-radius: 10;" +
-                                "-fx-border-width: 1;" +
-                                "-fx-padding: 10 14 10 14;" +
-                                "-fx-cursor: hand;"
-                ));
-                card.setOnMouseExited(e -> card.setStyle(
-                        "-fx-background-color: white;" +
-                                "-fx-background-radius: 10;" +
-                                "-fx-border-color: #e2e8f0;" +
-                                "-fx-border-radius: 10;" +
-                                "-fx-border-width: 1;" +
-                                "-fx-padding: 10 14 10 14;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 4, 0, 0, 2);"
-                ));
-
                 scrollContent.getChildren().add(card);
             }
         }
@@ -602,24 +483,18 @@ public class ScheduleController {
         javafx.stage.Popup popup = activePopup;
 
         VBox content = new VBox(0);
-        content.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 20;" +
-                        "-fx-border-width: 1;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 30, 0, 0, 10);"
-        );
+        content.getStyleClass().add("popup-root");
+
+        try {
+            content.getStylesheets().add(getClass().getResource("/css/css.css").toExternalForm());
+        } catch (Exception e) {}
+        FxUtils.applyTheme(content);
         content.setPrefWidth(380);
 
         // ── Шапка ──────────────────────────────────────────
         HBox header = new HBox(10);
         header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        header.setStyle(
-                "-fx-background-color: #64B5F6;" +
-                        "-fx-background-radius: 20 20 0 0;" +
-                        "-fx-padding: 16 20 16 20;"
-        );
+        header.getStyleClass().add("popup-header");
 
         VBox headerInfo = new VBox(4);
         HBox.setHgrow(headerInfo, Priority.ALWAYS);
@@ -664,15 +539,8 @@ public class ScheduleController {
         // Навигация ◀ ▶
         Button prevBtn = new Button("◀");
         Button nextBtn = new Button("▶");
-        String navStyle =
-                "-fx-background-color: rgba(255,255,255,0.2);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-padding: 4 10 4 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-size: 12px;";
-        prevBtn.setStyle(navStyle);
-        nextBtn.setStyle(navStyle);
+        prevBtn.getStyleClass().add("popup-nav-btn");
+        nextBtn.getStyleClass().add("popup-nav-btn");
         prevBtn.setDisable(currentAptIndex <= 0);
         nextBtn.setDisable(currentAptIndex >= currentApts.size() - 1);
 
@@ -695,14 +563,7 @@ public class ScheduleController {
 
         // Инфо о пациенте
         VBox patientCard = new VBox(8);
-        patientCard.setStyle(
-                "-fx-background-color: #f7fafc;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-padding: 12 16 12 16;" +
-                        "-fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 12;" +
-                        "-fx-border-width: 1;"
-        );
+        patientCard.getStyleClass().add("popup-patient-card");
 
         // Аватар + имя
         HBox patientHeader = new HBox(12);
@@ -714,16 +575,7 @@ public class ScheduleController {
                 : String.valueOf(patientName.charAt(0));
 
         Label avatar = new Label(initials);
-        avatar.setStyle(
-                "-fx-background-color: #d6e4ff;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-min-width: 40; -fx-min-height: 40;" +
-                        "-fx-max-width: 40; -fx-max-height: 40;" +
-                        "-fx-alignment: center;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-text-fill: #4a90d9;"
-        );
+        avatar.getStyleClass().add("popup-avatar");
 
         VBox patientInfo = new VBox(2);
         Label patientNameLabel = new Label(patientName);
@@ -758,9 +610,9 @@ public class ScheduleController {
         HBox statusButtons = new HBox(8);
         statusButtons.setAlignment(javafx.geometry.Pos.CENTER);
 
-        Button completedBtn = createStatusBtn("✓", "Completed", "#c6f6d5", "#276749");
-        Button noShowBtn = createStatusBtn("?", "No Show", "#fefcbf", "#744210");
-        Button cancelBtn = createStatusBtn("✕", "Cancelled", "#fed7d7", "#c53030");
+        Button completedBtn = createStatusBtn("✓", "Completed", "completed");
+        Button noShowBtn = createStatusBtn("?", "No Show", "noshow");
+        Button cancelBtn = createStatusBtn("✕", "Cancelled", "cancelled");
 
         // Выделяем активный статус
         highlightActiveStatus(aptStatus, completedBtn, noShowBtn, cancelBtn);
@@ -794,16 +646,7 @@ public class ScheduleController {
         // ── Кнопка закрыть ─────────────────────────────────
         Button closeBtn = new Button("Close");
         closeBtn.setMaxWidth(Double.MAX_VALUE);
-        closeBtn.setStyle(
-                "-fx-background-color: #f7fafc;" +
-                        "-fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 8 20 8 20;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-text-fill: #4a5568;" +
-                        "-fx-font-weight: bold;"
-        );
+        closeBtn.getStyleClass().add("popup-close-btn");
         closeBtn.setOnAction(e -> popup.hide());
         body.getChildren().add(closeBtn);
 
@@ -853,30 +696,20 @@ public class ScheduleController {
         return row;
     }
 
-    private Button createStatusBtn(String icon, String text, String bg, String fg) {
+    private Button createStatusBtn(String icon, String text, String type) {
         Button btn = new Button(icon + " " + text);
-        btn.setStyle(
-                "-fx-background-color: " + bg + ";" +
-                        "-fx-text-fill: " + fg + ";" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-padding: 8 12 8 12;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 12px;"
-        );
+        btn.getStyleClass().addAll("popup-status-btn", "status-btn-" + type);
         return btn;
     }
 
-    private void highlightActiveStatus(String status, Button completed,
-                                       Button noShow, Button cancel) {
-        String activeStyle = "-fx-border-width: 2; -fx-border-color: #2d3748;";
-        if (status.equals("COMPLETED"))
-            completed.setStyle(completed.getStyle() + activeStyle);
-        else if (status.equals("NO_SHOW"))
-            noShow.setStyle(noShow.getStyle() + activeStyle);
-        else if (status.equals("CANCELLED"))
-            cancel.setStyle(cancel.getStyle() + activeStyle);
+    private void highlightActiveStatus(String status, Button completed, Button noShow, Button cancel) {
+        completed.getStyleClass().remove("status-btn-active");
+        noShow.getStyleClass().remove("status-btn-active");
+        cancel.getStyleClass().remove("status-btn-active");
+
+        if (status.equals("COMPLETED")) completed.getStyleClass().add("status-btn-active");
+        else if (status.equals("NO_SHOW")) noShow.getStyleClass().add("status-btn-active");
+        else if (status.equals("CANCELLED")) cancel.getStyleClass().add("status-btn-active");
     }
 
     private void handleStatusChange(Long aptId, String newStatusRaw,
@@ -895,9 +728,7 @@ public class ScheduleController {
                     reloadCalendarData();
                     updatePopupStatus(newStatus);
 
-                    resetButtonStyle(completedBtn, "#c6f6d5", "#276749");
-                    resetButtonStyle(noShowBtn, "#fefcbf", "#744210");
-                    resetButtonStyle(cancelBtn, "#fed7d7", "#c53030");
+                    highlightActiveStatus(newStatus, completedBtn, noShowBtn, cancelBtn);
 
                     if (!newStatus.equals("SCHEDULED")) {
                         Button activeBtn = switch (newStatus) {

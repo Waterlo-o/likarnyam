@@ -4,6 +4,7 @@ package com.example.likarnyam.controller;
 import com.example.likarnyam.session.UserSession;
 import com.example.likarnyam.client.AppointmentApiClient;
 import com.example.likarnyam.client.DoctorApiClient;
+import com.example.likarnyam.client.AuthExpiredException;
 import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
@@ -53,8 +54,7 @@ public class HomeController {
     public void initialize() {
         System.out.println("HomeController initialized!");
         new Thread(() -> {
-            // Пробуем подключиться до 5 раз с паузой 2 секунды
-            int maxRetries = 10;
+            int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {
                 try {
                     System.out.println("Attempt " + (i + 1) + " to connect...");
@@ -66,7 +66,6 @@ public class HomeController {
                     int totalVisits = appointments.size();
 
                     Platform.runLater(() -> {
-
                         int hour = java.time.LocalTime.now().getHour();
                         String greeting = hour < 12 ? "Good Morning "
                                 : hour < 17 ? "Good Afternoon "
@@ -88,11 +87,8 @@ public class HomeController {
                             if (status.equals("COMPLETED")) completed++;
                         }
 
-                        // Обновляем лейблы
-                        if (scheduledLabel != null)
-                            scheduledLabel.setText(String.valueOf(scheduled));
-                        if (completedLabel != null)
-                            completedLabel.setText(String.valueOf(completed));
+                        if (scheduledLabel != null) scheduledLabel.setText(String.valueOf(scheduled));
+                        if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
 
                         if (patientListContainer != null) {
                             patientListContainer.getChildren().clear();
@@ -100,30 +96,14 @@ public class HomeController {
                             updatePatientList(appointments);
                         }
                     });
-                    break; // успешно — выходим из цикла
+                    break;
 
+                } catch (AuthExpiredException e) {
+                    handleAuthExpired();
+                    break;
                 } catch (Exception e) {
                     System.out.println("Attempt " + (i + 1) + " failed: " + e.getMessage());
-                    if (e.getMessage() != null && e.getMessage().equals("TOKEN_EXPIRED")) {
-                        // Токен просрочен — на логин
-                        Platform.runLater(() -> {
-                            UserSession.getInstance().logout();
-                            try {
-                                Parent root = FXMLLoader.load(
-                                        getClass().getResource("/fxml/login.fxml")
-                                );
-                                Stage stage = (Stage) totalVisitsLabel.getScene().getWindow();
-                                stage.setScene(new Scene(root, 800, 500));
-                                stage.setResizable(false);
-                                stage.show();
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        });
-                        break;
-                    }
-                    // Другая ошибка — ждём 2 секунды и пробуем снова
-                    try { Thread.sleep(3000); } catch (InterruptedException ie) { break; }
+                    try { Thread.sleep(2000); } catch (InterruptedException ie) { break; }
                 }
             }
         }).start();
@@ -144,17 +124,73 @@ public class HomeController {
                         upcomingContainer.getChildren().add(empty);
                         return;
                     }
-                    // Показываем максимум 3 события
                     int limit = Math.min(events.size(), 3);
                     for (int i = 0; i < limit; i++) {
                         JsonNode event = events.get(i);
                         upcomingContainer.getChildren().add(createEventCard(event));
                     }
                 });
+            } catch (AuthExpiredException e) {
+                handleAuthExpired();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private void loadHomeCalendar() {
+        LocalDate now = LocalDate.now();
+        calMonthLabel.setText(
+                now.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+        );
+
+        new Thread(() -> {
+            try {
+                JsonNode days = ScheduleApiClient.getCalendar(
+                        now.getYear(), now.getMonthValue()
+                );
+                Platform.runLater(() -> buildHomeCalendar(days));
+            } catch (AuthExpiredException e) {
+                handleAuthExpired();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private volatile boolean isLoggingOut = false;
+
+    private void handleAuthExpired() {
+        if (isLoggingOut) return;
+        isLoggingOut = true;
+
+        Platform.runLater(() -> {
+            System.out.println("Session expired. Redirecting to login...");
+            UserSession.getInstance().logout();
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+
+                Stage stage = null;
+                // Проверяем, прикрепился ли уже UI к сцене
+                if (totalVisitsLabel != null && totalVisitsLabel.getScene() != null) {
+                    stage = (Stage) totalVisitsLabel.getScene().getWindow();
+                }
+                // Если нет, берем первое активное окно приложения
+                else if (!javafx.stage.Window.getWindows().isEmpty()) {
+                    stage = (Stage) javafx.stage.Window.getWindows().get(0);
+                }
+
+                if (stage != null) {
+                    stage.setScene(new Scene(root, 800, 500));
+                    stage.setResizable(false);
+                    stage.show();
+                } else {
+                    System.err.println("Error: Could not find main window for redirect.");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     private HBox createEventCard(JsonNode event) {
@@ -224,100 +260,56 @@ public class HomeController {
         String date = eventAt.substring(0, 10);
         String time = eventAt.substring(11, 16);
 
-        // Цвет и иконка по типу
-        String color = switch (type) {
-            case "CONFERENCE" -> "#7C3AED";
-            case "TRAINING" -> "#059669";
-            default -> "#1E40AF";
-        };
-        String lightColor = switch (type) {
-            case "CONFERENCE" -> "#EDE9FE";
-            case "TRAINING" -> "#D1FAE5";
-            default -> "#EFF6FF";
-        };
         String typeLabel = switch (type) {
             case "CONFERENCE" -> "Conference";
-            case "TRAINING" -> "Training";
-            default -> "Meeting";
+            case "TRAINING"   -> "Training";
+            default           -> "Meeting";
+        };
+        String locationCardClass = switch (type) {
+            case "CONFERENCE" -> "popup-location-card-conference";
+            case "TRAINING"   -> "popup-location-card-training";
+            default           -> "popup-location-card-meeting";
         };
 
         javafx.stage.Popup popup = new javafx.stage.Popup();
         popup.setAutoHide(true);
 
         VBox content = new VBox(0);
-        content.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 30, 0, 0, 12);"
-        );
+        content.getStyleClass().add("popup-content"); // ✅
         content.setPrefWidth(320);
+        // CSS из текущей сцены
+        content.getStylesheets().add(
+                getClass().getResource("/css/css.css").toExternalForm()
+        );
+        if (FxUtils.isDarkMode) content.getStyleClass().add("dark-theme"); // ✅
 
-        // ── Шапка с градиентом ──
+        // Шапка
         VBox header = new VBox(8);
-        header.setStyle(
-                "-fx-background-color: linear-gradient(to right, #64B5F6, #42A5F5);" +
-                        "-fx-background-radius: 20 20 0 0;" +
-                        "-fx-padding: 20 20 20 20;"
-        );
+        header.getStyleClass().add("popup-event-header"); // ✅
 
-
-
-        // Тип бейдж
         Label typeBadge = new Label(typeLabel.toUpperCase());
-        typeBadge.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.25);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 6;" +
-                        "-fx-padding: 3 10 3 10;" +
-                        "-fx-font-size: 10px;" +
-                        "-fx-font-weight: bold;"
-        );
+        typeBadge.getStyleClass().add("popup-type-badge"); // ✅
 
         Label titleLabel = new Label(title);
-        titleLabel.setStyle(
-                "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
-        );
+        titleLabel.getStyleClass().add("popup-event-title"); // ✅
         titleLabel.setWrapText(true);
 
-        // Дата и время в шапке
         Label dateTimeLabel = new Label(date + "  •  " + time);
-        dateTimeLabel.setStyle(
-                "-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);"
-        );
+        dateTimeLabel.getStyleClass().add("popup-event-datetime"); // ✅
 
         header.getChildren().addAll(typeBadge, titleLabel, dateTimeLabel);
 
-
-
-        // ── Тело ──
+        // Тело
         VBox body = new VBox(0);
-        body.setStyle("-fx-padding: 0;");
+        body.getStyleClass().add("popup-body");
 
-        // Карточка локации
         if (!location.equals("—")) {
             HBox locationCard = new HBox(12);
             locationCard.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            locationCard.setStyle(
-                    "-fx-background-color: " + lightColor + ";" +
-                            "-fx-padding: 14 20 14 20;"
-            );
-            locationCard.setOnMouseEntered(e -> locationCard.setStyle(
-                    "-fx-background-color: #BFDBFE;" +
-                            "-fx-padding: 14 20 14 20;"
-            ));
-            locationCard.setOnMouseExited(e -> locationCard.setStyle(
-                    "-fx-background-color: " + lightColor + ";" +
-                            "-fx-padding: 14 20 14 20;"
-            ));
+            locationCard.getStyleClass().addAll("popup-location-card", locationCardClass); // ✅
+
             VBox locationIcon = new VBox();
-            locationIcon.setStyle(
-                    "-fx-background-color: white;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-min-width: 32; -fx-min-height: 32;" +
-                            "-fx-max-width: 32; -fx-max-height: 32;" +
-                            "-fx-alignment: center;" +
-                            "-fx-effect: dropshadow(three-pass-box, rgba(100,181,246,0.3), 6, 0, 0, 2);"
-            );
+            locationIcon.getStyleClass().add("popup-location-icon"); // ✅
             Label locIconLabel = new Label("📍");
             locIconLabel.setStyle("-fx-font-size: 14px;");
             locationIcon.getChildren().add(locIconLabel);
@@ -325,48 +317,32 @@ public class HomeController {
 
             VBox locInfo = new VBox(2);
             Label locTitle = new Label("Location");
-            locTitle.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 11px;");
+            locTitle.getStyleClass().add("popup-location-title"); // ✅
             Label locValue = new Label(location);
-            locValue.setStyle(
-                    "-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #111827;"
-            );
+            locValue.getStyleClass().add("popup-location-value"); // ✅
             locInfo.getChildren().addAll(locTitle, locValue);
 
             locationCard.getChildren().addAll(locationIcon, locInfo);
             body.getChildren().add(locationCard);
         }
 
-        // Описание
         if (!description.equals("—")) {
             VBox descBox = new VBox(6);
-            descBox.setStyle("-fx-padding: 16 20 0 20;");
+            descBox.getStyleClass().add("popup-desc-box"); // ✅
             Label descTitle = new Label("Notes");
-            descTitle.setStyle(
-                    "-fx-font-size: 11px; -fx-font-weight: bold; " +
-                            "-fx-text-fill: #6B7280; -fx-letter-spacing: 0.5px;"
-            );
+            descTitle.getStyleClass().add("popup-desc-title"); // ✅
             Label descValue = new Label(description);
-            descValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
+            descValue.getStyleClass().add("popup-desc-value"); // ✅
             descValue.setWrapText(true);
             descBox.getChildren().addAll(descTitle, descValue);
             body.getChildren().add(descBox);
         }
 
-        // Кнопка закрыть
         VBox btnBox = new VBox();
-        btnBox.setStyle("-fx-padding: 16 20 20 20;");
+        btnBox.getStyleClass().add("popup-btn-box"); // ✅
         Button closeBtn = new Button("Close");
         closeBtn.setMaxWidth(Double.MAX_VALUE);
-        closeBtn.setStyle(
-                "-fx-background-color: #64B5F6;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 13px;"
-        );
+        closeBtn.getStyleClass().add("popup-close-btn"); // ✅
         closeBtn.setOnAction(ev -> popup.hide());
         btnBox.getChildren().add(closeBtn);
         body.getChildren().add(btnBox);
@@ -378,29 +354,6 @@ public class HomeController {
         double centerX = window.getX() + window.getWidth() / 2 - 160;
         double centerY = window.getY() + window.getHeight() / 2 - 160;
         popup.show(anchor, centerX, centerY);
-
-
-// Hover на кнопку Close
-        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(
-                "-fx-background-color: #42A5F5;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 13px;"
-        ));
-        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(
-                "-fx-background-color: #64B5F6;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 13px;"
-        ));
     }
 
     private JsonNode currentAppointments = null;
@@ -459,23 +412,6 @@ public class HomeController {
         return row;
     }
 
-    private void loadHomeCalendar() {
-        LocalDate now = LocalDate.now();
-        calMonthLabel.setText(
-                now.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
-        );
-
-        new Thread(() -> {
-            try {
-                JsonNode days = ScheduleApiClient.getCalendar(
-                        now.getYear(), now.getMonthValue()
-                );
-                Platform.runLater(() -> buildHomeCalendar(days));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
 
     private void buildHomeCalendar(JsonNode days) {
         homeCalendarGrid.getChildren().clear();
@@ -549,55 +485,23 @@ public class HomeController {
         addCalendarFooter(days);
     }
 
-    private Label createHomeCalCell(String text, boolean isWorking,
-                                    boolean isToday, int aptCount,
-                                    boolean isAdjacent) {
+    private Label createHomeCalCell(String text, boolean isWorking, boolean isToday, int aptCount, boolean isAdjacent) {
         Label cell = new Label(text);
         cell.setMaxWidth(Double.MAX_VALUE);
         cell.setAlignment(Pos.CENTER);
         cell.setPrefHeight(26);
+        cell.getStyleClass().add("cal-cell"); // Базовый класс
 
         if (isAdjacent) {
-            cell.setStyle("-fx-text-fill: #cbd5e0; -fx-font-size: 11px;");
-            return cell;
-        }
-
-        if (isToday) {
-            cell.setStyle(
-                    "-fx-background-color: #64B5F6;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-background-radius: 6;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-font-size: 11px;" +
-                            "-fx-cursor: hand;"
-            );
-        } else if (isWorking && aptCount > 0) {
-            String intensity = aptCount >= 5 ? "#FED7D7" : aptCount >= 3 ? "#BEE3F8" : "#EBF4FF";
-            String textColor = aptCount >= 5 ? "#c53030" : "#2b6cb0";
-            cell.setStyle(
-                    "-fx-background-color: " + intensity + ";" +
-                            "-fx-text-fill: " + textColor + ";" +
-                            "-fx-background-radius: 6;" +
-                            "-fx-font-size: 11px;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-cursor: hand;"
-            );
-            // Tooltip с количеством
-            Tooltip tooltip = new Tooltip(aptCount + " appointment" + (aptCount > 1 ? "s" : ""));
-            tooltip.setStyle("-fx-font-size: 11px;");
-            Tooltip.install(cell, tooltip);
+            cell.getStyleClass().add("cal-cell-adjacent");
+        } else if (isToday) {
+            cell.getStyleClass().add("cal-cell-today");
         } else if (isWorking) {
-            cell.setStyle(
-                    "-fx-background-color: #F0FFF4;" +
-                            "-fx-text-fill: #276749;" +
-                            "-fx-background-radius: 6;" +
-                            "-fx-font-size: 11px;" +
-                            "-fx-cursor: hand;"
-            );
-        } else {
-            cell.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 11px;");
+            if (aptCount >= 5) cell.getStyleClass().add("cal-cell-busy");
+            else if (aptCount >= 3) cell.getStyleClass().add("cal-cell-medium");
+            else if (aptCount > 0) cell.getStyleClass().add("cal-cell-light");
+            else cell.getStyleClass().add("cal-cell-working");
         }
-
         return cell;
     }
 
@@ -649,25 +553,16 @@ public class HomeController {
         homeCalendarGrid.getChildren().addAll(sep, stats);
     }
 
-    private VBox createStatBox(String number, String label,
-                               String bg, String fg) {
+    private VBox createStatBox(String number, String label, String bg, String fg) {
         VBox box = new VBox(2);
         box.setAlignment(Pos.CENTER);
-        box.setStyle(
-                "-fx-background-color: " + bg + ";" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 8 12 8 12;"
-        );
+        box.getStyleClass().add(label.equals("booked") ? "stat-box-booked" : "stat-box-available");
 
         Label numLabel = new Label(number);
-        numLabel.setStyle(
-                "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + fg + ";"
-        );
+        numLabel.getStyleClass().add("stat-num");
 
         Label textLabel = new Label(label);
-        textLabel.setStyle(
-                "-fx-font-size: 11px; -fx-text-fill: " + fg + "; -fx-opacity: 0.8;"
-        );
+        textLabel.getStyleClass().add("stat-text");
 
         box.getChildren().addAll(numLabel, textLabel);
         return box;
@@ -734,12 +629,6 @@ public class HomeController {
     }
 
     @FXML
-    private void navigateMessages() {
-        // TODO
-        System.out.println("Messages — coming soon");
-    }
-
-    @FXML
     private void handleLogout() {
         javafx.application.Platform.exit();
     }
@@ -752,5 +641,9 @@ public class HomeController {
     @FXML
     private void navigateAppointments() {
         FxUtils.navigateFullscreen(doctorNameLabel, "/fxml/appointments.fxml");
+    }
+    @FXML
+    private void navigateEvents() {
+        FxUtils.navigateFullscreen(upcomingContainer, "/fxml/events.fxml");
     }
 }

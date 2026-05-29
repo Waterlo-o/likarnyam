@@ -40,6 +40,7 @@ public class SettingsController {
         }).start();
     }
 
+    // ── Profile ─────────────────────────────────────────
     @FXML
     public void showProfile() {
         setActiveNav(btnProfile);
@@ -50,7 +51,6 @@ public class SettingsController {
 
         Separator sep = new Separator();
 
-        // Аватар
         HBox avatarBox = new HBox(20);
         avatarBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -60,16 +60,7 @@ public class SettingsController {
                 : "DR";
 
         Label avatar = new Label(initials);
-        avatar.setStyle(
-                "-fx-background-color: #64B5F6;" +
-                        "-fx-background-radius: 40;" +
-                        "-fx-min-width: 80; -fx-min-height: 80;" +
-                        "-fx-max-width: 80; -fx-max-height: 80;" +
-                        "-fx-alignment: center;" +
-                        "-fx-font-size: 24px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: white;"
-        );
+        avatar.getStyleClass().add("settings-avatar"); // ✅ класс вместо setStyle
 
         VBox avatarInfo = new VBox(4);
         String fullName = doctorData != null
@@ -81,15 +72,15 @@ public class SettingsController {
                 ? doctorData.get("specialization").asText() : "—";
 
         Label nameLabel = new Label(fullName);
-        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        nameLabel.getStyleClass().add("settings-name-label"); // ✅
+
         Label specLabel = new Label(spec);
-        specLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #718096;");
+        specLabel.getStyleClass().add("settings-spec-label"); // ✅
+
         avatarInfo.getChildren().addAll(nameLabel, specLabel);
         avatarBox.getChildren().addAll(avatar, avatarInfo);
 
-        // Поля
         VBox fields = new VBox(15);
-
         VBox firstNameBox = createField("First Name",
                 doctorData != null ? doctorData.get("firstName").asText() : "");
         VBox lastNameBox = createField("Last Name",
@@ -100,17 +91,13 @@ public class SettingsController {
         VBox emailBox = createField("Email",
                 doctorData != null ? doctorData.get("email").asText() : "");
 
-        // Делаем email нередактируемым
         TextField emailField = (TextField) emailBox.getChildren().get(1);
         emailField.setDisable(true);
 
         fields.getChildren().addAll(firstNameBox, lastNameBox, phoneBox, emailBox);
 
-        // Результат
         Label resultLabel = new Label("");
-        resultLabel.setStyle("-fx-font-size: 12px;");
 
-        // Кнопка сохранить
         Button saveBtn = new Button("Save Changes");
         saveBtn.getStyleClass().add("settings-save-btn");
         saveBtn.setOnAction(e -> {
@@ -129,37 +116,24 @@ public class SettingsController {
                     Platform.runLater(() -> {
                         doctorData = updated;
                         saveBtn.setText("Saved ✓");
-                        saveBtn.setStyle(
-                                "-fx-background-color: #38a169;" +
-                                        "-fx-text-fill: white;" +
-                                        "-fx-font-weight: bold;" +
-                                        "-fx-background-radius: 10;" +
-                                        "-fx-padding: 10 30 10 30;" +
-                                        "-fx-cursor: hand;"
-                        );
+                        saveBtn.getStyleClass().setAll("settings-save-btn-success"); // ✅
+                        resultLabel.getStyleClass().setAll("settings-result-success"); // ✅
                         resultLabel.setText("Profile updated successfully");
-                        resultLabel.setStyle("-fx-text-fill: #38a169;");
-
-                        // Обновляем аватар и имя
                         nameLabel.setText("Dr. " + fn.getText() + " " + ln.getText());
-                        avatar.setText(
-                                fn.getText().substring(0, 1) + ln.getText().substring(0, 1)
-                        );
+                        avatar.setText(fn.getText().substring(0, 1) + ln.getText().substring(0, 1));
                     });
                 } catch (Exception ex) {
                     Platform.runLater(() -> {
                         saveBtn.setDisable(false);
                         saveBtn.setText("Save Changes");
+                        resultLabel.getStyleClass().setAll("settings-result-error"); // ✅
                         resultLabel.setText("Failed to save");
-                        resultLabel.setStyle("-fx-text-fill: #e53e3e;");
                     });
                 }
             }).start();
         });
 
-        settingsContent.getChildren().addAll(
-                title, sep, avatarBox, fields, resultLabel, saveBtn
-        );
+        settingsContent.getChildren().addAll(title, sep, avatarBox, fields, resultLabel, saveBtn);
     }
 
     // ── Appearance ─────────────────────────────────────
@@ -173,7 +147,6 @@ public class SettingsController {
 
         Separator sep = new Separator();
 
-        // Тема
         Label themeLabel = new Label("Theme");
         themeLabel.getStyleClass().add("settings-field-label");
 
@@ -181,46 +154,24 @@ public class SettingsController {
         Button lightBtn = new Button("☀ Light");
         Button darkBtn = new Button("🌙 Dark");
 
-        lightBtn.setStyle(
-                "-fx-background-color: #64B5F6; -fx-text-fill: white;" +
-                        "-fx-background-radius: 10; -fx-padding: 8 20 8 20;" +
-                        "-fx-font-weight: bold; -fx-cursor: hand;"
-        );
-        darkBtn.setStyle(
-                "-fx-background-color: white; -fx-border-color: #e2e8f0;" +
-                        "-fx-border-radius: 10; -fx-background-radius: 10;" +
-                        "-fx-padding: 8 20 8 20; -fx-cursor: hand;"
-        );
+        Runnable updateBtnStyles = () -> {
+            lightBtn.getStyleClass().setAll(FxUtils.isDarkMode ? "theme-btn" : "theme-btn-active-light");
+            darkBtn.getStyleClass().setAll(FxUtils.isDarkMode ? "theme-btn-active-dark" : "theme-btn");
+        };
+        updateBtnStyles.run();
 
         lightBtn.setOnAction(e -> {
-            lightBtn.setStyle(
-                    "-fx-background-color: #64B5F6; -fx-text-fill: white;" +
-                            "-fx-background-radius: 10; -fx-padding: 8 20 8 20;" +
-                            "-fx-font-weight: bold; -fx-cursor: hand;"
-            );
-            darkBtn.setStyle(
-                    "-fx-background-color: white; -fx-border-color: #e2e8f0;" +
-                            "-fx-border-radius: 10; -fx-background-radius: 10;" +
-                            "-fx-padding: 8 20 8 20; -fx-cursor: hand;"
-            );
+            FxUtils.isDarkMode = false;
+            FxUtils.applyTheme(settingsContent.getScene().getRoot());
+            updateBtnStyles.run();
         });
-
         darkBtn.setOnAction(e -> {
-            darkBtn.setStyle(
-                    "-fx-background-color: #2d3748; -fx-text-fill: white;" +
-                            "-fx-background-radius: 10; -fx-padding: 8 20 8 20;" +
-                            "-fx-font-weight: bold; -fx-cursor: hand;"
-            );
-            lightBtn.setStyle(
-                    "-fx-background-color: white; -fx-border-color: #e2e8f0;" +
-                            "-fx-border-radius: 10; -fx-background-radius: 10;" +
-                            "-fx-padding: 8 20 8 20; -fx-cursor: hand;"
-            );
+            FxUtils.isDarkMode = true;
+            FxUtils.applyTheme(settingsContent.getScene().getRoot());
+            updateBtnStyles.run();
         });
-
         themeBox.getChildren().addAll(lightBtn, darkBtn);
 
-        // Размер шрифта
         Label fontLabel = new Label("Font Size");
         fontLabel.getStyleClass().add("settings-field-label");
 
@@ -231,30 +182,15 @@ public class SettingsController {
         for (String size : sizes) {
             ToggleButton btn = new ToggleButton(size);
             btn.setToggleGroup(fontGroup);
-            btn.setStyle(
-                    "-fx-background-color: white;" +
-                            "-fx-border-color: #e2e8f0;" +
-                            "-fx-border-radius: 8;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-padding: 6 16 6 16;" +
-                            "-fx-cursor: hand;"
-            );
-            if (size.equals("Medium")) {
-                btn.setSelected(true);
-                btn.setStyle(
-                        "-fx-background-color: #64B5F6;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-border-radius: 8;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-padding: 6 16 6 16;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-font-weight: bold;"
-                );
-            }
+            boolean isSelected = size.equals("Medium");
+            btn.setSelected(isSelected);
+            btn.getStyleClass().setAll(isSelected ? "font-size-btn-active" : "font-size-btn"); // ✅
+            btn.selectedProperty().addListener((obs, wasSelected, nowSelected) -> {
+                btn.getStyleClass().setAll(nowSelected ? "font-size-btn-active" : "font-size-btn");
+            });
             fontBox.getChildren().add(btn);
         }
 
-        // Уведомления
         Label notifLabel = new Label("Notifications");
         notifLabel.getStyleClass().add("settings-field-label");
 
@@ -262,23 +198,14 @@ public class SettingsController {
         notifBox.setAlignment(Pos.CENTER_LEFT);
         CheckBox notifCheck = new CheckBox("Enable notifications");
         notifCheck.setSelected(true);
-        notifCheck.setStyle("-fx-font-size: 13px;");
         notifBox.getChildren().add(notifCheck);
 
-        Label comingSoon = new Label("Dark theme — coming in next update");
-        comingSoon.setStyle(
-                "-fx-text-fill: #a0aec0; -fx-font-size: 12px; -fx-font-style: italic;"
-        );
-
         settingsContent.getChildren().addAll(
-                title, sep, themeLabel, themeBox,
-                fontLabel, fontBox,
-                notifLabel, notifBox,
-                comingSoon
+                title, sep, themeLabel, themeBox, fontLabel, fontBox, notifLabel, notifBox
         );
     }
 
-    // ── Working Hours ───────────────────────────────────
+    // ── Schedule ────────────────────────────────────────
     @FXML
     public void showSchedule() {
         setActiveNav(btnSchedule);
@@ -293,7 +220,7 @@ public class SettingsController {
                 "Your current schedule is set in the Schedule screen.\n" +
                         "Click below to manage your working hours."
         );
-        info.setStyle("-fx-text-fill: #718096; -fx-font-size: 13px;");
+        info.getStyleClass().add("settings-spec-label"); // переиспользуем muted стиль
         info.setWrapText(true);
 
         Button goToSchedule = new Button("Open Schedule →");
@@ -302,38 +229,33 @@ public class SettingsController {
                 FxUtils.navigateFullscreen(settingsContent, "/fxml/schedule.fxml")
         );
 
-        // Текущее расписание
         Label scheduleTitle = new Label("Current Schedule");
         scheduleTitle.getStyleClass().add("settings-field-label");
 
         String[][] schedule = {
-                {"Monday", "09:00 — 17:00"},
-                {"Tuesday", "09:00 — 17:00"},
+                {"Monday",    "09:00 — 17:00"},
+                {"Tuesday",   "09:00 — 17:00"},
                 {"Wednesday", "09:00 — 17:00"},
-                {"Thursday", "09:00 — 17:00"},
-                {"Friday", "09:00 — 14:00"},
-                {"Saturday", "Day off"},
-                {"Sunday", "Day off"}
+                {"Thursday",  "09:00 — 17:00"},
+                {"Friday",    "09:00 — 14:00"},
+                {"Saturday",  "Day off"},
+                {"Sunday",    "Day off"}
         };
 
         VBox scheduleBox = new VBox(8);
         for (String[] day : schedule) {
             HBox row = new HBox();
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setStyle(
-                    "-fx-background-color: #f7fafc;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-padding: 8 12 8 12;"
-            );
+            row.getStyleClass().add("schedule-row"); // ✅
+
             Label dayLabel = new Label(day[0]);
-            dayLabel.setStyle(
-                    "-fx-font-weight: bold; -fx-min-width: 100; -fx-font-size: 13px;"
-            );
+            dayLabel.getStyleClass().add("schedule-day-label"); // ✅
+
             Label timeLabel = new Label(day[1]);
-            timeLabel.setStyle(
-                    "-fx-font-size: 13px; -fx-text-fill: " +
-                            (day[1].equals("Day off") ? "#a0aec0" : "#276749") + ";"
+            timeLabel.getStyleClass().add(
+                    day[1].equals("Day off") ? "schedule-time-off" : "schedule-time-working" // ✅
             );
+
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
             row.getChildren().addAll(dayLabel, spacer, timeLabel);
@@ -356,7 +278,6 @@ public class SettingsController {
 
         Separator sep = new Separator();
 
-        // Смена пароля
         Label passTitle = new Label("Change Password");
         passTitle.getStyleClass().add("settings-field-label");
 
@@ -373,7 +294,6 @@ public class SettingsController {
         confirmPass.getStyleClass().add("settings-input");
 
         Label passResult = new Label("");
-        passResult.setStyle("-fx-font-size: 12px;");
 
         Button changePassBtn = new Button("Change Password");
         changePassBtn.getStyleClass().add("settings-save-btn");
@@ -384,20 +304,18 @@ public class SettingsController {
             String confirm = confirmPass.getText();
 
             if (current.isEmpty() || newP.isEmpty()) {
+                passResult.getStyleClass().setAll("settings-result-error"); // ✅
                 passResult.setText("Please fill all fields");
-                passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
                 return;
             }
-
             if (!newP.equals(confirm)) {
+                passResult.getStyleClass().setAll("settings-result-error");
                 passResult.setText("Passwords don't match");
-                passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
                 return;
             }
-
             if (newP.length() < 6) {
+                passResult.getStyleClass().setAll("settings-result-error");
                 passResult.setText("Password must be at least 6 characters");
-                passResult.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 12px;");
                 return;
             }
 
@@ -408,22 +326,16 @@ public class SettingsController {
                 try {
                     ApiClient.changePassword(current, newP);
                     Platform.runLater(() -> {
+                        passResult.getStyleClass().setAll("settings-result-success"); // ✅
                         passResult.setText("Password changed successfully ✓");
-                        passResult.setStyle(
-                                "-fx-text-fill: #38a169; -fx-font-size: 12px;"
-                        );
                         changePassBtn.setText("Change Password");
                         changePassBtn.setDisable(false);
-                        currentPass.clear();
-                        newPass.clear();
-                        confirmPass.clear();
+                        currentPass.clear(); newPass.clear(); confirmPass.clear();
                     });
                 } catch (Exception ex) {
                     Platform.runLater(() -> {
+                        passResult.getStyleClass().setAll("settings-result-error");
                         passResult.setText("Invalid current password");
-                        passResult.setStyle(
-                                "-fx-text-fill: #e53e3e; -fx-font-size: 12px;"
-                        );
                         changePassBtn.setText("Change Password");
                         changePassBtn.setDisable(false);
                     });
@@ -433,22 +345,11 @@ public class SettingsController {
 
         Separator sep2 = new Separator();
 
-        // Danger zone
         Label dangerTitle = new Label("Danger Zone");
-        dangerTitle.setStyle(
-                "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c53030;"
-        );
+        dangerTitle.getStyleClass().add("danger-title"); // ✅
 
         Button logoutBtn = new Button("Sign Out");
-        logoutBtn.setStyle(
-                "-fx-background-color: #fed7d7;" +
-                        "-fx-text-fill: #c53030;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 10 30 10 30;" +
-                        "-fx-cursor: hand;"
-        );
-
+        logoutBtn.getStyleClass().add("btn-logout"); // ✅
         logoutBtn.setOnAction(e -> {
             UserSession.getInstance().logout();
             FxUtils.navigate(settingsContent, "/fxml/login.fxml", 800, 500);
@@ -480,6 +381,8 @@ public class SettingsController {
         btnAccount.getStyleClass().setAll("settings-nav");
         active.getStyleClass().setAll("settings-nav-active");
     }
+
+
 
     // Навигация
     @FXML private void navigateHome() {

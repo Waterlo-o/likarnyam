@@ -74,4 +74,23 @@ public class AppointmentController {
                 ))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // PATCH /api/appointments/{id}
+    @PatchMapping("/{id}")
+    public ResponseEntity<AppointmentResponse> updateAppointment(
+            @PathVariable Long id,
+            @RequestBody AppointmentCreateRequest request,
+            Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .flatMap(doctor -> appointmentService.updateAppointment(id, request, doctor.getId()))
+                .map(apt -> ResponseEntity.ok(AppointmentResponse.from(apt)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/appointments/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        appointmentService.deleteAppointment(id);
+        return ResponseEntity.noContent().build(); // Возвращает 204 No Content (успешно удалено)
+    }
 }

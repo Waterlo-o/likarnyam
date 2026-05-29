@@ -566,3 +566,1481 @@
     -fx-background-color: #64B5F6;
     -fx-padding: 20 20 20 0;
 }
+
+/* =========================================
+   ✨ СОВРЕМЕННЫЙ ДИЗАЙН ПОЛЕЙ ВВОДА (СВЕТЛАЯ ТЕМА)
+   ========================================= */
+
+/* 1. Базовый фон и мягкие рамки для всех инпутов */
+.text-field,
+.text-area {
+    -fx-control-inner-background: #ffffff;
+    -fx-background-color: #e2e8f0, #ffffff; /* Цвет рамки, затем цвет фона */
+    -fx-background-insets: 0, 1;            /* Толщина рамки 1px */
+    -fx-background-radius: 8, 7;            /* Скругление рамки и фона */
+    -fx-text-fill: #2d3748;                 /* Тёмно-серый текст */
+    -fx-prompt-text-fill: #a0aec0;          /* Светло-серый placeholder */
+}
+
+/* 2. Красивая подсветка при клике (Фокус) */
+.text-field:focused,
+.text-area:focused {
+    -fx-background-color: #64B5F6, #ffffff; /* Голубая рамка при вводе */
+}
+
+/* 3. Укрощаем внутренности TextArea для светлой темы */
+.text-area .content {
+    -fx-background-color: #ffffff;
+}
+.text-area .viewport {
+    -fx-background-color: transparent;
+}
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* 4. Скроллбар светлой темы (чтобы выглядел аккуратно) */
+.text-area .scroll-bar:vertical,
+.text-area .scroll-bar:horizontal {
+    -fx-background-color: #f7fafc;
+}
+.text-area .scroll-bar:vertical .thumb,
+.text-area .scroll-bar:horizontal .thumb {
+    -fx-background-color: #cbd5e0;
+    -fx-background-radius: 4;
+}
+
+/* =========================================
+   🌙 DARK THEME OVERRIDES (PRO VERSION)
+   ========================================= */
+
+/* 1. Глубокий фон приложения (боковое меню сливается с ним) */
+.dark-theme.root, .dark-theme .root {
+    -fx-background-color: #0F172A;
+}
+
+/* 2. Центральная вылетающая карточка */
+.dark-theme .main-content {
+    -fx-background-color: #1E293B;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 25, 0, -5, 5);
+}
+
+/* 3. Исправляем карточку статистики "Visits for Today" */
+.dark-theme .stats-card {
+    -fx-background-color: linear-gradient(to right, #334155, #1E293B);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);
+}
+.dark-theme .mini-stat {
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-border-color: transparent;
+}
+
+/* 4. Плашки Upcoming (event-badge) и Consultation */
+.dark-theme .event-badge,
+.dark-theme .consultation-card {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+}
+.dark-theme .event-badge:hover {
+    -fx-background-color: #475569;
+}
+
+/* 5. Карточки (Календарь, Настройки, История) */
+.dark-theme .white-card,
+.dark-theme .history-card,
+.dark-theme .detail-time-card {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+}
+
+/* 6. Поиск и текстовые поля */
+.dark-theme .search-bar,
+.dark-theme .settings-input {
+    -fx-background-color: #0F172A;
+    -fx-text-fill: #F8FAFC;
+    -fx-border-color: #475569;
+}
+.dark-theme .search-bar:focused,
+.dark-theme .settings-input:focused {
+    -fx-border-color: #3B82F6;
+}
+
+/* 7. Все тексты */
+.dark-theme Label,
+.dark-theme Text {
+    -fx-text-fill: #F8FAFC !important; /* Белый текст везде */
+}
+
+/* Тусклые акцентные тексты (заголовки таблиц, дни недели) */
+.dark-theme .table-header-cell,
+.dark-theme .settings-section-title,
+.dark-theme .settings-field-label,
+.dark-theme .cal-weekday {
+    -fx-text-fill: #94A3B8 !important;
+}
+
+/* 8. Списки и таблицы пациентов */
+.dark-theme .table-header {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+}
+.dark-theme .patient-row {
+    -fx-background-color: transparent;
+    -fx-border-color: #334155;
+}
+.dark-theme .patient-row:hover {
+    -fx-background-color: #334155;
+}
+
+/* 9. Календарь */
+.dark-theme .cal-day {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+}
+.dark-theme .cal-day-working {
+    -fx-background-color: #1e3a30; /* Темно-зеленый для рабочих дней */
+    -fx-border-color: #264a3d;
+}
+.dark-theme .cal-day-today {
+    -fx-background-color: #1D4ED8;
+    -fx-border-color: #3B82F6;
+}
+.dark-theme .cal-day:hover {
+    -fx-background-color: #334155;
+    -fx-border-color: #64B5F6;
+}
+
+/* 10. Меню навигации в настройках */
+.dark-theme .settings-nav {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #475569;
+    -fx-text-fill: #F8FAFC;
+}
+.dark-theme .settings-nav:hover {
+    -fx-background-color: #334155;
+}
+.dark-theme .settings-nav-active {
+    -fx-background-color: #3B82F6;
+    -fx-border-color: #3B82F6;
+}
+
+/* 11. Боковое меню (иконки слева) */
+.dark-theme .menu-btn {
+    -fx-text-fill: #94A3B8;
+}
+.dark-theme .menu-btn:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.2);
+    -fx-text-fill: #60A5FA;
+}
+
+/* --- Исправление засветов --- */
+
+/* Убираем белые фоны у выпадающих списков и полей выбора */
+.dark-theme .combo-box,
+.dark-theme .date-picker,
+.dark-theme .text-field,
+.dark-theme .text-area {
+    -fx-control-inner-background: #1E293B;
+    -fx-text-fill: white;
+}
+
+/* Принудительная перекраска кнопок сброса и стрелок */
+.dark-theme .date-picker > .arrow-button,
+.dark-theme .combo-box > .arrow-button {
+    -fx-background-color: #334155;
+}
+.dark-theme .date-picker > .arrow-button > .arrow,
+.dark-theme .combo-box > .arrow-button > .arrow {
+    -fx-background-color: white;
+}
+
+/* Убираем белый фон у самих сцен и диалогов */
+.dark-theme .dialog-pane {
+    -fx-background-color: #1E293B;
+}
+
+/* Исправление карточек, которые "не докрасились" */
+.dark-theme .white-card {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+}
+
+/* Исправляем контраст текста в заголовках, если они еще светлые */
+.dark-theme .settings-section-title,
+.dark-theme .settings-field-label {
+    -fx-text-fill: #94A3B8 !important;
+}
+
+/* Принудительная окраска всех стандартных контейнеров внутри темной темы */
+.dark-theme .calendar-grid,
+.dark-theme .date-picker,
+.dark-theme .combo-box,
+.dark-theme .scroll-pane,
+.dark-theme .scroll-pane > .viewport,
+.dark-theme .scroll-bar {
+    -fx-background-color: #1E293B !important;
+}
+
+/* Перекраска текста для всех элементов внутри, включая глубоко вложенные */
+.dark-theme, .dark-theme * {
+    -fx-text-fill: #F8FAFC !important;
+    -fx-accent: #3B82F6 !important;
+}
+
+/* Исправление сетки календаря */
+.dark-theme .calendar-grid .day-cell {
+    -fx-background-color: #334155;
+    -fx-text-fill: #E2E8F0;
+}
+/* --- Календарь --- */
+.cal-cell { -fx-text-fill: #a0aec0; -fx-font-size: 11px; }
+.dark-theme .cal-cell { -fx-text-fill: #94A3B8; }
+
+.cal-cell-adjacent { -fx-text-fill: #cbd5e0; }
+.dark-theme .cal-cell-adjacent { -fx-text-fill: #334155; }
+
+.cal-cell-today { -fx-background-color: #64B5F6; -fx-text-fill: white; -fx-background-radius: 6; }
+.dark-theme .cal-cell-today { -fx-background-color: #3B82F6; }
+
+.cal-cell-busy { -fx-background-color: #FED7D7; -fx-text-fill: #c53030; -fx-background-radius: 6; }
+.dark-theme .cal-cell-busy { -fx-background-color: #7F1D1D; -fx-text-fill: #FCA5A5; }
+
+.cal-cell-medium { -fx-background-color: #BEE3F8; -fx-text-fill: #2b6cb0; -fx-background-radius: 6; }
+.dark-theme .cal-cell-medium { -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; }
+
+.cal-cell-light { -fx-background-color: #EBF4FF; -fx-text-fill: #2b6cb0; -fx-background-radius: 6; }
+.dark-theme .cal-cell-light { -fx-background-color: #1E293B; -fx-text-fill: #60A5FA; }
+
+.cal-cell-working { -fx-background-color: #F0FFF4; -fx-text-fill: #276749; -fx-background-radius: 6; }
+.dark-theme .cal-cell-working { -fx-background-color: #064E3B; -fx-text-fill: #34D399; }
+
+/* --- Статистика --- */
+.stat-box-booked { -fx-background-color: #EBF4FF; -fx-background-radius: 10; -fx-padding: 8; }
+.dark-theme .stat-box-booked { -fx-background-color: #1E3A8A; }
+
+.stat-box-available { -fx-background-color: #F0FFF4; -fx-background-radius: 10; -fx-padding: 8; }
+.dark-theme .stat-box-available { -fx-background-color: #064E3B; }
+
+.stat-num { -fx-font-size: 20px; -fx-font-weight: bold; }
+.dark-theme .stat-num { -fx-text-fill: #F8FAFC; }
+
+.stat-text { -fx-font-size: 11px; -fx-opacity: 0.8; }
+.dark-theme .stat-text { -fx-text-fill: #94A3B8; }
+
+
+.dark-theme .profile-badge {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+    -fx-background-radius: 25 !important;
+    -fx-border-radius: 25 !important;
+}
+
+.dark-theme .profile-badge,
+
+.dark-theme .time-badge-blue {
+    -fx-background-color: #1E3A8A !important;  /* Темно-синий фон */
+    -fx-text-fill: #93C5FD !important;         /* Светло-голубой текст */
+    -fx-background-radius: 10 !important;      /* Возвращаем скругление */
+}
+
+.dark-theme .list-item {
+    -fx-background-radius: 15 !important;
+}
+.dark-theme .list-item:hover {
+    -fx-background-color: #334155 !important;
+    -fx-background-radius: 15 !important;
+}
+
+.dark-theme Circle {
+    -fx-fill: #475569 !important;
+}
+
+.dark-theme .list-item:hover Circle {
+    -fx-fill: #64748B !important;
+}
+
+.dark-theme .consultation-card Circle {
+    -fx-fill: #475569 !important;
+}
+
+.dark-theme .event-badge {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+    -fx-background-radius: 15 !important;
+    -fx-border-radius: 15 !important;
+}
+.dark-theme .event-badge:hover {
+    -fx-background-color: #334155 !important;
+}
+
+.dark-theme .consultation-card {
+    -fx-background-radius: 20 !important;
+    -fx-border-radius: 20 !important;
+}
+
+.dark-theme .profile-badge {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+    -fx-background-radius: 25 !important;
+    -fx-border-radius: 25 !important;
+}
+
+.dark-theme .time-badge-blue {
+    -fx-background-color: #1E3A8A !important;
+    -fx-text-fill: #93C5FD !important;
+    -fx-background-radius: 10 !important;
+}
+
+.dark-theme .list-item {
+    -fx-background-radius: 15 !important;
+}
+.dark-theme .list-item:hover {
+    -fx-background-color: #334155 !important;
+    -fx-background-radius: 15 !important;
+}
+
+
+.dark-theme .event-badge {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+    -fx-background-radius: 15 !important;
+    -fx-border-radius: 15 !important;
+}
+.dark-theme .event-badge:hover {
+    -fx-background-color: #334155 !important;
+}
+
+.dark-theme .consultation-card {
+    -fx-background-radius: 20 !important;
+    -fx-border-radius: 20 !important;
+}
+
+.dark-theme .clock-label {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+}
+
+.view-all-btn {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-padding: 5 15;
+    -fx-cursor: hand;
+}
+
+.view-all-btn:hover {
+    -fx-background-color: #42A5F5;
+}
+
+/* 7. Кнопка View All (в стиле плашек времени) */
+.dark-theme .view-all-btn {
+    -fx-background-color: #1E3A8A !important;
+    -fx-text-fill: #93C5FD !important;
+    -fx-background-radius: 12 !important;
+    -fx-border-color: transparent !important;
+}
+
+.dark-theme .view-all-btn:hover {
+    -fx-background-color: #2563EB !important;
+}
+
+.dark-theme .main-content {
+    -fx-background-radius: 30 !important;
+    -fx-border-radius: 30 !important;
+}
+
+.dark-theme .white-card {
+    -fx-background-radius: 20 !important;
+    -fx-border-radius: 20 !important;
+}
+
+.dark-theme .search-bar,
+.dark-theme .filter-btn {
+    -fx-background-radius: 20 !important;
+    -fx-border-radius: 20 !important;
+}
+
+.dark-theme .settings-input,
+.dark-theme .settings-nav,
+.dark-theme .settings-nav-active,
+.dark-theme .detail-time-card {
+    -fx-background-radius: 10 !important;
+    -fx-border-radius: 10 !important;
+}
+
+.dark-theme .history-card,
+.dark-theme .cal-day {
+    -fx-background-radius: 12 !important;
+    -fx-border-radius: 12 !important;
+}
+
+
+.sched-day {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+}
+.sched-day:hover {
+    -fx-border-color: #64B5F6;
+}
+
+.sched-day-selected {
+    -fx-border-color: #2196F3 !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(33,150,243,0.4), 10, 0, 0, 2) !important;
+}
+
+.sched-day-number { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2d3748; }
+.dark-theme .sched-day-number { -fx-text-fill: #F8FAFC; }
+
+.sched-day-number-adjacent { -fx-text-fill: #cbd5e0; }
+.dark-theme .sched-day-number-adjacent { -fx-text-fill: #475569; }
+
+.sched-day-adjacent, .sched-day-off { -fx-background-color: #fafafa; -fx-border-color: #edf2f7; }
+.sched-day-free { -fx-background-color: #F0FFF4; -fx-border-color: #c6f6d5; }
+.sched-day-light { -fx-background-color: #EBF4FF; -fx-border-color: #bee3f8; }
+.sched-day-busy { -fx-background-color: #FFF5F5; -fx-border-color: #fed7d7; }
+.sched-day-today { -fx-background-color: #64B5F6; -fx-border-color: transparent; }
+.sched-day-today .sched-day-number { -fx-text-fill: white; }
+
+.dark-theme .sched-day-adjacent, .dark-theme .sched-day-off { -fx-background-color: #0F172A; -fx-border-color: #1E293B; }
+.dark-theme .sched-day-free { -fx-background-color: #064E3B; -fx-border-color: #047857; }
+.dark-theme .sched-day-light { -fx-background-color: #1E3A8A; -fx-border-color: #1D4ED8; }
+.dark-theme .sched-day-busy { -fx-background-color: #7F1D1D; -fx-border-color: #B91C1C; }
+.dark-theme .sched-day-today { -fx-background-color: #3B82F6; }
+
+.sched-apt-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 4, 0, 0, 2);
+}
+.sched-apt-card:hover {
+    -fx-background-color: #EBF4FF;
+    -fx-border-color: #64B5F6;
+}
+
+.dark-theme .sched-apt-card {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+}
+.dark-theme .sched-apt-card:hover {
+    -fx-background-color: #334155;
+    -fx-border-color: #3B82F6;
+}
+/* =========================================
+   🪟 POPUP И ПРАВАЯ ПАНЕЛЬ (SCHEDULE)
+   ========================================= */
+
+/* Корневой контейнер Popup */
+.popup-root {
+    -fx-background-color: white; -fx-background-radius: 20;
+    -fx-border-color: #e2e8f0; -fx-border-radius: 20; -fx-border-width: 1;
+}
+.dark-theme.popup-root, .dark-theme .popup-root {
+    -fx-background-color: #1E293B; -fx-border-color: #334155;
+}
+
+/* Шапка Popup */
+.popup-header {
+    -fx-background-color: #64B5F6; -fx-background-radius: 19 19 0 0; -fx-padding: 16 20;
+}
+.dark-theme .popup-header { -fx-background-color: #1E3A8A; }
+
+/* Карточка пациента внутри Popup */
+.popup-patient-card {
+    -fx-background-color: #f7fafc; -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-padding: 12 16;
+}
+.dark-theme .popup-patient-card { -fx-background-color: #0F172A; -fx-border-color: #334155; }
+
+/* Кнопка Close в Popup */
+.popup-close-btn {
+    -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 20;
+    -fx-text-fill: #4a5568; -fx-font-weight: bold; -fx-cursor: hand;
+}
+.dark-theme .popup-close-btn { -fx-background-color: #334155; -fx-border-color: #475569; -fx-text-fill: #F8FAFC; }
+.popup-close-btn:hover { -fx-background-color: #e2e8f0; }
+.dark-theme .popup-close-btn:hover { -fx-background-color: #475569; }
+
+/* Кнопки статусов (Update Status) */
+.popup-status-btn {
+    -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8 12;
+    -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 12px;
+    -fx-border-width: 2; -fx-border-color: transparent;
+}
+.status-btn-completed { -fx-background-color: #c6f6d5; -fx-text-fill: #276749; }
+.dark-theme .status-btn-completed { -fx-background-color: #064E3B; -fx-text-fill: #34D399; }
+.status-btn-noshow { -fx-background-color: #fefcbf; -fx-text-fill: #744210; }
+.dark-theme .status-btn-noshow { -fx-background-color: #744210; -fx-text-fill: #FEFCBF; }
+.status-btn-cancelled { -fx-background-color: #fed7d7; -fx-text-fill: #c53030; }
+.dark-theme .status-btn-cancelled { -fx-background-color: #7F1D1D; -fx-text-fill: #FCA5A5; }
+/* --- Аватарка пациента в Popup --- */
+.popup-avatar {
+    -fx-background-color: #d6e4ff; -fx-background-radius: 20;
+    -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40;
+    -fx-alignment: center; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #4a90d9;
+}
+.dark-theme .popup-avatar {
+    -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD;
+}
+
+/* --- Кнопки < > внутри шапки Popup --- */
+.popup-nav-btn {
+    -fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+    -fx-background-radius: 8; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 12px;
+}
+.popup-nav-btn:hover { -fx-background-color: rgba(255,255,255,0.3); }
+/* Активный статус (рамка) */
+.status-btn-active { -fx-border-color: #2d3748 !important; }
+.dark-theme .status-btn-active { -fx-border-color: #F8FAFC !important; }
+
+/* Бейджи в правой панели (Working day, Count) */
+.day-badge { -fx-background-radius: 20; -fx-padding: 4 12; -fx-font-size: 11px; -fx-font-weight: bold; }
+.day-badge-working { -fx-background-color: #c6f6d5; -fx-text-fill: #276749; }
+.dark-theme .day-badge-working { -fx-background-color: #064E3B; -fx-text-fill: #34D399; }
+.day-badge-off { -fx-background-color: #fed7d7; -fx-text-fill: #c53030; }
+.dark-theme .day-badge-off { -fx-background-color: #7F1D1D; -fx-text-fill: #FCA5A5; }
+.day-badge-count { -fx-background-color: #ebf8ff; -fx-text-fill: #2b6cb0; }
+.dark-theme .day-badge-count { -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; }
+
+/* --- Тёмная тема для круглых кнопок навигации (.btn-nav) --- */
+.dark-theme .btn-nav {
+    -fx-background-color: #1E293B !important;
+    -fx-border-color: #334155 !important;
+    -fx-text-fill: #F8FAFC !important;
+}
+
+.dark-theme .btn-nav:hover {
+    -fx-background-color: #334155 !important;
+    -fx-border-color: #64B5F6 !important;
+    -fx-text-fill: #93C5FD !important;
+}
+
+/* --- Аватарки пациентов (список) --- */
+.patient-avatar {
+    -fx-background-color: #d6e4ff;
+    -fx-background-radius: 20;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a90d9;
+}
+.dark-theme .patient-avatar {
+    -fx-background-color: #1E3A8A; /* Темно-синий для тёмной темы */
+    -fx-text-fill: #93C5FD;
+}
+
+/* --- Кнопка "New Patient" (придаем ей класс btn-primary) --- */
+/* Если в FXML у вас нет стиля, добавьте: styleClass="btn-primary" */
+.btn-primary {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.dark-theme .btn-primary {
+    -fx-background-color: #2563EB;
+}
+.btn-primary:hover { -fx-background-color: #42A5F5; }
+.dark-theme .btn-primary:hover { -fx-background-color: #3B82F6; }
+
+
+/* =========================================
+   📇 КАРТОЧКА ПАЦИЕНТА (PATIENT CARD)
+   ========================================= */
+
+/* Пустая история */
+.history-empty-label { -fx-text-fill: #888888; }
+.dark-theme .history-empty-label { -fx-text-fill: #94A3B8; }
+
+/* Тексты в карточке истории */
+.history-date-label { -fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2d3748; }
+.dark-theme .history-date-label { -fx-text-fill: #F8FAFC; }
+
+.history-reason-label { -fx-text-fill: #4a5568; }
+.dark-theme .history-reason-label { -fx-text-fill: #E2E8F0; }
+
+.history-notes-label { -fx-text-fill: #888888; -fx-font-size: 12px; }
+.dark-theme .history-notes-label { -fx-text-fill: #94A3B8; }
+
+/* Бейджи статуса в истории */
+.history-status-badge { -fx-background-radius: 8; -fx-padding: 3 10; -fx-font-size: 11px; -fx-font-weight: bold; }
+
+.history-status-completed { -fx-background-color: #c6f6d5; -fx-text-fill: #276749; }
+.dark-theme .history-status-completed { -fx-background-color: #064E3B; -fx-text-fill: #34D399; }
+
+.history-status-other { -fx-background-color: #bee3f8; -fx-text-fill: #2b6cb0; }
+.dark-theme .history-status-other { -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; }
+
+
+.patient-card-avatar {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-background-radius: 40;
+
+}
+.dark-theme .patient-card-avatar {
+    -fx-background-color: #1E3A8A;
+    -fx-text-fill: #93C5FD;
+}
+
+/* =========================================
+   🗓️ МИНИ-КАЛЕНДАРЬ И СЛОТЫ (NEW APPOINTMENT)
+   ========================================= */
+
+/* Ячейки мини-календаря */
+.mini-cal-cell {
+    -fx-alignment: center; -fx-pref-height: 32; -fx-background-radius: 8; -fx-font-size: 12px;
+}
+.mini-cal-past { -fx-text-fill: #cbd5e0; }
+.dark-theme .mini-cal-past { -fx-text-fill: #475569; }
+
+.mini-cal-today { -fx-background-color: #64B5F6; -fx-text-fill: white; -fx-font-weight: bold; }
+.dark-theme .mini-cal-today { -fx-background-color: #3B82F6; }
+
+.mini-cal-working { -fx-background-color: #F0F7FF; -fx-text-fill: #2d3748; -fx-cursor: hand; }
+.dark-theme .mini-cal-working { -fx-background-color: #1E293B; -fx-text-fill: #F8FAFC; }
+
+.mini-cal-working:hover { -fx-background-color: #BEE3F8; }
+.dark-theme .mini-cal-working:hover { -fx-background-color: #334155; }
+
+.mini-cal-off { -fx-text-fill: #a0aec0; }
+.dark-theme .mini-cal-off { -fx-text-fill: #64748B; }
+
+.mini-cal-selected { -fx-background-color: #2196F3 !important; -fx-text-fill: white !important; -fx-font-weight: bold; }
+
+/* Кнопки времени (слоты) */
+.mini-slot-btn {
+    -fx-background-color: #EBF4FF; -fx-text-fill: #2b6cb0; -fx-background-radius: 8;
+    -fx-border-color: #bee3f8; -fx-border-radius: 8; -fx-padding: 6 12; -fx-cursor: hand; -fx-font-size: 12px;
+}
+.dark-theme .mini-slot-btn {
+    -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; -fx-border-color: #1D4ED8;
+}
+
+.mini-slot-btn:hover { -fx-background-color: #BEE3F8; }
+.dark-theme .mini-slot-btn:hover { -fx-background-color: #1D4ED8; }
+
+.mini-slot-selected {
+    -fx-background-color: #2196F3 !important; -fx-text-fill: white !important;
+    -fx-border-color: #1976D2 !important; -fx-font-weight: bold;
+}
+
+/* =========================================
+   📝 ОКНО СОЗДАНИЯ ЗАПИСИ (NEW APPOINTMENT)
+   ========================================= */
+
+/* 1. Контраст окна (Делаем его светлее фона приложения и добавляем сильную тень) */
+.appointment-modal-root {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);
+}
+.dark-theme.appointment-modal-root,
+.dark-theme .appointment-modal-root {
+    -fx-background-color: #1E293B !important; /* Чуть светлее основного фона */
+    -fx-border-color: #475569 !important; /* Светлая рамка для выделения */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 30, 0, 0, 10) !important;
+}
+
+/* 2. Шапка окна (Делаем ярче, чтобы не сливалась) */
+.appointment-modal-header {
+    -fx-background-color: #64B5F6;
+    -fx-background-radius: 19 19 0 0;
+}
+.dark-theme .appointment-modal-header {
+    -fx-background-color: #2563EB !important; /* Яркий синий, как кнопка "+ New Appointment" */
+}
+
+/* Тексты внутри модального окна */
+.dark-theme .appointment-modal-root Label {
+    -fx-text-fill: #F8FAFC !important;
+}
+
+/* 3. Убиваем белые поля ввода (Пробиваем защиту JavaFX TextArea) */
+.dark-theme .appointment-modal-root .text-field,
+.dark-theme .appointment-modal-root .text-area,
+.dark-theme .appointment-modal-root .text-area .scroll-pane,
+.dark-theme .appointment-modal-root .text-area .viewport,
+.dark-theme .appointment-modal-root .text-area .content {
+    -fx-background-color: #0F172A !important;
+    -fx-control-inner-background: #0F172A !important;
+    -fx-text-fill: white !important;
+    -fx-prompt-text-fill: #64748B !important;
+}
+
+/* Внешняя рамка полей ввода */
+.dark-theme .appointment-modal-root .text-field,
+.dark-theme .appointment-modal-root .text-area {
+    -fx-border-color: #475569 !important;
+    -fx-border-radius: 8 !important;
+    -fx-background-radius: 8 !important;
+    -fx-border-width: 1 !important;
+}
+
+.dark-theme .appointment-modal-root .text-field:focused,
+.dark-theme .appointment-modal-root .text-area:focused {
+    -fx-border-color: #60A5FA !important; /* Голубая подсветка при вводе */
+}
+
+/* Убираем белые разделители */
+.dark-theme .appointment-modal-root .separator *.line {
+    -fx-border-color: #334155 !important;
+}
+
+/* =========================================
+   🗓️ МИНИ-КАЛЕНДАРЬ И СЛОТЫ
+   ========================================= */
+
+.mini-cal-cell {
+    -fx-alignment: center; -fx-pref-height: 32; -fx-background-radius: 8; -fx-font-size: 12px;
+}
+.mini-cal-past { -fx-text-fill: #cbd5e0; }
+.dark-theme .mini-cal-past { -fx-text-fill: #475569; }
+
+.mini-cal-today { -fx-background-color: #64B5F6; -fx-text-fill: white; -fx-font-weight: bold; }
+.dark-theme .mini-cal-today { -fx-background-color: #3B82F6; }
+
+/* 4. Выделяем свободные для записи дни! */
+.mini-cal-working { -fx-background-color: #F0F7FF; -fx-text-fill: #2d3748; -fx-cursor: hand; }
+.dark-theme .mini-cal-working {
+    -fx-background-color: #334155 !important; /* Выделяем рабочие дни серым квадратиком */
+    -fx-text-fill: #F8FAFC !important;
+}
+
+.mini-cal-working:hover { -fx-background-color: #BEE3F8; }
+.dark-theme .mini-cal-working:hover { -fx-background-color: #475569 !important; }
+
+.mini-cal-off { -fx-text-fill: #a0aec0; }
+.dark-theme .mini-cal-off { -fx-text-fill: #64748B; }
+
+.mini-cal-selected { -fx-background-color: #2196F3 !important; -fx-text-fill: white !important; -fx-font-weight: bold; }
+
+/* Кнопки времени (слоты) */
+.mini-slot-btn {
+    -fx-background-color: #EBF4FF; -fx-text-fill: #2b6cb0; -fx-background-radius: 8;
+    -fx-border-color: #bee3f8; -fx-border-radius: 8; -fx-padding: 6 12; -fx-cursor: hand; -fx-font-size: 12px;
+}
+.dark-theme .mini-slot-btn {
+    -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; -fx-border-color: #1D4ED8;
+}
+
+.mini-slot-btn:hover { -fx-background-color: #BEE3F8; }
+.dark-theme .mini-slot-btn:hover { -fx-background-color: #2563EB; -fx-text-fill: white; }
+
+.mini-slot-selected {
+    -fx-background-color: #2196F3 !important; -fx-text-fill: white !important;
+    -fx-border-color: #1976D2 !important; -fx-font-weight: bold;
+}
+
+/* =========================================
+   🛑 УЛЬТИМАТИВНЫЙ ФИКС ДЛЯ TEXTFIELD И TEXTAREA
+   ========================================= */
+
+/* 1. Базовый фон и текст для всех инпутов в тёмной теме */
+.dark-theme .text-field,
+.dark-theme .text-area {
+    -fx-control-inner-background: #0F172A !important;
+    -fx-background-color: #475569, #0F172A !important; /* Цвет рамки, затем цвет фона */
+    -fx-background-insets: 0, 1 !important; /* Толщина рамки 1px */
+    -fx-background-radius: 8, 7 !important; /* Скругление рамки и фона */
+    -fx-text-fill: white !important;
+    -fx-prompt-text-fill: #64748B !important;
+}
+
+/* 2. Подсветка при фокусе (когда печатаем) */
+.dark-theme .text-field:focused,
+.dark-theme .text-area:focused {
+    -fx-background-color: #3B82F6, #0F172A !important; /* Голубая рамка */
+}
+
+/* 3. Пробиваем внутренности TextArea (ScrollPane, Viewport, Content) */
+.dark-theme .text-area .content {
+    -fx-background-color: #0F172A !important;
+}
+.dark-theme .text-area .viewport {
+    -fx-background-color: transparent !important;
+}
+.dark-theme .text-area .scroll-pane {
+    -fx-background-color: transparent !important;
+    -fx-background-insets: 0 !important;
+    -fx-padding: 0 !important;
+}
+
+/* 4. Красим скроллбар внутри TextArea, чтобы он не светился белым */
+.dark-theme .text-area .scroll-bar:vertical,
+.dark-theme .text-area .scroll-bar:horizontal {
+    -fx-background-color: #1E293B !important;
+}
+.dark-theme .text-area .scroll-bar:vertical .thumb,
+.dark-theme .text-area .scroll-bar:horizontal .thumb {
+    -fx-background-color: #475569 !important;
+}
+
+/* =========================================
+   📋 СПИСОК ЗАПИСЕЙ (APPOINTMENTS LIST)
+   ========================================= */
+
+/* Тексты в таблице */
+.apt-name-label { -fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2d3748; }
+.dark-theme .apt-name-label { -fx-text-fill: #F8FAFC; }
+
+.apt-text-label { -fx-font-size: 12px; -fx-text-fill: #4a5568; }
+.dark-theme .apt-text-label { -fx-text-fill: #E2E8F0; }
+
+.apt-notes-label { -fx-font-size: 12px; -fx-text-fill: #718096; }
+.dark-theme .apt-notes-label { -fx-text-fill: #94A3B8; }
+
+/* Бейджи статусов */
+.apt-status-badge { -fx-background-radius: 8; -fx-padding: 4 10; -fx-font-size: 11px; -fx-font-weight: bold; }
+
+.apt-status-completed { -fx-background-color: #c6f6d5; -fx-text-fill: #276749; }
+.dark-theme .apt-status-completed { -fx-background-color: #064E3B; -fx-text-fill: #34D399; }
+
+.apt-status-cancelled { -fx-background-color: #fed7d7; -fx-text-fill: #c53030; }
+.dark-theme .apt-status-cancelled { -fx-background-color: #7F1D1D; -fx-text-fill: #FCA5A5; }
+
+.apt-status-no_show { -fx-background-color: #fefcbf; -fx-text-fill: #744210; }
+.dark-theme .apt-status-no_show { -fx-background-color: #744210; -fx-text-fill: #FEFCBF; }
+
+.apt-status-scheduled { -fx-background-color: #bee3f8; -fx-text-fill: #2b6cb0; }
+.dark-theme .apt-status-scheduled { -fx-background-color: #1E3A8A; -fx-text-fill: #93C5FD; }
+
+/* Кнопки действий (Edit / Delete) */
+.btn-edit {
+    -fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 6;
+    -fx-padding: 5 12; -fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;
+}
+.btn-edit:hover { -fx-background-color: #1976D2; }
+
+.btn-delete {
+    -fx-background-color: #F44336; -fx-text-fill: white; -fx-background-radius: 6;
+    -fx-padding: 5 12; -fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;
+}
+.btn-delete:hover { -fx-background-color: #D32F2F; }
+
+/* =========================================
+   ⚠️ ДИАЛОГ УДАЛЕНИЯ (CONFIRM DIALOG)
+   ========================================= */
+
+.dialog-root {
+    -fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12;
+    -fx-border-radius: 12; -fx-border-color: #e2e8f0; -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 15, 0, 0, 5);
+}
+.dark-theme.dialog-root, .dark-theme .dialog-root {
+    -fx-background-color: #1E293B !important; -fx-border-color: #334155 !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 25, 0, 0, 8) !important;
+}
+
+.dialog-title { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2d3748; }
+.dark-theme .dialog-title { -fx-text-fill: #F8FAFC; }
+
+.dialog-msg { -fx-font-size: 13px; -fx-text-fill: #4a5568; }
+.dark-theme .dialog-msg { -fx-text-fill: #E2E8F0; }
+
+.btn-dialog-cancel {
+    -fx-background-color: #edf2f7; -fx-text-fill: #4a5568; -fx-background-radius: 6;
+    -fx-padding: 5 12; -fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;
+}
+.dark-theme .btn-dialog-cancel {
+    -fx-background-color: #334155; -fx-text-fill: #F8FAFC;
+}
+.btn-dialog-cancel:hover { -fx-background-color: #e2e8f0; }
+.dark-theme .btn-dialog-cancel:hover { -fx-background-color: #475569; }
+
+/* --- Фильтры списка записей --- */
+.filter-btn {
+    -fx-background-color: #edf2f7; -fx-text-fill: #4a5568;
+    -fx-background-radius: 8; -fx-padding: 6 12; -fx-cursor: hand;
+}
+.dark-theme .filter-btn {
+    -fx-background-color: #334155; -fx-text-fill: #94A3B8;
+}
+
+.filter-btn-active {
+    -fx-background-color: #64B5F6; -fx-text-fill: white;
+    -fx-background-radius: 8; -fx-padding: 6 12;
+}
+.dark-theme .filter-btn-active {
+    -fx-background-color: #2563EB; -fx-text-fill: white;
+}
+
+/* Ультимативный фикс для полей внутри модальных окон */
+.dark-theme .appointment-modal-root .text-field,
+.dark-theme .appointment-modal-root .text-area,
+.dark-theme .appointment-modal-root .text-area .content {
+    -fx-background-color: #0F172A !important;
+    -fx-control-inner-background: #0F172A !important;
+    -fx-text-fill: white !important;
+    -fx-border-color: #475569 !important;
+}
+
+/* Фикс для кнопки Book Appointment */
+.dark-theme .appointment-modal-root .button {
+    -fx-background-color: #3B82F6 !important;
+    -fx-text-fill: white !important;
+}
+
+/* Фикс заголовка страницы */
+.main-content .label {
+    -fx-text-fill: #2d3748;
+}
+.dark-theme .main-content .label {
+    -fx-text-fill: #F8FAFC;
+}
+
+/* Переопределение white-card для тёмной темы */
+.white-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+}
+.dark-theme .white-card {
+    -fx-background-color: #1E293B !important;
+}
+
+/* Заголовки таблицы */
+.table-header-cell {
+    -fx-font-weight: bold;
+    -fx-text-fill: #718096;
+}
+.dark-theme .table-header-cell {
+    -fx-text-fill: #94A3B8 !important;
+}
+
+.filter-btn {
+    -fx-background-color: #edf2f7;
+    -fx-text-fill: #4a5568;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+.dark-theme .filter-btn {
+    -fx-background-color: #334155 !important;
+    -fx-text-fill: #94A3B8 !important;
+}
+
+.filter-btn-active {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12;
+}
+.dark-theme .filter-btn-active {
+    -fx-background-color: #2563EB !important;
+    -fx-text-fill: white !important;
+}
+/* =========================================
+   ⚙️ SETTINGS — замена хардкода
+   ========================================= */
+
+.settings-avatar {
+    -fx-background-color: #64B5F6;
+    -fx-background-radius: 40;
+    -fx-min-width: 80; -fx-min-height: 80;
+    -fx-max-width: 80; -fx-max-height: 80;
+    -fx-alignment: center;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.dark-theme .settings-avatar {
+    -fx-background-color: #1E3A8A;
+    -fx-text-fill: #93C5FD;
+}
+
+.settings-name-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+.dark-theme .settings-name-label { -fx-text-fill: #F8FAFC; }
+
+.settings-spec-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #718096;
+}
+.dark-theme .settings-spec-label { -fx-text-fill: #94A3B8; }
+
+/* Тема — кнопки Light / Dark */
+.theme-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 20;
+    -fx-text-fill: #718096;
+    -fx-cursor: hand;
+}
+.dark-theme .theme-btn {
+    -fx-border-color: #475569;
+    -fx-text-fill: #94A3B8;
+}
+.theme-btn-active-light {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 20;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.theme-btn-active-dark {
+    -fx-background-color: #2d3748;
+    -fx-text-fill: white;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 20;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+/* Font size toggle */
+.font-size-btn {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+    -fx-text-fill: #4a5568;
+}
+.dark-theme .font-size-btn {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #475569;
+    -fx-text-fill: #94A3B8;
+}
+.font-size-btn-active {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 16;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.dark-theme .font-size-btn-active {
+    -fx-background-color: #2563EB;
+}
+
+/* Schedule rows */
+.schedule-row {
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+}
+.dark-theme .schedule-row {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+}
+
+.schedule-day-label {
+    -fx-font-weight: bold;
+    -fx-min-width: 100;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2d3748;
+}
+.dark-theme .schedule-day-label { -fx-text-fill: #F8FAFC; }
+
+.schedule-time-working {
+    -fx-font-size: 13px;
+    -fx-text-fill: #276749;
+}
+.dark-theme .schedule-time-working { -fx-text-fill: #34D399; }
+
+.schedule-time-off {
+    -fx-font-size: 13px;
+    -fx-text-fill: #a0aec0;
+}
+.dark-theme .schedule-time-off { -fx-text-fill: #475569; }
+
+/* Danger zone */
+.danger-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #c53030;
+}
+.dark-theme .danger-title { -fx-text-fill: #FCA5A5; }
+
+.btn-logout {
+    -fx-background-color: #fed7d7;
+    -fx-text-fill: #c53030;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 30;
+    -fx-cursor: hand;
+}
+.dark-theme .btn-logout {
+    -fx-background-color: #7F1D1D;
+    -fx-text-fill: #FCA5A5;
+}
+.btn-logout:hover { -fx-background-color: #feb2b2; }
+.dark-theme .btn-logout:hover { -fx-background-color: #991B1B; }
+
+/* Save btn — success state */
+.settings-save-btn-success {
+    -fx-background-color: #38a169;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 30;
+    -fx-cursor: hand;
+}
+.dark-theme .settings-save-btn-success {
+    -fx-background-color: #065F46;
+}
+
+.settings-result-success { -fx-text-fill: #38a169; -fx-font-size: 12px; }
+.dark-theme .settings-result-success { -fx-text-fill: #34D399; }
+
+.settings-result-error { -fx-text-fill: #e53e3e; -fx-font-size: 12px; }
+.dark-theme .settings-result-error { -fx-text-fill: #FCA5A5; }
+
+/* =========================================
+   📅 EVENTS LIST
+   ========================================= */
+
+.event-avatar {
+    -fx-background-color: #E2E8F0;
+    -fx-background-radius: 16;
+    -fx-min-width: 32; -fx-min-height: 32;
+    -fx-max-width: 32; -fx-max-height: 32;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #4A5568;
+}
+.dark-theme .event-avatar {
+    -fx-background-color: #334155;
+    -fx-text-fill: #94A3B8;
+}
+
+.event-type-badge {
+    -fx-background-color: #EDF2F7;
+    -fx-text-fill: #4A5568;
+    -fx-background-radius: 8;
+    -fx-padding: 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.dark-theme .event-type-badge {
+    -fx-background-color: #334155;
+    -fx-text-fill: #94A3B8;
+}
+
+
+/* =========================================
+   📝 EVENT FORM
+   ========================================= */
+
+.event-form-root {
+    -fx-background-color: white;
+    -fx-padding: 25;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+}
+.dark-theme .event-form-root {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+.dark-theme .form-title { -fx-text-fill: #F8FAFC; }
+
+.form-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #718096;
+    -fx-font-weight: bold;
+}
+.dark-theme .form-label { -fx-text-fill: #94A3B8; }
+
+.form-divider {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+.dark-theme .form-divider { -fx-text-fill: #F8FAFC; }
+
+/* =========================================
+   📅 DATEPICKER DARK THEME
+   ========================================= */
+
+.dark-theme .date-picker-popup {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+}
+
+.dark-theme .date-picker-popup .month-year-pane {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .date-picker-popup .spinner {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .spinner .label {
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .day-name-cell {
+    -fx-text-fill: #94A3B8;
+}
+
+.dark-theme .date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .day-cell:hover {
+    -fx-background-color: #334155;
+    -fx-background-radius: 4;
+}
+
+.dark-theme .date-picker-popup .selected {
+    -fx-background-color: #3B82F6;
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+}
+
+.dark-theme .date-picker-popup .today {
+    -fx-border-color: #3B82F6;
+    -fx-border-radius: 4;
+    -fx-text-fill: #60A5FA;
+}
+
+.dark-theme .date-picker-popup .next-month,
+.dark-theme .date-picker-popup .previous-month {
+    -fx-text-fill: #475569;
+}
+
+.dark-theme .date-picker-popup .week-number-cell {
+    -fx-text-fill: #475569;
+}
+
+/* Пустые рабочие дни — лёгкий зелёный */
+.cal-cell-working {
+    -fx-background-color: #C6F6D5;
+    -fx-text-fill: #22543D;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+}
+.dark-theme .cal-cell-working {
+    -fx-background-color: #064E3B;
+    -fx-text-fill: #34D399;
+}
+
+/* 1-2 записи — голубой */
+.cal-cell-light {
+    -fx-background-color: #BEE3F8;
+    -fx-text-fill: #2A4365;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+}
+.dark-theme .cal-cell-light {
+    -fx-background-color: #1E3A8A;
+    -fx-text-fill: #93C5FD;
+}
+
+/* 3-4 записи — насыщенный синий */
+.cal-cell-medium {
+    -fx-background-color: #90CDF4;
+    -fx-text-fill: #1A365D;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+}
+.dark-theme .cal-cell-medium {
+    -fx-background-color: #1D4ED8;
+    -fx-text-fill: #BFDBFE;
+}
+
+/* 5+ записей — красный/оранжевый */
+.cal-cell-busy {
+    -fx-background-color: #FEB2B2;
+    -fx-text-fill: #742A2A;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+}
+.dark-theme .cal-cell-busy {
+    -fx-background-color: #7F1D1D;
+    -fx-text-fill: #FCA5A5;
+}
+
+.cal-cell-adjacent {
+    -fx-background-color: #F1F5F9;
+    -fx-text-fill: #CBD5E0;
+    -fx-background-radius: 6;
+}
+.dark-theme .cal-cell-adjacent {
+    -fx-background-color: #0F172A;
+    -fx-text-fill: #334155;
+}
+
+/* =========================================
+   🎯 EVENT POPUP
+   ========================================= */
+
+.popup-content {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 30, 0, 0, 12);
+}
+.dark-theme .popup-content {
+    -fx-background-color: #1E293B;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 30, 0, 0, 12);
+}
+
+.popup-event-header {
+    -fx-background-color: linear-gradient(to right, #64B5F6, #42A5F5);
+    -fx-background-radius: 20 20 0 0;
+    -fx-padding: 20;
+}
+.dark-theme .popup-event-header {
+    -fx-background-color: linear-gradient(to right, #1D4ED8, #2563EB);
+}
+
+.popup-type-badge {
+    -fx-background-color: rgba(255,255,255,0.25);
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 3 10;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.popup-event-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.popup-event-datetime {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255,255,255,0.8);
+}
+
+/* Карточка локации — по типу события */
+.popup-location-card {
+    -fx-padding: 14 20;
+}
+.popup-location-card-meeting  { -fx-background-color: #EFF6FF; }
+.popup-location-card-conference { -fx-background-color: #EDE9FE; }
+.popup-location-card-training { -fx-background-color: #D1FAE5; }
+
+.dark-theme .popup-location-card-meeting    { -fx-background-color: #1E3A8A; }
+.dark-theme .popup-location-card-conference { -fx-background-color: #2E1065; }
+.dark-theme .popup-location-card-training   { -fx-background-color: #064E3B; }
+
+.popup-location-card:hover { -fx-background-color: #BFDBFE; }
+.dark-theme .popup-location-card:hover { -fx-background-color: #1D4ED8; }
+
+.popup-location-icon {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-min-width: 32; -fx-min-height: 32;
+    -fx-max-width: 32; -fx-max-height: 32;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(100,181,246,0.3), 6, 0, 0, 2);
+}
+.dark-theme .popup-location-icon {
+    -fx-background-color: #334155;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 6, 0, 0, 2);
+}
+
+.popup-location-title {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 11px;
+}
+.dark-theme .popup-location-title { -fx-text-fill: #94A3B8; }
+
+.popup-location-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+}
+.dark-theme .popup-location-value { -fx-text-fill: #F8FAFC; }
+
+.popup-desc-box { -fx-padding: 16 20 0 20; }
+
+.popup-desc-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6B7280;
+}
+.dark-theme .popup-desc-title { -fx-text-fill: #94A3B8; }
+
+.popup-desc-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+}
+.dark-theme .popup-desc-value { -fx-text-fill: #E2E8F0; }
+
+.popup-btn-box { -fx-padding: 16 20 20 20; }
+
+.popup-close-btn {
+    -fx-background-color: #64B5F6;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+.dark-theme .popup-close-btn {
+    -fx-background-color: #2563EB;
+}
+.popup-close-btn:hover { -fx-background-color: #42A5F5; }
+.dark-theme .popup-close-btn:hover { -fx-background-color: #1D4ED8; }
+
+.dark-theme .popup-content {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .popup-btn-box {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .popup-desc-box {
+    -fx-background-color: #1E293B;
+}
+
+.popup-body {
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 20 20;
+}
+.dark-theme .popup-body {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 0 0 20 20;
+}

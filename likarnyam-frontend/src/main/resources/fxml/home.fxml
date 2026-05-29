@@ -180,7 +180,8 @@
                             <HBox alignment="CENTER_LEFT">
                                 <Label text="Upcoming" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label text="View All" textFill="#117c7f" />
+                                <Button text="View All" onAction="#navigateEvents" styleClass="view-all-btn"
+                                        style="-fx-background-color: #64B5F6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-padding: 5 15; -fx-cursor: hand;" />
                             </HBox>
 
                             <VBox fx:id="upcomingContainer" spacing="10"/>

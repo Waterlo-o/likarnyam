@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional; // Обязательный импорт для Optional<Event>
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -19,4 +20,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("doctorId") Long doctorId,
             @Param("now") LocalDateTime now
     );
+
+    List<Event> findByDoctorIdOrderByEventAtDesc(Long doctorId);
+
+    Optional<Event> findByIdAndDoctorId(Long id, Long doctorId);
 }

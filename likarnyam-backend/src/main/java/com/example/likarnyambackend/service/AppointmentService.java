@@ -74,4 +74,28 @@ public class AppointmentService {
         return appointmentRepository
                 .findByDoctorIdOrderByAppointmentAtDesc(doctorId);
     }
+
+
+    public Optional<Appointment> updateAppointment(
+            Long id,
+            AppointmentCreateRequest request,
+            Long doctorId) {
+
+        return appointmentRepository.findById(id)
+                .filter(apt -> apt.getDoctor().getId().equals(doctorId))
+                .map(apt -> {
+                    if (request.getAppointmentAt() != null)
+                        apt.setAppointmentAt(request.getAppointmentAt());
+                    if (request.getReason() != null)
+                        apt.setReason(request.getReason());
+                    if (request.getNotes() != null)
+                        apt.setNotes(request.getNotes());
+
+                    return appointmentRepository.save(apt);
+                });
+    }
+
+    public void deleteAppointment(Long id) {
+        appointmentRepository.deleteById(id);
+    }
 }

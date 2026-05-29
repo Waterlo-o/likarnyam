@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane stylesheets="@../css/css.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.likarnyam.controller.EventsListController">
+
+    <left>
+        <VBox prefWidth="80.0" styleClass="sidebar">
+            <padding><Insets top="20" bottom="20"/></padding>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox alignment="CENTER" spacing="30.0">
+                <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />
+                <Button styleClass="menu-btn" text="📅" onAction="#navigateSchedule" />
+                <Button styleClass="menu-btn" text="👥" onAction="#navigatePatients" />
+                <Button styleClass="menu-btn" text="📋" onAction="#navigateAppointments" />
+                <Button styleClass="menu-btn" text="⚙" onAction="#navigateSettings" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER">
+                <Button styleClass="menu-btn-logout" text="↪" onAction="#handleLogout" />
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" styleClass="main-content">
+            <BorderPane.margin>
+                <Insets bottom="15.0" right="15.0" top="15.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="Events &amp; Meetings"
+                       style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="totalLabel" text=""
+                       style="-fx-font-size: 13px; -fx-text-fill: #718096;"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="+ New Event"
+                        style="-fx-background-color: #64B5F6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20;"
+                        onAction="#handleNewEvent"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField"
+                           promptText="Search events..."
+                           prefHeight="36" prefWidth="220"
+                           styleClass="search-bar"
+                           onKeyReleased="#handleSearch"/>
+            </HBox>
+
+            <VBox styleClass="white-card" VBox.vgrow="ALWAYS">
+                <HBox styleClass="table-header">
+                    <Label text="Event Title" prefWidth="200" styleClass="table-header-cell"/>
+                    <Label text="Date &amp; Time" prefWidth="160" styleClass="table-header-cell"/>
+                    <Label text="Location" prefWidth="160" styleClass="table-header-cell"/>
+                    <Label text="Type" prefWidth="120" styleClass="table-header-cell"/>
+                    <Label text="Description" prefWidth="200" styleClass="table-header-cell"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="patient-scroll">
+                    <VBox fx:id="eventsContainer" spacing="0"/>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

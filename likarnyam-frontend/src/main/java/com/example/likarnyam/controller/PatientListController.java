@@ -84,17 +84,8 @@ public class PatientListController {
                 ? patient.get("bloodType").asText() : "—";
 
         // Аватар с инициалами
-        Label avatar = new Label(
-                firstName.substring(0, 1) + lastName.substring(0, 1)
-        );
-        avatar.setStyle(
-                "-fx-background-color: #d6e4ff;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-min-width: 36; -fx-min-height: 36;" +
-                        "-fx-alignment: center;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #4a90d9;"
-        );
+        Label avatar = new Label(firstName.substring(0, 1) + lastName.substring(0, 1));
+        avatar.getStyleClass().add("patient-avatar");
 
         Label nameLabel = new Label(firstName + " " + lastName);
         nameLabel.setStyle("-fx-font-weight: bold;");
@@ -124,12 +115,13 @@ public class PatientListController {
         row.setOnMouseClicked(e -> {
             try {
                 Long id = patient.get("id").asLong();
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/patient-card.fxml")
-                );
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient-card.fxml"));
                 Parent root = loader.load();
                 PatientCardController controller = loader.getController();
                 controller.setPatientId(id);
+
+                FxUtils.applyTheme(root);
+
                 Stage stage = (Stage) patientTableContainer.getScene().getWindow();
                 stage.setScene(new Scene(root, 1200, 800));
                 stage.show();

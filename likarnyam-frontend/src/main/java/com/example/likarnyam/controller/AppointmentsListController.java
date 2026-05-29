@@ -5,14 +5,23 @@ import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class AppointmentsListController {
 
@@ -75,51 +84,37 @@ public class AppointmentsListController {
     }
 
     private HBox createRow(JsonNode apt) {
+        Long appointmentId = apt.get("id").asLong();
         String firstName = apt.get("patientFirstName").asText();
         String lastName = apt.get("patientLastName").asText();
         String aptAt = apt.get("appointmentAt").asText();
         String reason = apt.get("reason").asText();
         String status = apt.get("status").asText();
-        String notes = apt.has("notes") &&
-                !apt.get("notes").asText().equals("null")
-                ? apt.get("notes").asText() : "—";
+        String notes = apt.has("notes") && !apt.get("notes").asText().equals("null") ? apt.get("notes").asText() : "—";
 
         String date = aptAt.substring(0, 10);
         String time = aptAt.substring(11, 16);
 
-        // Аватар
-        Label avatar = new Label(
-                String.valueOf(firstName.charAt(0)) +
-                        String.valueOf(lastName.charAt(0))
-        );
-        avatar.setStyle(
-                "-fx-background-color: #d6e4ff;" +
-                        "-fx-background-radius: 16;" +
-                        "-fx-min-width: 32; -fx-min-height: 32;" +
-                        "-fx-max-width: 32; -fx-max-height: 32;" +
-                        "-fx-alignment: center;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 11px;" +
-                        "-fx-text-fill: #4a90d9;"
-        );
+        // Аватар (Используем класс из списка пациентов!)
+        Label avatar = new Label(String.valueOf(firstName.charAt(0)) + String.valueOf(lastName.charAt(0)));
+        avatar.getStyleClass().add("patient-avatar");
+        avatar.setMinWidth(32); avatar.setMinHeight(32); avatar.setMaxWidth(32); avatar.setMaxHeight(32);
 
         // Имя
         Label nameLabel = new Label(firstName + " " + lastName);
-        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        nameLabel.getStyleClass().add("apt-name-label");
         HBox nameCell = new HBox(8, avatar, nameLabel);
-        nameCell.setPrefWidth(200);
-        nameCell.setAlignment(Pos.CENTER_LEFT);
+        nameCell.setMinWidth(180); nameCell.setMaxWidth(180); nameCell.setAlignment(Pos.CENTER_LEFT);
 
         // Дата
         Label dateLabel = new Label(date + "\n" + time);
-        dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #4a5568;");
-        dateLabel.setPrefWidth(160);
+        dateLabel.getStyleClass().add("apt-text-label");
+        dateLabel.setMinWidth(140); dateLabel.setMaxWidth(140);
 
         // Причина
         Label reasonLabel = new Label(reason);
-        reasonLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #4a5568;");
-        reasonLabel.setPrefWidth(200);
-        reasonLabel.setWrapText(true);
+        reasonLabel.getStyleClass().add("apt-text-label");
+        reasonLabel.setMinWidth(160); reasonLabel.setMaxWidth(160); reasonLabel.setWrapText(true);
 
         // Статус бейдж
         String badgeText = switch (status) {
@@ -128,57 +123,146 @@ public class AppointmentsListController {
             case "NO_SHOW" -> "? No Show";
             default -> "● Scheduled";
         };
-        String badgeBg = switch (status) {
-            case "COMPLETED" -> "#c6f6d5";
-            case "CANCELLED" -> "#fed7d7";
-            case "NO_SHOW" -> "#fefcbf";
-            default -> "#bee3f8";
-        };
-        String badgeFg = switch (status) {
-            case "COMPLETED" -> "#276749";
-            case "CANCELLED" -> "#c53030";
-            case "NO_SHOW" -> "#744210";
-            default -> "#2b6cb0";
-        };
-
         Label statusBadge = new Label(badgeText);
-        statusBadge.setStyle(
-                "-fx-background-color: " + badgeBg + ";" +
-                        "-fx-text-fill: " + badgeFg + ";" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-padding: 4 10 4 10;" +
-                        "-fx-font-size: 11px;" +
-                        "-fx-font-weight: bold;"
-        );
+        // Добавляем общий класс и класс конкретного статуса
+        statusBadge.getStyleClass().addAll("apt-status-badge", "apt-status-" + status.toLowerCase());
         HBox statusCell = new HBox(statusBadge);
-        statusCell.setPrefWidth(120);
-        statusCell.setAlignment(Pos.CENTER_LEFT);
+        statusCell.setMinWidth(110); statusCell.setMaxWidth(110); statusCell.setAlignment(Pos.CENTER_LEFT);
 
         // Заметки
         Label notesLabel = new Label(notes);
-        notesLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #718096;");
-        notesLabel.setPrefWidth(200);
-        notesLabel.setWrapText(true);
+        notesLabel.getStyleClass().add("apt-notes-label");
+        notesLabel.setMinWidth(100); notesLabel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(notesLabel, Priority.ALWAYS);
 
-        HBox row = new HBox(nameCell, dateLabel, reasonLabel, statusCell, notesLabel);
+        // КНОПКИ ДЕЙСТВИЙ
+        Button editBtn = new Button("Edit");
+        editBtn.getStyleClass().add("btn-edit");
+        editBtn.setMinWidth(60);
+        editBtn.setOnAction(e -> openEditWindow(apt));
+
+        Button deleteBtn = new Button("Delete");
+        deleteBtn.getStyleClass().add("btn-delete");
+        deleteBtn.setMinWidth(65);
+        deleteBtn.setOnAction(e -> confirmAndDelete(appointmentId, firstName + " " + lastName));
+
+        HBox actionButtons = new HBox(8, editBtn, deleteBtn);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+        actionButtons.setMinWidth(130);
+
+        HBox row = new HBox(10, nameCell, dateLabel, reasonLabel, statusCell, notesLabel, actionButtons);
         row.getStyleClass().add("patient-row");
         row.setAlignment(Pos.CENTER_LEFT);
-
-        row.setOnMouseClicked(e -> System.out.println(
-                "Clicked: " + firstName + " " + lastName
-        ));
+        row.setStyle("-fx-padding: 10 20 10 10;"); // Отступы можно оставить тут, они не мешают цвету
 
         return row;
     }
 
+    private void openEditWindow(JsonNode apt) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/new-appointment.fxml"));
+            Parent root = loader.load();
+
+            AppointmentController controller = loader.getController();
+
+            Long id = apt.get("id").asLong();
+            String patientName = apt.get("patientFirstName").asText() + " " + apt.get("patientLastName").asText();
+            LocalDateTime dateTime = LocalDateTime.parse(apt.get("appointmentAt").asText());
+            String reason = apt.get("reason").asText();
+            String notes = apt.has("notes") && !apt.get("notes").asText().equals("null") ? apt.get("notes").asText() : null;
+
+            controller.setAppointmentForEdit(id, patientName, dateTime, reason, notes);
+
+            FxUtils.applyTheme(root);
+
+            StackPane wrapper = new StackPane(root);
+            wrapper.setStyle("-fx-background-color: transparent; -fx-padding: 20;");
+
+            Scene scene = new Scene(wrapper);
+            scene.setFill(Color.TRANSPARENT);
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Appointment");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.TRANSPARENT);
+            stage.setOnHidden(e -> loadAppointments(currentFilter));
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void confirmAndDelete(Long appointmentId, String patientName) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.initOwner(appointmentsContainer.getScene().getWindow());
+
+        VBox root = new VBox(15);
+        root.getStyleClass().add("dialog-root");
+        root.setAlignment(Pos.CENTER);
+
+        Label title = new Label("Delete Appointment");
+        title.getStyleClass().add("dialog-title");
+
+        Label msg = new Label("Are you sure you want to delete the appointment for " + patientName + "?");
+        msg.getStyleClass().add("dialog-msg");
+        msg.setWrapText(true);
+        msg.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.getStyleClass().add("btn-dialog-cancel");
+        cancelBtn.setOnAction(e -> dialog.close());
+
+        Button confirmBtn = new Button("Delete");
+        confirmBtn.getStyleClass().add("btn-delete");
+        confirmBtn.setOnAction(e -> { dialog.close(); executeDelete(appointmentId); });
+
+        HBox buttons = new HBox(12, cancelBtn, confirmBtn);
+        buttons.setAlignment(Pos.CENTER);
+
+        root.getChildren().addAll(title, msg, buttons);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+
+        // ✅ Грузим CSS напрямую по пути
+        String css = getClass().getResource("/css/css.css").toExternalForm();
+        scene.getStylesheets().add(css);
+
+        // ✅ Применяем тему если нужно (тёмная/светлая)
+        FxUtils.applyTheme(root);
+
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private void executeDelete(Long id) {
+        new Thread(() -> {
+            try {
+                AppointmentApiClient.deleteAppointment(id);
+                Platform.runLater(() -> loadAppointments(currentFilter)); // Обновляем таблицу
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     // Фильтры
     private void setActiveFilter(Button active) {
-        filterAll.getStyleClass().setAll("filter-btn");
-        filterScheduled.getStyleClass().setAll("filter-btn");
-        filterCompleted.getStyleClass().setAll("filter-btn");
-        filterCancelled.getStyleClass().setAll("filter-btn");
-        filterNoShow.getStyleClass().setAll("filter-btn");
-        active.getStyleClass().setAll("filter-btn-active");
+        // Убираем активный класс у всех, ставим базовый
+        List<Button> buttons = List.of(filterAll, filterScheduled, filterCompleted, filterCancelled, filterNoShow);
+        for (Button btn : buttons) {
+            btn.getStyleClass().remove("filter-btn-active");
+            if (!btn.getStyleClass().contains("filter-btn")) {
+                btn.getStyleClass().add("filter-btn");
+            }
+        }
+        // Ставим активный класс на нужную
+        active.getStyleClass().remove("filter-btn");
+        active.getStyleClass().add("filter-btn-active");
     }
 
     @FXML private void filterAll() {

@@ -51,7 +51,7 @@ public class UserSession {
                 return false;
             }
 
-            this.jwtToken = Files.readString(Path.of(TOKEN_FILE));
+            this.jwtToken = Files.readString(Path.of(TOKEN_FILE)).trim();
             System.out.println("Token loaded: " + (this.jwtToken != null ? "YES" : "NO"));
             return true;
 

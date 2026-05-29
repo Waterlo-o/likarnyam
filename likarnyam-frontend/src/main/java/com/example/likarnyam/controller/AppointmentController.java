@@ -27,7 +27,10 @@ public class AppointmentController {
     @FXML private TextField reasonField;
     @FXML private TextArea notesField;
     @FXML private Button bookBtn;
+    @FXML private Label mainTitleLabel;
 
+
+    private Long editAppointmentId = null; // Если null -> создаем. Если есть ID -> обновляем.
     private Long patientId;
     private String patientName;
     private LocalDate selectedDate = null;
@@ -44,6 +47,27 @@ public class AppointmentController {
         buildMiniCalendar();
     }
 
+    public void setAppointmentForEdit(Long appointmentId, String patientName,
+                                      LocalDateTime currentDateTime, String reason, String notes) {
+        this.editAppointmentId = appointmentId;
+        this.patientNameHeader.setText("Editing: " + patientName);
+        this.bookBtn.setText("Save Changes");
+        this.mainTitleLabel.setText("Edit Appointment");
+
+        // Заполняем текстовые поля
+        this.reasonField.setText(reason != null ? reason : "");
+        this.notesField.setText(notes != null ? notes : "");
+
+        // Устанавливаем текущую дату и время из приёма
+        this.currentYear = currentDateTime.getYear();
+        this.currentMonth = currentDateTime.getMonthValue();
+        this.selectedDate = currentDateTime.toLocalDate();
+        this.selectedSlot = currentDateTime.toLocalTime();
+
+        buildMiniCalendar();
+        updateBookButton(); // Разблокируем кнопку, т.к. данные уже заполнены
+    }
+
     @FXML
     public void initialize() {
         bookBtn.setDisable(true);
@@ -57,20 +81,17 @@ public class AppointmentController {
         int startDay = first.getDayOfWeek().getValue();
         LocalDate today = LocalDate.now();
 
-        // Загружаем данные календаря чтобы знать рабочие дни
         new Thread(() -> {
             try {
                 JsonNode calDays = ScheduleApiClient.getCalendar(currentYear, currentMonth);
                 Platform.runLater(() -> {
                     GridPane grid = new GridPane();
-                    grid.setHgap(4);
-                    grid.setVgap(4);
+                    grid.setHgap(4); grid.setVgap(4);
                     grid.setMaxWidth(Double.MAX_VALUE);
 
                     for (int i = 0; i < 7; i++) {
                         ColumnConstraints col = new ColumnConstraints();
-                        col.setPercentWidth(100.0 / 7);
-                        col.setHgrow(Priority.ALWAYS);
+                        col.setPercentWidth(100.0 / 7); col.setHgrow(Priority.ALWAYS);
                         grid.getColumnConstraints().add(col);
                     }
 
@@ -86,64 +107,27 @@ public class AppointmentController {
 
                         Label cell = new Label(String.valueOf(dayNum));
                         cell.setMaxWidth(Double.MAX_VALUE);
-                        cell.setAlignment(Pos.CENTER);
-                        cell.setPrefHeight(32);
+                        cell.getStyleClass().add("mini-cal-cell");
 
-                        if (isPast) {
-                            cell.setStyle(
-                                    "-fx-text-fill: #cbd5e0; -fx-font-size: 12px;"
-                            );
+                        if (selectedDate != null && date.equals(selectedDate)) {
+                            cell.getStyleClass().add("mini-cal-selected");
+                            selectedDateCell = cell;
+                            loadSlots(date);
+                        } else if (isPast) {
+                            cell.getStyleClass().add("mini-cal-past");
                         } else if (isToday) {
-                            cell.setStyle(
-                                    "-fx-background-color: #64B5F6;" +
-                                            "-fx-text-fill: white;" +
-                                            "-fx-background-radius: 8;" +
-                                            "-fx-font-weight: bold;" +
-                                            "-fx-font-size: 12px;"
-                            );
+                            cell.getStyleClass().add("mini-cal-today");
                         } else if (isWorking) {
-                            cell.setStyle(
-                                    "-fx-background-color: #F0F7FF;" +
-                                            "-fx-text-fill: #2d3748;" +
-                                            "-fx-background-radius: 8;" +
-                                            "-fx-font-size: 12px;" +
-                                            "-fx-cursor: hand;"
-                            );
-                            // Клик на рабочий день
+                            cell.getStyleClass().add("mini-cal-working");
                             cell.setOnMouseClicked(e -> selectDate(date, cell));
-                            cell.setOnMouseEntered(e -> {
-                                if (!date.equals(selectedDate)) {
-                                    cell.setStyle(
-                                            "-fx-background-color: #BEE3F8;" +
-                                                    "-fx-text-fill: #2d3748;" +
-                                                    "-fx-background-radius: 8;" +
-                                                    "-fx-font-size: 12px;" +
-                                                    "-fx-cursor: hand;"
-                                    );
-                                }
-                            });
-                            cell.setOnMouseExited(e -> {
-                                if (!date.equals(selectedDate)) {
-                                    cell.setStyle(
-                                            "-fx-background-color: #F0F7FF;" +
-                                                    "-fx-text-fill: #2d3748;" +
-                                                    "-fx-background-radius: 8;" +
-                                                    "-fx-font-size: 12px;" +
-                                                    "-fx-cursor: hand;"
-                                    );
-                                }
-                            });
                         } else {
-                            cell.setStyle(
-                                    "-fx-text-fill: #a0aec0; -fx-font-size: 12px;"
-                            );
+                            cell.getStyleClass().add("mini-cal-off");
                         }
 
                         grid.add(cell, col, row);
                         col++;
                         if (col == 7) { col = 0; row++; }
                     }
-
                     miniCalendarGrid.getChildren().add(grid);
                 });
             } catch (Exception e) {
@@ -155,30 +139,14 @@ public class AppointmentController {
     private Label selectedDateCell = null;
 
     private void selectDate(LocalDate date, Label cell) {
-        // Сбрасываем предыдущий выбор
         if (selectedDateCell != null) {
-            selectedDateCell.setStyle(
-                    "-fx-background-color: #F0F7FF;" +
-                            "-fx-text-fill: #2d3748;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-font-size: 12px;" +
-                            "-fx-cursor: hand;"
-            );
+            selectedDateCell.getStyleClass().remove("mini-cal-selected");
         }
-
         selectedDate = date;
         selectedDateCell = cell;
         selectedSlot = null;
 
-        // Выделяем выбранный день
-        cell.setStyle(
-                "-fx-background-color: #2196F3;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 12px;"
-        );
-
+        cell.getStyleClass().add("mini-cal-selected");
         loadSlots(date);
         updateBookButton();
     }
@@ -192,36 +160,35 @@ public class AppointmentController {
                 JsonNode slots = ScheduleApiClient.getAvailableSlots(date);
                 Platform.runLater(() -> {
                     slotsContainer.getChildren().clear();
-                    if (slots.size() == 0) {
+                    if (slots.size() == 0 && editAppointmentId == null) {
                         noSlotsLabel.setText("No available slots for this day");
                         noSlotsLabel.setVisible(true);
                     } else {
                         noSlotsLabel.setVisible(false);
+                        java.util.List<LocalTime> availableTimes = new java.util.ArrayList<>();
                         for (JsonNode slot : slots) {
-                            String timeStr = slot.asText().substring(0, 5);
-                            Button slotBtn = new Button(timeStr);
-                            slotBtn.setStyle(
-                                    "-fx-background-color: #EBF4FF;" +
-                                            "-fx-text-fill: #2b6cb0;" +
-                                            "-fx-background-radius: 8;" +
-                                            "-fx-border-color: #bee3f8;" +
-                                            "-fx-border-radius: 8;" +
-                                            "-fx-padding: 6 12 6 12;" +
-                                            "-fx-cursor: hand;" +
-                                            "-fx-font-size: 12px;"
-                            );
-                            slotBtn.setOnAction(e -> selectSlot(
-                                    LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm")),
-                                    slotBtn
-                            ));
+                            availableTimes.add(LocalTime.parse(slot.asText().substring(0, 5), DateTimeFormatter.ofPattern("HH:mm")));
+                        }
+                        if (editAppointmentId != null && selectedDate != null && selectedSlot != null) {
+                            if (!availableTimes.contains(selectedSlot)) availableTimes.add(selectedSlot);
+                        }
+                        java.util.Collections.sort(availableTimes);
+
+                        for (LocalTime time : availableTimes) {
+                            Button slotBtn = new Button(time.toString());
+                            slotBtn.getStyleClass().add("mini-slot-btn");
+
+                            if (selectedSlot != null && time.equals(selectedSlot)) {
+                                slotBtn.getStyleClass().add("mini-slot-selected");
+                                selectedSlotBtn = slotBtn;
+                            }
+                            slotBtn.setOnAction(e -> selectSlot(time, slotBtn));
                             slotsContainer.getChildren().add(slotBtn);
                         }
                     }
                 });
             } catch (Exception e) {
-                Platform.runLater(() ->
-                        noSlotsLabel.setText("Failed to load slots")
-                );
+                Platform.runLater(() -> noSlotsLabel.setText("Failed to load slots"));
             }
         }).start();
     }
@@ -230,30 +197,11 @@ public class AppointmentController {
 
     private void selectSlot(LocalTime time, Button btn) {
         if (selectedSlotBtn != null) {
-            selectedSlotBtn.setStyle(
-                    "-fx-background-color: #EBF4FF;" +
-                            "-fx-text-fill: #2b6cb0;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-border-color: #bee3f8;" +
-                            "-fx-border-radius: 8;" +
-                            "-fx-padding: 6 12 6 12;" +
-                            "-fx-cursor: hand;" +
-                            "-fx-font-size: 12px;"
-            );
+            selectedSlotBtn.getStyleClass().remove("mini-slot-selected");
         }
         selectedSlot = time;
         selectedSlotBtn = btn;
-        btn.setStyle(
-                "-fx-background-color: #2196F3;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-border-color: #1976D2;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-padding: 6 12 6 12;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 12px;"
-        );
+        btn.getStyleClass().add("mini-slot-selected");
         updateBookButton();
     }
 
@@ -274,16 +222,23 @@ public class AppointmentController {
         }
 
         bookBtn.setDisable(true);
-        bookBtn.setText("Booking...");
+        bookBtn.setText(editAppointmentId == null ? "Booking..." : "Saving...");
 
         LocalDateTime appointmentAt = LocalDateTime.of(selectedDate, selectedSlot);
 
         new Thread(() -> {
             try {
-                AppointmentApiClient.createAppointment(
-                        patientId, appointmentAt, reason,
-                        notesField.getText().trim()
-                );
+                // ВЕТВЛЕНИЕ: Создаем или Обновляем?
+                if (editAppointmentId == null) {
+                    AppointmentApiClient.createAppointment(
+                            patientId, appointmentAt, reason, notesField.getText().trim()
+                    );
+                } else {
+                    AppointmentApiClient.updateAppointment(
+                            editAppointmentId, appointmentAt, reason, notesField.getText().trim()
+                    );
+                }
+
                 Platform.runLater(() -> {
                     // Закрываем окно
                     Stage stage = (Stage) bookBtn.getScene().getWindow();
@@ -292,8 +247,8 @@ public class AppointmentController {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     bookBtn.setDisable(false);
-                    bookBtn.setText("Book Appointment");
-                    noSlotsLabel.setText("Failed to book: " + e.getMessage());
+                    bookBtn.setText(editAppointmentId == null ? "Book Appointment" : "Save Changes");
+                    noSlotsLabel.setText("Failed to save: " + e.getMessage());
                     noSlotsLabel.setVisible(true);
                 });
             }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15.0"
+      stylesheets="@../css/css.css"
+      styleClass="event-form-root"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.likarnyam.controller.EventFormController"
+      prefWidth="450.0">
+
+    <Label fx:id="headerLabel" text="New Event" styleClass="form-title"/>
+
+    <VBox spacing="5.0">
+        <Label text="Title *" styleClass="form-label"/>
+        <TextField fx:id="titleField" promptText="e.g. Monthly Department Meeting"
+                   styleClass="settings-input" prefHeight="36"/>
+    </VBox>
+
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label text="Date *" styleClass="form-label"/>
+            <DatePicker fx:id="datePicker" promptText="Select date"
+                        styleClass="settings-input" prefHeight="36" maxWidth="Infinity"/>
+        </VBox>
+        <VBox spacing="5.0">
+            <Label text="Time *" styleClass="form-label"/>
+            <HBox spacing="5.0" alignment="CENTER_LEFT">
+                <ComboBox fx:id="hourCombo" prefWidth="70" prefHeight="36" styleClass="settings-input"/>
+                <Label text=":" styleClass="form-divider"/>
+                <ComboBox fx:id="minuteCombo" prefWidth="70" prefHeight="36" styleClass="settings-input"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label text="Location" styleClass="form-label"/>
+            <TextField fx:id="locationField" promptText="Room 402 or Zoom link"
+                       styleClass="settings-input" prefHeight="36"/>
+        </VBox>
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label text="Event Type" styleClass="form-label"/>
+            <ComboBox fx:id="typeCombo" promptText="Select type"
+                      styleClass="settings-input" prefHeight="36" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="5.0">
+        <Label text="Description" styleClass="form-label"/>
+        <TextArea fx:id="descArea" promptText="Add some details..."
+                  wrapText="true" prefRowCount="3" styleClass="settings-input"/>
+    </VBox>
+
+    <Label fx:id="errorLabel" text="" styleClass="settings-result-error"
+           visible="false" managed="false"/>
+
+    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+        <padding><Insets top="10.0"/></padding>
+        <Button text="Cancel" onAction="#handleCancel" styleClass="btn-dialog-cancel"/>
+        <Button fx:id="saveBtn" text="Save Event" onAction="#handleSave" styleClass="btn-primary"/>
+    </HBox>
+</VBox>
