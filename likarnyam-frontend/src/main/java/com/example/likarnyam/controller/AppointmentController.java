@@ -1,6 +1,7 @@
 package com.example.likarnyam.controller;
 
 import com.example.likarnyam.client.AppointmentApiClient;
+import com.example.likarnyam.client.DiseaseApiClient;
 import com.example.likarnyam.client.ScheduleApiClient;
 import com.example.likarnyam.client.SymptomApiClient;
 import com.example.likarnyam.util.FxUtils;
@@ -33,6 +34,9 @@ public class AppointmentController {
     @FXML private TextField symptomSearchField;
     @FXML private FlowPane selectedSymptomsPane;
     @FXML private VBox symptomCategoriesContainer;
+    @FXML private TextField diagnosisSearchField;
+    @FXML private Label selectedDiagnosisLabel;
+    @FXML private VBox diagnosisListContainer;
 
     private Long editAppointmentId = null;
     private Long patientId;
@@ -42,9 +46,11 @@ public class AppointmentController {
     private int currentYear = LocalDate.now().getYear();
     private int currentMonth = LocalDate.now().getMonthValue();
 
-    // Симптомы: id -> {name, icon, category}
     private final Map<Long, JsonNode> allSymptoms = new LinkedHashMap<>();
     private final Set<Long> selectedSymptomIds = new LinkedHashSet<>();
+
+    private final Map<Long, JsonNode> allDiseases = new LinkedHashMap<>();
+    private Long selectedDiseaseId = null;
 
     public void setPatient(Long id, String name) {
         this.patientId = id;
@@ -52,12 +58,15 @@ public class AppointmentController {
         patientNameHeader.setText("Patient: " + name);
         buildMiniCalendar();
         loadSymptoms();
+        loadDiseases();
     }
 
     public void setAppointmentForEdit(Long appointmentId, String patientName,
                                       LocalDateTime currentDateTime, String reason,
-                                      String notes, List<Long> existingSymptomIds) {
+                                      String notes, List<Long> existingSymptomIds,
+                                      Long diseaseId, String diseaseName) {
         this.editAppointmentId = appointmentId;
+        this.selectedDiseaseId = diseaseId;
         this.patientNameHeader.setText("Editing: " + patientName);
         this.bookBtn.setText("Save Changes");
         this.mainTitleLabel.setText("Edit Appointment");
@@ -68,13 +77,22 @@ public class AppointmentController {
         this.selectedDate = currentDateTime.toLocalDate();
         this.selectedSlot = currentDateTime.toLocalTime();
 
-        if (existingSymptomIds != null) {
-            selectedSymptomIds.addAll(existingSymptomIds);
-        }
+        if (existingSymptomIds != null) selectedSymptomIds.addAll(existingSymptomIds);
 
         buildMiniCalendar();
         loadSymptoms();
+        loadDiseases();
         updateBookButton();
+    }
+
+    public void setExistingDisease(Long diseaseId, String diseaseName) {
+        this.selectedDiseaseId = diseaseId;
+        if (selectedDiagnosisLabel != null && diseaseName != null) {
+            selectedDiagnosisLabel.setText("✓ " + diseaseName);
+            selectedDiagnosisLabel.setStyle(
+                    "-fx-text-fill: #38a169; -fx-font-size: 12px; -fx-font-weight: bold;"
+            );
+        }
     }
 
     @FXML
@@ -84,6 +102,144 @@ public class AppointmentController {
             symptomSearchField.textProperty().addListener((obs, oldVal, newVal) ->
                     renderSymptomCategories(newVal.trim().toLowerCase()));
         }
+        if (diagnosisSearchField != null) {
+            diagnosisSearchField.textProperty().addListener((obs, oldVal, newVal) ->
+                    renderDiseases(newVal.trim().toLowerCase()));
+        }
+    }
+
+    // ── ДИАГНОЗ ───────────────────────────────────────────────
+
+    private void loadDiseases() {
+        new Thread(() -> {
+            try {
+                JsonNode diseases = DiseaseApiClient.getMy();
+                Platform.runLater(() -> {
+                    allDiseases.clear();
+                    for (JsonNode d : diseases) {
+                        allDiseases.put(d.get("id").asLong(), d);
+                    }
+                    renderDiseases("");
+                    // Если уже выбран диагноз — обновляем label
+                    if (selectedDiseaseId != null && allDiseases.containsKey(selectedDiseaseId)) {
+                        String name = allDiseases.get(selectedDiseaseId).get("name").asText();
+                        if (selectedDiagnosisLabel != null) {
+                            selectedDiagnosisLabel.setText("✓ " + name);
+                            selectedDiagnosisLabel.setStyle(
+                                    "-fx-text-fill: #38a169; -fx-font-size: 12px; -fx-font-weight: bold;"
+                            );
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void renderDiseases(String filter) {
+        if (diagnosisListContainer == null) return;
+        diagnosisListContainer.getChildren().clear();
+
+        for (JsonNode d : allDiseases.values()) {
+            String name = d.get("name").asText();
+            if (!filter.isEmpty() && !name.toLowerCase().contains(filter)) continue;
+
+            long id = d.get("id").asLong();
+            boolean isSelected = id == (selectedDiseaseId != null ? selectedDiseaseId : -1);
+
+            boolean isDark = isDarkTheme();
+            String bg     = isSelected ? (isDark ? "#0A1E18" : "#F0FFF4") : (isDark ? "#2D2D2D" : "#F7FAFC");
+            String border = isSelected ? "#38a169" : (isDark ? "#444" : "#e2e8f0");
+            String text   = isSelected ? "#38a169" : (isDark ? "#C8C6BE" : "#2d3748");
+
+            HBox row = new HBox(10);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle(String.format(
+                    "-fx-background-color: %s; -fx-border-color: %s; " +
+                            "-fx-border-radius: 8; -fx-background-radius: 8; " +
+                            "-fx-border-width: 1; -fx-padding: 8 12; -fx-cursor: hand;",
+                    bg, border
+            ));
+
+            VBox info = new VBox(2);
+            Label nameLabel = new Label(name);
+            nameLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + text + ";");
+
+            String icdCode = d.has("icdCode") && !d.get("icdCode").isNull()
+                    ? d.get("icdCode").asText() : "";
+            if (!icdCode.isEmpty()) {
+                Label icdLabel = new Label("ICD: " + icdCode);
+                icdLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #a0aec0;");
+                info.getChildren().addAll(nameLabel, icdLabel);
+            } else {
+                info.getChildren().add(nameLabel);
+            }
+
+            if (isSelected) {
+                Label check = new Label("✓");
+                check.setStyle("-fx-text-fill: #38a169; -fx-font-weight: bold; -fx-font-size: 14px;");
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                row.getChildren().addAll(info, spacer, check);
+            } else {
+                row.getChildren().add(info);
+            }
+
+            row.setOnMouseClicked(e -> selectDisease(id, name));
+            diagnosisListContainer.getChildren().add(row);
+
+            final String finalBg = bg;
+            final String finalBorder = border;
+
+            row.setOnMouseEntered(e -> {
+                if (id != (selectedDiseaseId != null ? selectedDiseaseId : -1)) {
+                    boolean dark = isDarkTheme();
+                    row.setStyle(String.format(
+                            "-fx-background-color: %s; -fx-border-color: %s; " +
+                                    "-fx-border-radius: 8; -fx-background-radius: 8; " +
+                                    "-fx-border-width: 1; -fx-padding: 8 12; -fx-cursor: hand;",
+                            dark ? "#3A3A3A" : "#EDF2F7",
+                            dark ? "#555" : "#cbd5e0"
+                    ));
+                }
+            });
+
+            row.setOnMouseExited(e -> {
+                if (id != (selectedDiseaseId != null ? selectedDiseaseId : -1)) {
+                    row.setStyle(String.format(
+                            "-fx-background-color: %s; -fx-border-color: %s; " +
+                                    "-fx-border-radius: 8; -fx-background-radius: 8; " +
+                                    "-fx-border-width: 1; -fx-padding: 8 12; -fx-cursor: hand;",
+                            finalBg, finalBorder
+                    ));
+                }
+            });
+
+        }
+    }
+
+    private void selectDisease(long id, String name) {
+        if (selectedDiseaseId != null && selectedDiseaseId == id) {
+            // Снимаем выбор
+            selectedDiseaseId = null;
+            if (selectedDiagnosisLabel != null) {
+                selectedDiagnosisLabel.setText("No diagnosis selected");
+                selectedDiagnosisLabel.setStyle(
+                        "-fx-text-fill: #a0aec0; -fx-font-size: 12px;"
+                );
+            }
+        } else {
+            selectedDiseaseId = id;
+            if (selectedDiagnosisLabel != null) {
+                selectedDiagnosisLabel.setText("✓ " + name);
+                selectedDiagnosisLabel.setStyle(
+                        "-fx-text-fill: #38a169; -fx-font-size: 12px; -fx-font-weight: bold;"
+                );
+            }
+        }
+        renderDiseases(diagnosisSearchField != null
+                ? diagnosisSearchField.getText().trim().toLowerCase() : "");
     }
 
     // ── СИМПТОМЫ ──────────────────────────────────────────────
@@ -110,7 +266,6 @@ public class AppointmentController {
         if (symptomCategoriesContainer == null) return;
         symptomCategoriesContainer.getChildren().clear();
 
-        // Группируем по категории
         Map<String, List<JsonNode>> byCategory = new LinkedHashMap<>();
         for (JsonNode s : allSymptoms.values()) {
             String name = s.get("name").asText().toLowerCase();
@@ -120,12 +275,10 @@ public class AppointmentController {
         }
 
         for (Map.Entry<String, List<JsonNode>> entry : byCategory.entrySet()) {
-            // Заголовок категории
             Label catLabel = new Label(entry.getKey());
             catLabel.getStyleClass().add("symptom-category-label");
             symptomCategoriesContainer.getChildren().add(catLabel);
 
-            // Теги симптомов
             FlowPane pane = new FlowPane();
             pane.setHgap(6);
             pane.setVgap(6);
@@ -144,7 +297,6 @@ public class AppointmentController {
         tag.setAlignment(Pos.CENTER_LEFT);
 
         String category = s.get("category").asText().toLowerCase().replace(" ", "-");
-
         boolean isDark = isDarkTheme();
 
         String bg, border, textColor;
@@ -189,13 +341,13 @@ public class AppointmentController {
         tag.setOnMouseEntered(e -> tag.setStyle(String.format(
                 "-fx-background-color: %s; -fx-border-color: %s; " +
                         "-fx-border-radius: 20; -fx-background-radius: 20; " +
-                        "-fx-border-width: 1.5; -fx-padding: 4 10; -fx-cursor: hand; -fx-opacity: 0.85;",
+                        "-fx-border-width: 1; -fx-padding: 4 10; -fx-cursor: hand; -fx-opacity: 0.75;",
                 finalBg, finalBorder
         )));
         tag.setOnMouseExited(e -> tag.setStyle(String.format(
                 "-fx-background-color: %s; -fx-border-color: %s; " +
                         "-fx-border-radius: 20; -fx-background-radius: 20; " +
-                        "-fx-border-width: 1; -fx-padding: 4 10; -fx-cursor: hand;",
+                        "-fx-border-width: 1; -fx-padding: 4 10; -fx-cursor: hand; -fx-opacity: 1.0;",
                 finalBg, finalBorder
         )));
 
@@ -210,10 +362,8 @@ public class AppointmentController {
             JsonNode s = allSymptoms.get(id);
             if (s == null) continue;
 
-            // Берём тег с цветом категории (isSelected=false чтобы сохранить цвет)
             HBox tag = buildSymptomTag(s, id, false);
 
-            // Добавляем кнопку × поверх
             Label remove = new Label("×");
             remove.setStyle(
                     "-fx-font-size: 13px; -fx-font-weight: bold; " +
@@ -222,7 +372,6 @@ public class AppointmentController {
             remove.setOnMouseClicked(e -> toggleSymptom(id));
             tag.getChildren().add(remove);
 
-            // Переопределяем клик — только удаление
             tag.setOnMouseClicked(null);
             remove.setOnMouseClicked(e -> toggleSymptom(id));
 
@@ -412,12 +561,12 @@ public class AppointmentController {
                 if (editAppointmentId == null) {
                     AppointmentApiClient.createAppointment(
                             patientId, appointmentAt, reason,
-                            notesField.getText().trim(), symptomIds
+                            notesField.getText().trim(), symptomIds, selectedDiseaseId
                     );
                 } else {
                     AppointmentApiClient.updateAppointment(
                             editAppointmentId, appointmentAt, reason,
-                            notesField.getText().trim()
+                            notesField.getText().trim(), symptomIds, selectedDiseaseId
                     );
                 }
                 Platform.runLater(() -> {

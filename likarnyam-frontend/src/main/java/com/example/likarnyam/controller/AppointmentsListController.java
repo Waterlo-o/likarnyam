@@ -182,7 +182,15 @@ public class AppointmentsListController {
                 }
             }
 
-            controller.setAppointmentForEdit(id, patientName, dateTime, reason, notes, symptomIds);
+            Long diseaseId = null;
+            String diseaseName = null;
+            if (apt.has("disease") && !apt.get("disease").isNull()) {
+                diseaseId = apt.get("disease").get("id").asLong();
+                diseaseName = apt.get("disease").get("name").asText();
+            }
+
+            controller.setAppointmentForEdit(id, patientName, dateTime, reason, notes,
+                    symptomIds, diseaseId, diseaseName);
 
             FxUtils.applyTheme(root);
 

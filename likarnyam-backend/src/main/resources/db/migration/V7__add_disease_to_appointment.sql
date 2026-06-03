@@ -1,0 +1,2 @@
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS disease_id BIGINT
+    REFERENCES diseases(id) ON DELETE SET NULL;

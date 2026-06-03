@@ -11,4 +11,5 @@ public class AppointmentCreateRequest {
     private String reason;
     private String notes;
     private List<Long> symptomIds;
+    private Long diseaseId;
 }

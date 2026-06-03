@@ -6,6 +6,7 @@ import com.example.likarnyambackend.model.Appointment;
 import com.example.likarnyambackend.model.Doctor;
 import com.example.likarnyambackend.model.Symptom;
 import com.example.likarnyambackend.repository.AppointmentRepository;
+import com.example.likarnyambackend.repository.DiseaseRepository;
 import com.example.likarnyambackend.repository.PatientRepository;
 import com.example.likarnyambackend.repository.SymptomRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class AppointmentService {
 
     private final SymptomRepository symptomRepository;
     private final AppointmentRepository appointmentRepository;
+    private final DiseaseRepository diseaseRepository;
 
     public List<Appointment> getTodayAppointments(Long doctorId) {
 
@@ -75,6 +77,11 @@ public class AppointmentService {
             appointment.setSymptoms(symptoms);
         }
 
+        if (request.getDiseaseId() != null) {
+            diseaseRepository.findById(request.getDiseaseId())
+                    .ifPresent(appointment::setDisease);
+        }
+
         return AppointmentResponse.from(appointmentRepository.save(appointment));
     }
 
@@ -103,6 +110,20 @@ public class AppointmentService {
                         apt.setReason(request.getReason());
                     if (request.getNotes() != null)
                         apt.setNotes(request.getNotes());
+
+                    if (request.getSymptomIds() != null) {
+                        Set<Symptom> symptoms = new HashSet<>(
+                                symptomRepository.findAllById(request.getSymptomIds())
+                        );
+                        apt.setSymptoms(symptoms);
+                    }
+
+                    if (request.getDiseaseId() != null) {
+                        diseaseRepository.findById(request.getDiseaseId())
+                                .ifPresent(apt::setDisease);
+                    } else {
+                        apt.setDisease(null);
+                    }
 
                     return appointmentRepository.save(apt);
                 });

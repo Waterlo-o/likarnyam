@@ -308,17 +308,17 @@
 
 .btn-back {
     -fx-background-color: transparent;
-    -fx-text-fill: #64B5F6;
-    -fx-font-size: 14px;
-    -fx-cursor: hand;
     -fx-border-color: #64B5F6;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-padding: 5 15 5 15;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;feat: add disease/diagnosis feature
+    -fx-text-fill: #64B5F6;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
 }
 
 .btn-back:hover {
-    -fx-background-color: #EBF8FF;
+    -fx-background-color: rgba(100, 181, 246, 0.15);
+    -fx-border-color: #64B5F6;
 }
 
 .history-card {
@@ -524,7 +524,7 @@
     -fx-border-color: #e2e8f0;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
-    -fx-padding: 10 15 10 15;
+    -fx-padding: 8 15 8 15;
     -fx-font-size: 13px;
     -fx-pref-height: 42px;
 }
@@ -2187,7 +2187,7 @@
 /* ========================================= */
 
 .dark-theme .dialog-pane {
-    -fx-background-color: #1A202C;
+    -fx-background-color: #1e293b;
     -fx-background-radius: 12px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 25, 0, 0, 10);
 }

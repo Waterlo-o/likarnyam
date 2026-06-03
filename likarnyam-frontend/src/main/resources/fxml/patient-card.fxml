@@ -85,10 +85,10 @@
                                    GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
                             <Label text="Allergies:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="5" textFill="#888" minWidth="-Infinity"/>
-                            <Label fx:id="allergiesLabel" text="—"
-                                   wrapText="true"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                                   GridPane.rowIndex="5" textFill="#888" minWidth="-Infinity"
+                                   GridPane.valignment="TOP"/>
+                            <FlowPane fx:id="allergiesPane" hgap="6" vgap="6"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="5"/>
                         </GridPane>
 
                         <Button text="+ New Appointment" styleClass="btn-primary"

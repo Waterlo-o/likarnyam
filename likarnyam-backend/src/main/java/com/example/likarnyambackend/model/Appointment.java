@@ -5,6 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import com.example.likarnyambackend.model.Disease;
 
 @Data
 @Entity
@@ -37,4 +38,8 @@ public class Appointment {
             inverseJoinColumns = @JoinColumn(name = "symptom_id")
     )
     private Set<Symptom> symptoms = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "disease_id")
+    private Disease disease;
 }

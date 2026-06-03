@@ -106,6 +106,24 @@
                 </ScrollPane>
             </VBox>
 
+            <Separator/>
+
+            <!-- Диагноз -->
+            <VBox spacing="6">
+                <Label text="Diagnosis"
+                       style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #4a5568;"/>
+                <Label fx:id="selectedDiagnosisLabel" text="No diagnosis selected"
+                       style="-fx-text-fill: #a0aec0; -fx-font-size: 12px;"/>
+                <TextField fx:id="diagnosisSearchField"
+                           promptText="Search diagnosis..."
+                           styleClass="search-bar"/>
+                <ScrollPane fitToWidth="true" prefHeight="180"
+                            styleClass="patient-scroll">
+                    <VBox fx:id="diagnosisListContainer" spacing="4"
+                          style="-fx-padding: 4 0;"/>
+                </ScrollPane>
+            </VBox>
+
             <!-- Кнопки -->
             <HBox spacing="12" alignment="CENTER_RIGHT">
                 <Button text="Cancel" styleClass="btn-back"

@@ -10,10 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -27,7 +24,7 @@ public class PatientCardController {
     @FXML private Label bloodTypeLabel;
     @FXML private Label phoneLabel;
     @FXML private Label emailLabel;
-    @FXML private Label allergiesLabel;
+    @FXML private FlowPane allergiesPane;
     @FXML private VBox historyContainer;
 
     private Long patientId;
@@ -45,7 +42,6 @@ public class PatientCardController {
                 JsonNode history = PatientApiClient.getPatientHistory(patientId);
 
                 Platform.runLater(() -> {
-                    // Основные данные
                     String firstName = patient.get("firstName").asText();
                     String lastName = patient.get("lastName").asText();
 
@@ -59,16 +55,48 @@ public class PatientCardController {
                     bloodTypeLabel.setText(getValue(patient, "bloodType"));
                     phoneLabel.setText(getValue(patient, "phone"));
                     emailLabel.setText(getValue(patient, "email"));
+
+                    // Аллергии тегами
+                    allergiesPane.getChildren().clear();
                     JsonNode allergies = patient.has("allergies") ? patient.get("allergies") : null;
                     if (allergies == null || allergies.size() == 0) {
-                        allergiesLabel.setText("—");
+                        Label none = new Label("—");
+                        none.setStyle("-fx-text-fill: #888;");
+                        allergiesPane.getChildren().add(none);
                     } else {
-                        StringBuilder sb = new StringBuilder();
+                        boolean isDark = com.example.likarnyam.session.UserSession.getInstance()
+                                .getTheme() != null &&
+                                com.example.likarnyam.session.UserSession.getInstance()
+                                        .getTheme().equalsIgnoreCase("dark");
+                        String bg     = isDark ? "#1A2E4A" : "#EBF4FF";
+                        String border = "#64B5F6";
+                        String text   = isDark ? "#90C8F0" : "#0C447C";
+
                         for (JsonNode a : allergies) {
-                            if (sb.length() > 0) sb.append(", ");
-                            sb.append(a.get("name").asText());
+                            HBox tag = new HBox(5);
+                            tag.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                            tag.setStyle(String.format(
+                                    "-fx-background-color: %s; -fx-border-color: %s; " +
+                                            "-fx-border-radius: 20; -fx-background-radius: 20; " +
+                                            "-fx-border-width: 1; -fx-padding: 3 8;",
+                                    bg, border
+                            ));
+
+                            try {
+                                org.kordamp.ikonli.javafx.FontIcon icon =
+                                        new org.kordamp.ikonli.javafx.FontIcon(
+                                                a.get("icon").asText());
+                                icon.setIconSize(11);
+                                icon.setIconColor(javafx.scene.paint.Color.web(text));
+                                tag.getChildren().add(icon);
+                            } catch (Exception ignored) {}
+
+                            Label name = new Label(a.get("name").asText());
+                            name.setStyle("-fx-font-size: 11px; -fx-text-fill: " + text + ";");
+                            tag.getChildren().add(name);
+
+                            allergiesPane.getChildren().add(tag);
                         }
-                        allergiesLabel.setText(sb.toString());
                     }
 
                     // История визитов
@@ -185,6 +213,45 @@ public class PatientCardController {
                     "-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold;"
             );
             card.getChildren().addAll(symptomsTitle, symptomsPane);
+        }
+
+        // Диагноз
+        JsonNode disease = visit.has("disease") && !visit.get("disease").isNull()
+                ? visit.get("disease") : null;
+        if (disease != null) {
+            boolean isDark = com.example.likarnyam.session.UserSession.getInstance()
+                    .getTheme() != null &&
+                    com.example.likarnyam.session.UserSession.getInstance()
+                            .getTheme().equalsIgnoreCase("dark");
+
+            String bg     = isDark ? "#0A1E18" : "#F0FFF4";
+            String border = "#38a169";
+            String text   = "#38a169";
+
+            HBox diagnosisTag = new HBox(6);
+            diagnosisTag.setAlignment(Pos.CENTER_LEFT);
+            diagnosisTag.setStyle(String.format(
+                    "-fx-background-color: %s; -fx-border-color: %s; " +
+                            "-fx-border-radius: 8; -fx-background-radius: 8; " +
+                            "-fx-border-width: 1; -fx-padding: 5 10;",
+                    bg, border
+            ));
+
+            Label diagIcon = new Label("⊕");
+            diagIcon.setStyle("-fx-text-fill: " + text + "; -fx-font-size: 12px;");
+
+            String icdCode = disease.has("icdCode") && !disease.get("icdCode").isNull()
+                    ? " · ICD: " + disease.get("icdCode").asText() : "";
+
+            Label diagName = new Label(disease.get("name").asText() + icdCode);
+            diagName.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + text + ";");
+
+            diagnosisTag.getChildren().addAll(diagIcon, diagName);
+
+            Label diagTitle = new Label("Diagnosis:");
+            diagTitle.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold;");
+
+            card.getChildren().addAll(diagTitle, diagnosisTag);
         }
 
         card.getStyleClass().add("history-card");

@@ -17,6 +17,7 @@ public class AppointmentResponse {
     private Integer durationMinutes;
     private String notes;
     private List<SymptomDto> symptoms;
+    private DiseaseDto disease;
 
     public static AppointmentResponse from(Appointment appointment) {
         AppointmentResponse dto = new AppointmentResponse();
@@ -28,22 +29,42 @@ public class AppointmentResponse {
         dto.setAppointmentAt(appointment.getAppointmentAt());
         dto.setDurationMinutes(appointment.getDurationMinutes());
         dto.setNotes(appointment.getNotes() != null ? appointment.getNotes() : "No notes");
+
         dto.setSymptoms(appointment.getSymptoms().stream()
                 .map(s -> {
-                    AppointmentResponse.SymptomDto symptomDto = new AppointmentResponse.SymptomDto();
+                    SymptomDto symptomDto = new SymptomDto();
                     symptomDto.setId(s.getId());
                     symptomDto.setName(s.getName());
                     symptomDto.setIcon(s.getIcon());
                     symptomDto.setCategory(s.getCategory());
                     return symptomDto;
                 }).toList());
+
+        if (appointment.getDisease() != null) {
+            DiseaseDto diseaseDto = new DiseaseDto();
+            diseaseDto.setId(appointment.getDisease().getId());
+            diseaseDto.setName(appointment.getDisease().getName());
+            diseaseDto.setIcdCode(appointment.getDisease().getIcdCode());
+            diseaseDto.setDescription(appointment.getDisease().getDescription());
+            dto.setDisease(diseaseDto);
+        }
+
         return dto;
     }
+
     @Data
     public static class SymptomDto {
         private Long id;
         private String name;
         private String icon;
         private String category;
+    }
+
+    @Data
+    public static class DiseaseDto {
+        private Long id;
+        private String name;
+        private String icdCode;
+        private String description;
     }
 }

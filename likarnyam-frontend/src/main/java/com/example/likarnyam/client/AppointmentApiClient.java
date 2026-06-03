@@ -50,24 +50,31 @@ public class AppointmentApiClient {
 
     public static void createAppointment(Long patientId, LocalDateTime appointmentAt,
                                          String reason, String notes,
-                                         List<Long> symptomIds) throws Exception {
+                                         List<Long> symptomIds,
+                                         Long diseaseId) throws Exception {
         String symptomsJson = symptomIds == null || symptomIds.isEmpty()
                 ? "[]"
                 : "[" + symptomIds.stream()
                 .map(String::valueOf)
                 .collect(java.util.stream.Collectors.joining(",")) + "]";
 
+        String diseaseJson = diseaseId != null ? String.valueOf(diseaseId) : "null";
+
         String body = String.format(
-                "{\"patientId\":%d,\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\",\"symptomIds\":%s}",
-                patientId, appointmentAt.toString(), reason, notes, symptomsJson
+                "{\"patientId\":%d,\"appointmentAt\":\"%s\",\"reason\":\"%s\"," +
+                        "\"notes\":\"%s\",\"symptomIds\":%s,\"diseaseId\":%s}",
+                patientId, appointmentAt.toString(), reason, notes,
+                symptomsJson, diseaseJson
         );
         HttpRequest request = baseRequest("/appointments")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request,
+                HttpResponse.BodyHandlers.ofString());
         validateResponse(response);
     }
+
 
     public static void updateStatus(Long appointmentId, String status) throws Exception {
         System.out.println("Updating status: id=" + appointmentId + " status=" + status);
@@ -96,10 +103,20 @@ public class AppointmentApiClient {
     }
 
     public static void updateAppointment(Long appointmentId, LocalDateTime appointmentAt,
-                                         String reason, String notes) throws Exception {
+                                         String reason, String notes,
+                                         List<Long> symptomIds, Long diseaseId) throws Exception {
+        String symptomsJson = symptomIds == null || symptomIds.isEmpty()
+                ? "[]"
+                : "[" + symptomIds.stream()
+                .map(String::valueOf)
+                .collect(java.util.stream.Collectors.joining(",")) + "]";
+
+        String diseaseJson = diseaseId != null ? String.valueOf(diseaseId) : "null";
+
         String body = String.format(
-                "{\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\"}",
-                appointmentAt.toString(), reason, notes
+                "{\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\"," +
+                        "\"symptomIds\":%s,\"diseaseId\":%s}",
+                appointmentAt.toString(), reason, notes, symptomsJson, diseaseJson
         );
 
         HttpRequest request = baseRequest("/appointments/" + appointmentId)
@@ -109,7 +126,6 @@ public class AppointmentApiClient {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         validateResponse(response);
     }
-
     public static void deleteAppointment(Long appointmentId) throws Exception {
         HttpRequest request = baseRequest("/appointments/" + appointmentId).DELETE().build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
