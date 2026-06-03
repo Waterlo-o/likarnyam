@@ -81,7 +81,7 @@ public class EventsListController {
         String desc = event.has("description") && !event.get("description").isNull() ? event.get("description").asText() : "—";
 
         String date = eventAt.substring(0, 10);
-        String time = eventAt.substring(11, 16);
+        String time = FxUtils.formatTime(eventAt);
 
         Label avatar = new Label(String.valueOf(title.charAt(0)).toUpperCase());
         avatar.getStyleClass().add("event-avatar"); // ✅

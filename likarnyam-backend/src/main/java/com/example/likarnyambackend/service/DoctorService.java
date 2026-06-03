@@ -28,12 +28,14 @@ public class DoctorService {
     }
 
     public Doctor updateDoctor(Doctor doctor, UpdateDoctorRequest request) {
-        if (request.getFirstName() != null)
-            doctor.setFirstName(request.getFirstName());
-        if (request.getLastName() != null)
-            doctor.setLastName(request.getLastName());
-        if (request.getPhone() != null)
-            doctor.setPhone(request.getPhone());
+        if (request.getFirstName() != null) doctor.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) doctor.setLastName(request.getLastName());
+        if (request.getPhone() != null) doctor.setPhone(request.getPhone());
+
+        if (request.getTheme() != null) doctor.setTheme(request.getTheme());
+        if (request.getTimeFormat() != null) doctor.setTimeFormat(request.getTimeFormat());
+        if (request.getAnimationsEnabled() != null) doctor.setAnimationsEnabled(request.getAnimationsEnabled());
+
         return doctorRepository.save(doctor);
     }
 }

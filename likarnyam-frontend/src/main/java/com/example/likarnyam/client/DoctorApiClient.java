@@ -21,7 +21,7 @@ public class DoctorApiClient {
     public static void validateResponse(HttpResponse<?> response) {
         int status = response.statusCode();
         if (status == 401 || status == 403) {
-            throw new AuthExpiredException("Token is expired or invalid.");
+            throw new RuntimeException("Token is expired or invalid."); // Заменил AuthExpiredException на RuntimeException, если у тебя нет кастомного класса
         }
         if (status < 200 || status >= 300) {
             throw new RuntimeException("API Request failed with status: " + status);
@@ -44,10 +44,30 @@ public class DoctorApiClient {
         return objectMapper.readTree(response.body());
     }
 
+    // Метод для вкладки Profile (Имя, Фамилия, Телефон)
     public static JsonNode updateProfile(String firstName, String lastName, String phone) throws Exception {
         String body = String.format(
                 "{\"firstName\":\"%s\",\"lastName\":\"%s\",\"phone\":\"%s\"}",
                 firstName, lastName, phone
+        );
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/doctors/me"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + UserSession.getInstance().getJwtToken())
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        validateResponse(response);
+        return objectMapper.readTree(response.body());
+    }
+
+    // Метод для вкладки Appearance (Тема, Формат времени, Анимации)
+    public static JsonNode updateAppearance(String theme, String timeFormat, boolean animationsEnabled) throws Exception {
+        String body = String.format(
+                "{\"theme\":\"%s\",\"timeFormat\":\"%s\",\"animationsEnabled\":%b}",
+                theme, timeFormat, animationsEnabled
         );
 
         HttpRequest request = HttpRequest.newBuilder()

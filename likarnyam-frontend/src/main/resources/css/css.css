@@ -1787,67 +1787,7 @@
 }
 .dark-theme .form-divider { -fx-text-fill: #F8FAFC; }
 
-/* =========================================
-   📅 DATEPICKER DARK THEME
-   ========================================= */
 
-.dark-theme .date-picker-popup {
-    -fx-background-color: #1E293B;
-    -fx-border-color: #334155;
-    -fx-border-width: 1;
-}
-
-.dark-theme .date-picker-popup .month-year-pane {
-    -fx-background-color: #1E293B;
-}
-
-.dark-theme .date-picker-popup .spinner {
-    -fx-background-color: #1E293B;
-}
-
-.dark-theme .date-picker-popup .spinner .button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #F8FAFC;
-}
-
-.dark-theme .date-picker-popup .spinner .label {
-    -fx-text-fill: #F8FAFC;
-}
-
-.dark-theme .date-picker-popup .day-name-cell {
-    -fx-text-fill: #94A3B8;
-}
-
-.dark-theme .date-picker-popup .day-cell {
-    -fx-background-color: transparent;
-    -fx-text-fill: #F8FAFC;
-}
-
-.dark-theme .date-picker-popup .day-cell:hover {
-    -fx-background-color: #334155;
-    -fx-background-radius: 4;
-}
-
-.dark-theme .date-picker-popup .selected {
-    -fx-background-color: #3B82F6;
-    -fx-background-radius: 4;
-    -fx-text-fill: white;
-}
-
-.dark-theme .date-picker-popup .today {
-    -fx-border-color: #3B82F6;
-    -fx-border-radius: 4;
-    -fx-text-fill: #60A5FA;
-}
-
-.dark-theme .date-picker-popup .next-month,
-.dark-theme .date-picker-popup .previous-month {
-    -fx-text-fill: #475569;
-}
-
-.dark-theme .date-picker-popup .week-number-cell {
-    -fx-text-fill: #475569;
-}
 
 /* Пустые рабочие дни — лёгкий зелёный */
 .cal-cell-working {
@@ -2044,3 +1984,489 @@
     -fx-background-color: #1E293B;
     -fx-background-radius: 0 0 20 20;
 }
+
+/* ========================================================= */
+/* --- Стили для настроек Appearance (Светлая тема по умолчанию) --- */
+/* ========================================================= */
+
+/* Простые кнопки переключения (Theme) */
+.toggle-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 8;
+    -fx-text-fill: #64748B;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.toggle-btn:hover {
+    -fx-background-color: #F8FAFC;
+}
+.toggle-btn-active {
+    -fx-background-color: #64B5F6;
+    -fx-background-radius: 8;
+    -fx-border-color: #64B5F6;
+    -fx-border-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16 8 16;
+}
+
+/* Сдвоенный переключатель (Time Format) */
+.switcher-box {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 8;
+    -fx-padding: 2;
+    -fx-max-width: USE_PREF_SIZE; /* Легальный способ JavaFX убрать пустой отступ! */
+}
+.switcher-btn-left, .switcher-btn-right {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748B;
+    -fx-font-size: 13px;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.switcher-btn-left {
+    -fx-background-radius: 6 0 0 6;
+}
+.switcher-btn-right {
+    -fx-background-radius: 0 6 6 0;
+}
+.switcher-btn-left:selected, .switcher-btn-right:selected {
+    -fx-background-color: white;
+    -fx-text-fill: #1E293B;
+    -fx-effect: none;
+}
+
+/* Кастомный iOS-style Toggle Switch (Animations) */
+.switch-bg-off {
+    -fx-background-color: #CBD5E1;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+.switch-bg-on {
+    -fx-background-color: #64B5F6;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+.switch-dot {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+/* Описание настроек */
+.settings-desc-label {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 13px;
+}
+
+/* ========================================================= */
+/* --- Темная тема: Переопределения Appearance --- */
+/* ========================================================= */
+
+.dark-theme .toggle-btn {
+    -fx-border-color: #334155;
+    -fx-text-fill: #94A3B8;
+}
+.dark-theme .toggle-btn:hover {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .switcher-box {
+    -fx-background-color: #0F172A;
+}
+.dark-theme .switcher-btn-left,
+.dark-theme .switcher-btn-right {
+    -fx-text-fill: #94A3B8;
+}
+.dark-theme .switcher-btn-left:selected,
+.dark-theme .switcher-btn-right:selected {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: white;
+}
+
+.dark-theme .switch-bg-off {
+    -fx-background-color: #334155;
+}
+
+.dark-theme .settings-desc-label {
+    -fx-text-fill: #94A3B8;
+}
+
+/* Делаем часы похожими на бейдж врача */
+.clock-badge {
+    -fx-background-color: #ffffff; /* Или цвет фона из твоего Dr. Jameson */
+    -fx-border-color: #e2e8f0;    /* Цвет рамки */
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 5 15 5 15;       /* Важно: отступы как у врача */
+    -fx-alignment: CENTER;
+    -fx-font-family: "Courier New";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+
+    -fx-min-height: 35px;
+    -fx-pref-height: 35px;
+}
+
+/* Общий стиль для всех "плашек" в шапке */
+.header-badge {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 5 15 5 15;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+.switch-dot {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.switch-bg-on {
+    -fx-background-color: #64B5F6; /* Красивый голубой */
+    -fx-background-radius: 12px;
+}
+
+.switch-bg-off {
+    -fx-background-color: #D1D5DB;
+    -fx-background-radius: 12px;
+}
+
+
+/* --- Стили для всплывающего окна (Dialog) --- */
+
+.dialog-pane {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    /* Убрали border, оставили только мягкую тень */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 20, 0, 0, 8);
+}
+
+.dialog-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+
+.dialog-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #718096;
+    -fx-font-weight: bold;
+}
+
+/* Кнопка Cancel */
+.dialog-btn-cancel {
+    -fx-background-color: transparent;
+    -fx-text-fill: #718096;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-border-color: #cbd5e0;
+
+    /* Закругляем и фон, и саму рамку одинаково! */
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-padding: 10 30 10 30;
+}
+
+.dialog-btn-cancel:hover {
+    -fx-background-color: #f7fafc;
+    -fx-border-color: #a0aec0; /* Рамка темнеет при наведении */
+    -fx-text-fill: #2d3748;
+}
+
+
+/* ========================================= */
+/* --- ТЕМНАЯ ТЕМА ДЛЯ ВСПЛЫВАЮЩЕГО ОКНА --- */
+/* ========================================= */
+
+.dark-theme .dialog-pane {
+    -fx-background-color: #1A202C;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 25, 0, 0, 10);
+}
+
+.dark-theme .dialog-title {
+    -fx-text-fill: #F7FAFC;       /* Белый заголовок */
+}
+
+.dark-theme .dialog-label {
+    -fx-text-fill: #A0AEC0;       /* Светло-серые подписи к полям */
+}
+
+/* Кнопка Cancel в темной теме */
+.dark-theme .dialog-btn-cancel {
+    -fx-text-fill: #A0AEC0;
+    -fx-border-color: #4A5568;
+}
+
+.dark-theme .dialog-btn-cancel:hover {
+    -fx-background-color: #2D3748;
+    -fx-border-color: #718096;
+    -fx-text-fill: #F7FAFC;
+}
+
+/* ========================================= */
+/* --- ТЕМНАЯ ТЕМА ДЛЯ ШАПКИ (Header) --- */
+/* ========================================= */
+
+/* Меняем фон и рамку у самих "плашек" */
+.dark-theme .header-badge {
+    -fx-background-color: #2D3748; /* Делаем фон темно-серым (чуть светлее фона приложения) */
+    -fx-border-color: #4A5568;    /* Темная рамка */
+    -fx-text-fill: #F7FAFC;       /* Белый текст (сработает для часов, т.к. они Label) */
+}
+
+/* Меняем цвет текста для имени доктора (т.к. он лежит внутри HBox) */
+.dark-theme #doctorNameLabel {
+    -fx-text-fill: #F7FAFC;
+}
+
+/* Если у часов текст не стал белым, принудительно красим и его по ID */
+.dark-theme #clockLabel {
+    -fx-text-fill: #F7FAFC;
+}
+
+
+/* ========================================= */
+/* --- ТЕМНАЯ ТЕМА ДЛЯ КАЛЕНДАРЯ (DatePicker) --- */
+/* ========================================= */
+
+/* === DATE PICKER POPUP === */
+/* Убираем голубой фон самого popup-окна */
+.date-picker-popup {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #1E293B;
+}
+
+/* Корневой контейнер внутри popup */
+.date-picker-popup > .date-picker-popup-content {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.dark-theme .date-picker-popup {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 15, 0, 0, 5);
+    -fx-padding: 0;
+}
+
+/* Убираем голубую подложку — она живёт здесь */
+.dark-theme .date-picker-popup > * {
+    -fx-background-color: #1E293B;
+}
+
+.dark-theme .date-picker-popup .month-year-pane {
+    -fx-background-color: #1A202C;
+    -fx-padding: 4 8;
+}
+
+.dark-theme .date-picker-popup .month-year-pane .label {
+    -fx-text-fill: #F7FAFC;
+}
+
+.dark-theme .date-picker-popup .month-year-pane .left-button .left-arrow,
+.dark-theme .date-picker-popup .month-year-pane .right-button .right-arrow {
+    -fx-background-color: #F7FAFC;
+}
+
+.dark-theme .date-picker-popup .spinner {
+    -fx-background-color: #1A202C;
+}
+
+.dark-theme .date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .spinner .label {
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .calendar-grid {
+    -fx-background-color: #1E293B;
+    -fx-padding: 4;
+}
+
+.dark-theme .date-picker-popup .day-name-cell {
+    -fx-text-fill: #94A3B8;
+}
+
+.dark-theme .date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F8FAFC;
+}
+
+.dark-theme .date-picker-popup .day-cell:hover {
+    -fx-background-color: #334155;
+    -fx-background-radius: 4;
+}
+
+.dark-theme .date-picker-popup .selected {
+    -fx-background-color: #3B82F6;
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+}
+
+.dark-theme .date-picker-popup .today {
+    -fx-border-color: #3B82F6;
+    -fx-border-radius: 4;
+    -fx-text-fill: #60A5FA;
+}
+
+.dark-theme .date-picker-popup .next-month,
+.dark-theme .date-picker-popup .previous-month {
+    -fx-text-fill: #475569;
+}
+
+.dark-theme .date-picker-popup .week-number-cell {
+    -fx-text-fill: #475569;
+}
+
+.combo-box-popup {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.popup {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+
+/* =============================================
+   SYMPTOM TAGS
+   ============================================= */
+
+.symptom-category-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #718096;
+    -fx-padding: 4 0 2 0;
+    -fx-text-transform: uppercase;
+}
+
+.symptom-flow {
+    -fx-padding: 0 0 6 0;
+}
+
+.symptom-tag {
+    -fx-padding: 4 10;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+
+.symptom-tag-label {
+    -fx-font-size: 12px;
+}
+
+.symptom-tag-remove {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 4;
+    -fx-text-fill: #718096;
+}
+
+.symptom-tag-selected {
+    -fx-border-color: #64B5F6 !important;
+    -fx-background-color: #EBF4FF !important;
+    -fx-text-fill: #0C447C !important;
+}
+
+/* Цвета по категориям */
+.symptom-cat-general {
+    -fx-background-color: #F1EFE8;
+    -fx-border-color: #B4B2A9;
+    -fx-text-fill: #444441;
+}
+
+.symptom-cat-respiratory {
+    -fx-background-color: #E6F1FB;
+    -fx-border-color: #85B7EB;
+    -fx-text-fill: #0C447C;
+}
+
+.symptom-cat-cardiovascular {
+    -fx-background-color: #FCEBEB;
+    -fx-border-color: #F09595;
+    -fx-text-fill: #791F1F;
+}
+
+.symptom-cat-neurological {
+    -fx-background-color: #EEEDFE;
+    -fx-border-color: #AFA9EC;
+    -fx-text-fill: #3C3489;
+}
+
+.symptom-cat-gastrointestinal {
+    -fx-background-color: #FAEEDA;
+    -fx-border-color: #EF9F27;
+    -fx-text-fill: #633806;
+}
+
+.symptom-cat-musculoskeletal {
+    -fx-background-color: #E1F5EE;
+    -fx-border-color: #5DCAA5;
+    -fx-text-fill: #085041;
+}
+
+.symptom-cat-skin {
+    -fx-background-color: #FBEAF0;
+    -fx-border-color: #ED93B1;
+    -fx-text-fill: #72243E;
+}
+
+.symptom-cat-ent {
+    -fx-background-color: #EAF3DE;
+    -fx-border-color: #97C459;
+    -fx-text-fill: #27500A;
+}
+
+.symptom-cat-urological {
+    -fx-background-color: #EAF3FB;
+    -fx-border-color: #7EC8E3;
+    -fx-text-fill: #0A4A6E;
+}
+
+.symptom-cat-psychological {
+    -fx-background-color: #F3EAFB;
+    -fx-border-color: #C49AE3;
+    -fx-text-fill: #4A1A72;
+}
+/* Symptom tags dark theme fix */
+.symptom-tag .symptom-tag-label,
+.symptom-tag Label {
+    -fx-text-fill: inherit;
+}
+
+.symptom-cat-general .symptom-tag-label        { -fx-text-fill: #444441; }
+.symptom-cat-respiratory .symptom-tag-label    { -fx-text-fill: #0C447C; }
+.symptom-cat-cardiovascular .symptom-tag-label { -fx-text-fill: #791F1F; }
+.symptom-cat-neurological .symptom-tag-label   { -fx-text-fill: #3C3489; }
+.symptom-cat-gastrointestinal .symptom-tag-label { -fx-text-fill: #633806; }
+.symptom-cat-musculoskeletal .symptom-tag-label  { -fx-text-fill: #085041; }
+.symptom-cat-skin .symptom-tag-label           { -fx-text-fill: #72243E; }
+.symptom-cat-ent .symptom-tag-label            { -fx-text-fill: #27500A; }
+.symptom-cat-urological .symptom-tag-label     { -fx-text-fill: #0A4A6E; }
+.symptom-cat-psychological .symptom-tag-label  { -fx-text-fill: #4A1A72; }

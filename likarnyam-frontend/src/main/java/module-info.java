@@ -4,6 +4,7 @@ module com.example.likarnyam {
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
     requires java.desktop;
+    requires org.kordamp.ikonli.javafx;
 
     opens com.example.likarnyam to javafx.fxml;
     opens com.example.likarnyam.controller to javafx.fxml;

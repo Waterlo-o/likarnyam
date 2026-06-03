@@ -6,6 +6,9 @@ import java.nio.file.*;
 public class UserSession {
     private static UserSession instance;
     private String jwtToken;
+    private String theme = "LIGHT";
+    private String timeFormat = "24h";
+    private boolean animationsEnabled = true;
 
     private static final String TOKEN_FILE =
             System.getProperty("user.home") + "/.likarnyam_token";
@@ -16,6 +19,15 @@ public class UserSession {
         if (instance == null) instance = new UserSession();
         return instance;
     }
+
+    public String getTheme() { return theme; }
+    public void setTheme(String theme) { this.theme = theme; }
+
+    public String getTimeFormat() { return timeFormat; }
+    public void setTimeFormat(String timeFormat) { this.timeFormat = timeFormat; }
+
+    public boolean isAnimationsEnabled() { return animationsEnabled; }
+    public void setAnimationsEnabled(boolean animationsEnabled) { this.animationsEnabled = animationsEnabled; }
 
     public String getJwtToken() { return jwtToken; }
 
@@ -70,4 +82,6 @@ public class UserSession {
             e.printStackTrace();
         }
     }
+
+    
 }

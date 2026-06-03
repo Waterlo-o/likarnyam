@@ -15,6 +15,9 @@ public class DoctorResponse {
     private String licenseNumber;
     private String specialization;
     private String email;
+    private String theme;
+    private String timeFormat;
+    private boolean animationsEnabled;
 
     public static DoctorResponse from(Doctor doctor) {
         DoctorResponse dto = new DoctorResponse();
@@ -30,6 +33,10 @@ public class DoctorResponse {
         if (doctor.getSpecialization() != null) {
             dto.setSpecialization(doctor.getSpecialization().getName());
         }
+
+        dto.setTheme(doctor.getTheme() != null ? doctor.getTheme() : "LIGHT");
+        dto.setTimeFormat(doctor.getTimeFormat() != null ? doctor.getTimeFormat() : "24h");
+        dto.setAnimationsEnabled(doctor.isAnimationsEnabled());
 
         return dto;
     }

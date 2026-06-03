@@ -11,9 +11,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.fxml.FXMLLoader;
@@ -21,10 +19,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;import com.example.likarnyam.client.ScheduleApiClient;
 import javafx.geometry.Pos;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import com.example.likarnyam.client.EventApiClient;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import java.time.LocalTime;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -48,11 +48,12 @@ public class HomeController {
     @FXML private Label calMonthLabel;
     @FXML private VBox homeCalendarGrid;
     @FXML private Text greetingPrefix;
+    @FXML private BorderPane rootContainer;
+
 
 
     @FXML
     public void initialize() {
-        System.out.println("HomeController initialized!");
         new Thread(() -> {
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {
@@ -65,7 +66,30 @@ public class HomeController {
                     String lastName = doctor.get("lastName").asText();
                     int totalVisits = appointments.size();
 
+                    if (doctor.has("theme")) {
+                        UserSession.getInstance().setTheme(doctor.get("theme").asText());
+                    }
+                    if (doctor.has("timeFormat")) {
+                        UserSession.getInstance().setTimeFormat(doctor.get("timeFormat").asText());
+                    }
+                    if (doctor.has("animationsEnabled")) {
+                        UserSession.getInstance().setAnimationsEnabled(doctor.get("animationsEnabled").asBoolean());
+                    };
+
                     Platform.runLater(() -> {
+
+                        FxUtils.isDarkMode = "DARK".equals(UserSession.getInstance().getTheme());
+
+                        if (rootContainer.getScene() != null) {
+                            FxUtils.applyTheme(rootContainer.getScene().getRoot());
+                        } else {
+                            rootContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                                if (newScene != null) {
+                                    FxUtils.applyTheme(newScene.getRoot());
+                                }
+                            });
+                        }
+
                         int hour = java.time.LocalTime.now().getHour();
                         String greeting = hour < 12 ? "Good Morning "
                                 : hour < 17 ? "Good Afternoon "
@@ -106,10 +130,13 @@ public class HomeController {
                     try { Thread.sleep(2000); } catch (InterruptedException ie) { break; }
                 }
             }
-        }).start();
 
-        loadUpcomingEvents();
+            loadUpcomingEvents();
+
+        }).start();
         loadHomeCalendar();
+        startClock();
+
     }
 
     private void loadUpcomingEvents() {
@@ -205,7 +232,7 @@ public class HomeController {
                 ? event.get("description").asText() : "—";
 
         String date = eventAt.substring(0, 10);
-        String time = eventAt.substring(11, 16);
+        String time = FxUtils.formatTime(eventAt);
 
         String color = switch (type) {
             case "CONFERENCE" -> "#9F7AEA";
@@ -258,7 +285,7 @@ public class HomeController {
                 ? event.get("description").asText() : "—";
 
         String date = eventAt.substring(0, 10);
-        String time = eventAt.substring(11, 16);
+        String time = FxUtils.formatTime(eventAt);
 
         String typeLabel = switch (type) {
             case "CONFERENCE" -> "Conference";
@@ -568,11 +595,30 @@ public class HomeController {
         return box;
     }
 
+    private Timeline clockTimeline;
+
+    private void startClock() {
+        clockTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            // Получаем текущее время
+            LocalTime now = LocalTime.now();
+
+            // Используем наш универсальный форматтер!
+            // Передаем LocalTime.toString() в наш formatTime
+            String timeStr = FxUtils.formatTime(now.toString());
+
+            if (clockLabel != null) {
+                clockLabel.setText(timeStr);
+            }
+        }));
+        clockTimeline.setCycleCount(Animation.INDEFINITE);
+        clockTimeline.play();
+    }
+
     private HBox createPatientListItem(JsonNode appointment) {
         String firstName = appointment.get("patientFirstName").asText();
         String lastName = appointment.get("patientLastName").asText();
         String reason = appointment.get("reason").asText();
-        String time = appointment.get("appointmentAt").asText().substring(11, 16);
+        String time = FxUtils.formatTime(appointment.get("appointmentAt").asText());
 
         Circle avatar = new Circle(20);
         avatar.setStyle("-fx-fill: #d6e4ff;");
@@ -604,7 +650,7 @@ public class HomeController {
         String firstName = appointment.get("patientFirstName").asText();
         String lastName = appointment.get("patientLastName").asText();
         String reason = appointment.get("reason").asText();
-        String time = appointment.get("appointmentAt").asText().substring(11, 16);
+        String time = FxUtils.formatTime(appointment.get("appointmentAt").asText());
         String notes = appointment.has("notes") ? appointment.get("notes").asText() : "No notes";
 
 

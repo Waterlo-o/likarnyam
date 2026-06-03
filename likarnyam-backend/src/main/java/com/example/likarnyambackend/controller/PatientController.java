@@ -1,5 +1,6 @@
 package com.example.likarnyambackend.controller;
 
+import com.example.likarnyambackend.dto.request.PatientUpdateRequest;
 import com.example.likarnyambackend.dto.response.PatientResponse;
 import com.example.likarnyambackend.model.Patient;
 import com.example.likarnyambackend.service.DoctorService;
@@ -7,6 +8,7 @@ import com.example.likarnyambackend.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.likarnyambackend.dto.request.PatientCreateRequest;
 
 import java.security.Principal;
 import java.util.List;
@@ -49,9 +51,21 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientResponse> createPatient(@RequestBody Patient patient) {
+    public ResponseEntity<PatientResponse> createPatient(
+            @RequestBody PatientCreateRequest request) {
         return ResponseEntity.ok(
-                PatientResponse.from(patientService.createPatient(patient))
+                PatientResponse.from(patientService.createPatient(request))
         );
     }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientResponse> updatePatient(
+            @PathVariable Long id,
+            @RequestBody PatientUpdateRequest updatedData) {
+        return patientService.updatePatient(id, updatedData)
+                .map(patient -> ResponseEntity.ok(PatientResponse.from(patient)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

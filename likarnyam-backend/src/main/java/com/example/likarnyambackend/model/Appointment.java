@@ -3,6 +3,8 @@ package com.example.likarnyambackend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -27,4 +29,12 @@ public class Appointment {
     private String reason;
     private String notes;
     private LocalDateTime createdAt;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "appointment_symptoms",
+            joinColumns = @JoinColumn(name = "appointment_id"),
+            inverseJoinColumns = @JoinColumn(name = "symptom_id")
+    )
+    private Set<Symptom> symptoms = new HashSet<>();
 }

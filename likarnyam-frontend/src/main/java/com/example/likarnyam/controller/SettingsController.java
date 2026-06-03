@@ -6,6 +6,8 @@ import com.example.likarnyam.session.UserSession;
 import com.example.likarnyam.util.FxUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -147,6 +149,7 @@ public class SettingsController {
 
         Separator sep = new Separator();
 
+        // --- 1. THEME ---
         Label themeLabel = new Label("Theme");
         themeLabel.getStyleClass().add("settings-field-label");
 
@@ -154,55 +157,145 @@ public class SettingsController {
         Button lightBtn = new Button("☀ Light");
         Button darkBtn = new Button("🌙 Dark");
 
-        Runnable updateBtnStyles = () -> {
-            lightBtn.getStyleClass().setAll(FxUtils.isDarkMode ? "theme-btn" : "theme-btn-active-light");
-            darkBtn.getStyleClass().setAll(FxUtils.isDarkMode ? "theme-btn-active-dark" : "theme-btn");
+        Runnable updateThemeStyles = () -> {
+            boolean isDark = "DARK".equals(UserSession.getInstance().getTheme());
+            lightBtn.getStyleClass().setAll(isDark ? "toggle-btn" : "toggle-btn-active");
+            darkBtn.getStyleClass().setAll(isDark ? "toggle-btn-active" : "toggle-btn");
         };
-        updateBtnStyles.run();
+        updateThemeStyles.run();
 
         lightBtn.setOnAction(e -> {
+            UserSession.getInstance().setTheme("LIGHT");
             FxUtils.isDarkMode = false;
             FxUtils.applyTheme(settingsContent.getScene().getRoot());
-            updateBtnStyles.run();
+            updateThemeStyles.run();
+            saveAppearanceSettings();
         });
+
         darkBtn.setOnAction(e -> {
+            UserSession.getInstance().setTheme("DARK");
             FxUtils.isDarkMode = true;
             FxUtils.applyTheme(settingsContent.getScene().getRoot());
-            updateBtnStyles.run();
+            updateThemeStyles.run();
+            saveAppearanceSettings();
         });
         themeBox.getChildren().addAll(lightBtn, darkBtn);
 
-        Label fontLabel = new Label("Font Size");
-        fontLabel.getStyleClass().add("settings-field-label");
+        // --- 2. TIME FORMAT ---
+        Label timeLabel = new Label("Time Format");
+        timeLabel.getStyleClass().add("settings-field-label");
 
-        HBox fontBox = new HBox(10);
-        String[] sizes = {"Small", "Medium", "Large"};
-        ToggleGroup fontGroup = new ToggleGroup();
+        HBox timeBox = new HBox(0);
+        timeBox.getStyleClass().add("switcher-box");
+        timeBox.setMaxWidth(Region.USE_PREF_SIZE);
 
-        for (String size : sizes) {
-            ToggleButton btn = new ToggleButton(size);
-            btn.setToggleGroup(fontGroup);
-            boolean isSelected = size.equals("Medium");
-            btn.setSelected(isSelected);
-            btn.getStyleClass().setAll(isSelected ? "font-size-btn-active" : "font-size-btn"); // ✅
-            btn.selectedProperty().addListener((obs, wasSelected, nowSelected) -> {
-                btn.getStyleClass().setAll(nowSelected ? "font-size-btn-active" : "font-size-btn");
-            });
-            fontBox.getChildren().add(btn);
+        ToggleButton btn24h = new ToggleButton("24-hour (14:30)");
+        ToggleButton btn12h = new ToggleButton("12-hour (02:30 PM)");
+
+        HBox.setHgrow(btn24h, Priority.ALWAYS);
+        HBox.setHgrow(btn12h, Priority.ALWAYS);
+
+        btn24h.setPrefWidth(140);
+        btn12h.setPrefWidth(140);
+
+        ToggleGroup timeGroup = new ToggleGroup();
+        btn24h.setToggleGroup(timeGroup);
+        btn12h.setToggleGroup(timeGroup);
+
+        btn24h.getStyleClass().add("switcher-btn-left");
+        btn12h.getStyleClass().add("switcher-btn-right");
+
+        if ("12h".equals(UserSession.getInstance().getTimeFormat())) {
+            btn12h.setSelected(true);
+        } else {
+            btn24h.setSelected(true);
         }
 
-        Label notifLabel = new Label("Notifications");
-        notifLabel.getStyleClass().add("settings-field-label");
+        timeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                oldVal.setSelected(true);
+                return;
+            }
+            String format = newVal == btn12h ? "12h" : "24h";
+            UserSession.getInstance().setTimeFormat(format);
+            saveAppearanceSettings();
+        });
+        timeBox.getChildren().addAll(btn24h, btn12h);
 
-        HBox notifBox = new HBox(10);
-        notifBox.setAlignment(Pos.CENTER_LEFT);
-        CheckBox notifCheck = new CheckBox("Enable notifications");
-        notifCheck.setSelected(true);
-        notifBox.getChildren().add(notifCheck);
+        // --- 3. ANIMATIONS (Custom Switcher) ---
+        Label animLabel = new Label("Animations");
+        animLabel.getStyleClass().add("settings-field-label");
 
+        HBox animBox = new HBox(15);
+        animBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label animDesc = new Label("Enable UI transitions and animations");
+        animDesc.getStyleClass().add("settings-desc-label");
+
+        Pane switchBg = new Pane();
+        switchBg.setPrefSize(44, 24);
+        switchBg.setStyle("-fx-cursor: hand;");
+
+        javafx.scene.shape.Circle switchDot = new javafx.scene.shape.Circle(10);
+        switchDot.getStyleClass().add("switch-dot");
+        switchDot.setFill(javafx.scene.paint.Color.WHITE);
+
+        // ФИКСИРУЕМ базовую позицию (положение "Выкл")
+        switchDot.setLayoutY(12);
+        switchDot.setLayoutX(12);
+        switchDot.setMouseTransparent(true);
+
+        // 1. Устанавливаем начальное состояние (БЕЗ анимации, чтобы при открытии настроек тумблер уже стоял правильно)
+        boolean initialOn = UserSession.getInstance().isAnimationsEnabled();
+        switchDot.setTranslateX(initialOn ? 20 : 0); // 20 - это дистанция сдвига вправо
+        switchBg.getStyleClass().setAll("switch-bg", initialOn ? "switch-bg-on" : "switch-bg-off");
+
+        // 2. Обработка клика и плавная анимация
+        switchBg.setOnMouseClicked(e -> {
+            boolean current = UserSession.getInstance().isAnimationsEnabled();
+            boolean newState = !current;
+            UserSession.getInstance().setAnimationsEnabled(newState);
+
+            // Меняем цвет фона мгновенно
+            switchBg.getStyleClass().setAll("switch-bg", newState ? "switch-bg-on" : "switch-bg-off");
+
+            // Запускаем плавный сдвиг кружочка
+            javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(
+                    javafx.util.Duration.millis(250), switchDot
+            );
+            tt.setToX(newState ? 20 : 0); // Двигаем на +20px вправо или возвращаем на 0
+            tt.setInterpolator(javafx.animation.Interpolator.EASE_BOTH); // Плавный старт и торможение
+            tt.play();
+
+            saveAppearanceSettings();
+        });
+
+        switchBg.getChildren().add(switchDot);
+        animBox.getChildren().addAll(switchBg, animDesc);
+
+        // Добавляем все элементы на экран
         settingsContent.getChildren().addAll(
-                title, sep, themeLabel, themeBox, fontLabel, fontBox, notifLabel, notifBox
+                title, sep,
+                themeLabel, themeBox,
+                timeLabel, timeBox,
+                animLabel, animBox
         );
+    }
+
+    // Вспомогательный метод для сохранения настроек
+    private void saveAppearanceSettings() {
+        String theme = UserSession.getInstance().getTheme();
+        String timeFormat = UserSession.getInstance().getTimeFormat();
+        boolean animEnabled = UserSession.getInstance().isAnimationsEnabled();
+
+        new Thread(() -> {
+            try {
+                DoctorApiClient.updateAppearance(theme, timeFormat, animEnabled);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Можно добавить логику отображения ошибки сети
+            }
+        }).start();
     }
 
     // ── Schedule ────────────────────────────────────────

@@ -17,6 +17,10 @@ public class ApiClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static com.fasterxml.jackson.databind.ObjectMapper getMapper() {
+        return objectMapper;
+    }
+
     public static String login(String email, String password) throws Exception {
 
         String requestBody = String.format(
@@ -68,4 +72,54 @@ public class ApiClient {
         if (response.statusCode() != 200)
             throw new RuntimeException("Invalid current password");
     }
+
+    // Универсальный метод для POST-запросов
+    public static JsonNode post(String endpoint, JsonNode payload) throws Exception {
+        String token = UserSession.getInstance().getJwtToken();
+        String jsonBody = objectMapper.writeValueAsString(payload);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + endpoint))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException("POST request failed with status: " + response.statusCode() + ", body: " + response.body());
+        }
+
+        // Если сервер возвращает пустой ответ (например 204 No Content), возвращаем пустой объект
+        if (response.body() == null || response.body().isBlank()) {
+            return objectMapper.createObjectNode();
+        }
+
+        return objectMapper.readTree(response.body());
+    }
+
+    public static JsonNode put(String endpoint, JsonNode payload) throws Exception {
+        String token = com.example.likarnyam.session.UserSession.getInstance().getJwtToken();
+        String jsonBody = objectMapper.writeValueAsString(payload);
+
+        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + endpoint))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .PUT(java.net.http.HttpRequest.BodyPublishers.ofString(jsonBody)) // Используем PUT
+                .build();
+
+        java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException("PUT request failed: " + response.statusCode());
+        }
+        if (response.body() == null || response.body().isBlank()) return objectMapper.createObjectNode();
+        return objectMapper.readTree(response.body());
+    }
+
 }

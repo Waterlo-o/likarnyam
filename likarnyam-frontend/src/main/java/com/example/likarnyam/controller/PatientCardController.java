@@ -16,6 +16,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class PatientCardController {
 
     @FXML private Label patientNameLabel;
@@ -57,7 +59,17 @@ public class PatientCardController {
                     bloodTypeLabel.setText(getValue(patient, "bloodType"));
                     phoneLabel.setText(getValue(patient, "phone"));
                     emailLabel.setText(getValue(patient, "email"));
-                    allergiesLabel.setText(getValue(patient, "allergies"));
+                    JsonNode allergies = patient.has("allergies") ? patient.get("allergies") : null;
+                    if (allergies == null || allergies.size() == 0) {
+                        allergiesLabel.setText("—");
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        for (JsonNode a : allergies) {
+                            if (sb.length() > 0) sb.append(", ");
+                            sb.append(a.get("name").asText());
+                        }
+                        allergiesLabel.setText(sb.toString());
+                    }
 
                     // История визитов
                     historyContainer.getChildren().clear();
@@ -79,20 +91,21 @@ public class PatientCardController {
     }
 
     private VBox createHistoryCard(JsonNode visit) {
-        String date = visit.get("appointmentAt").asText().substring(0, 10);
-        String time = visit.get("appointmentAt").asText().substring(11, 16);
+        String fullRaw = visit.get("appointmentAt").asText();
+        String date = fullRaw.substring(0, 10);
+        String time = FxUtils.formatTime(fullRaw);
         String reason = visit.get("reason").asText();
         String status = visit.get("status").asText();
         String notes = getValue(visit, "notes");
 
-        // Статус с классом вместо setStyle
+        // Статус
         Label statusLabel = new Label(status);
         statusLabel.getStyleClass().addAll(
                 "history-status-badge",
                 status.equals("COMPLETED") ? "history-status-completed" : "history-status-other"
         );
 
-        // Шапка карточки
+        // Шапка
         Label dateLabel = new Label(date + " at " + time);
         dateLabel.getStyleClass().add("history-date-label");
 
@@ -112,8 +125,69 @@ public class PatientCardController {
         notesLabel.setWrapText(true);
 
         VBox card = new VBox(8, header, reasonLabel, notesLabel);
-        card.getStyleClass().add("history-card");
 
+        // Симптомы
+        JsonNode symptoms = visit.has("symptoms") ? visit.get("symptoms") : null;
+        if (symptoms != null && symptoms.size() > 0) {
+            javafx.scene.layout.FlowPane symptomsPane =
+                    new javafx.scene.layout.FlowPane();
+            symptomsPane.setHgap(5);
+            symptomsPane.setVgap(5);
+            symptomsPane.setPadding(new javafx.geometry.Insets(4, 0, 0, 0));
+
+            for (JsonNode s : symptoms) {
+                String category = s.get("category").asText().toLowerCase().replace(" ", "-");
+                boolean isDark = com.example.likarnyam.session.UserSession.getInstance()
+                        .getTheme() != null &&
+                        com.example.likarnyam.session.UserSession.getInstance()
+                                .getTheme().equalsIgnoreCase("dark");
+
+                String bg, border, textColor;
+                switch (category) {
+                    case "respiratory"      -> { bg = isDark ? "#1A2A3A" : "#E6F1FB"; border = "#85B7EB"; textColor = isDark ? "#90C8F0" : "#0C447C"; }
+                    case "cardiovascular"   -> { bg = isDark ? "#3A1A1A" : "#FCEBEB"; border = "#F09595"; textColor = isDark ? "#F0A0A0" : "#791F1F"; }
+                    case "neurological"     -> { bg = isDark ? "#1E1A3A" : "#EEEDFE"; border = "#AFA9EC"; textColor = isDark ? "#C0BAFF" : "#3C3489"; }
+                    case "gastrointestinal" -> { bg = isDark ? "#2A1E08" : "#FAEEDA"; border = "#EF9F27"; textColor = isDark ? "#F0B060" : "#633806"; }
+                    case "musculoskeletal"  -> { bg = isDark ? "#0A1E18" : "#E1F5EE"; border = "#5DCAA5"; textColor = isDark ? "#70D4B0" : "#085041"; }
+                    case "skin"             -> { bg = isDark ? "#2A0A18" : "#FBEAF0"; border = "#ED93B1"; textColor = isDark ? "#F0A0C0" : "#72243E"; }
+                    case "ent"              -> { bg = isDark ? "#0A1E08" : "#EAF3DE"; border = "#97C459";  textColor = isDark ? "#A8D470" : "#27500A"; }
+                    case "urological"       -> { bg = isDark ? "#0A1A2A" : "#EAF3FB"; border = "#7EC8E3"; textColor = isDark ? "#90D4F0" : "#0A4A6E"; }
+                    case "psychological"    -> { bg = isDark ? "#1A0A2A" : "#F3EAFB"; border = "#C49AE3"; textColor = isDark ? "#D0A8F0" : "#4A1A72"; }
+                    default                 -> { bg = isDark ? "#2D2D2D" : "#F1EFE8"; border = "#B4B2A9"; textColor = isDark ? "#C8C6BE" : "#444441"; }
+                }
+
+                HBox tag = new HBox(4);
+                tag.setAlignment(Pos.CENTER_LEFT);
+                tag.setStyle(String.format(
+                        "-fx-background-color: %s; -fx-border-color: %s; " +
+                                "-fx-border-radius: 12; -fx-background-radius: 12; " +
+                                "-fx-border-width: 1; -fx-padding: 3 8;",
+                        bg, border
+                ));
+
+                try {
+                    org.kordamp.ikonli.javafx.FontIcon icon =
+                            new org.kordamp.ikonli.javafx.FontIcon(s.get("icon").asText());
+                    icon.setIconSize(11);
+                    icon.setIconColor(javafx.scene.paint.Color.web(textColor));
+                    tag.getChildren().add(icon);
+                } catch (Exception ignored) {}
+
+                Label nameLabel = new Label(s.get("name").asText());
+                nameLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: " + textColor + ";");
+                tag.getChildren().add(nameLabel);
+
+                symptomsPane.getChildren().add(tag);
+            }
+
+            Label symptomsTitle = new Label("Symptoms:");
+            symptomsTitle.setStyle(
+                    "-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold;"
+            );
+            card.getChildren().addAll(symptomsTitle, symptomsPane);
+        }
+
+        card.getStyleClass().add("history-card");
         return card;
     }
 
@@ -155,6 +229,62 @@ public class PatientCardController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void handleEditPatient() {
+        try {
+            // СТАЛО (используем твой родной getById):
+            com.fasterxml.jackson.databind.JsonNode patient = com.example.likarnyam.client.PatientApiClient.getById(this.patientId);
+
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/edit-patient-dialog.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            com.example.likarnyam.util.FxUtils.applyTheme(root);
+
+            com.example.likarnyam.controller.EditPatientController dialogController = loader.getController();
+            dialogController.setParentController(null);
+
+             Long id = patient.get("id").asLong();
+            String firstName = patient.get("firstName").asText();
+            String lastName = patient.get("lastName").asText();
+
+            String phone = patient.hasNonNull("phone") && !patient.get("phone").asText().equals("null") ? patient.get("phone").asText() : "";
+            String email = patient.hasNonNull("email") && !patient.get("email").asText().equals("null") ? patient.get("email").asText() : "";
+            String dob = patient.hasNonNull("dateOfBirth") && !patient.get("dateOfBirth").asText().equals("null") ? patient.get("dateOfBirth").asText() : "";
+            String gender = patient.hasNonNull("gender") && !patient.get("gender").asText().equals("null") ? patient.get("gender").asText() : null;
+            String bloodType = patient.hasNonNull("bloodType") && !patient.get("bloodType").asText().equals("null") ? patient.get("bloodType").asText() : null;
+
+            dialogController.setPatientData(id, firstName, lastName, phone, email, dob, gender, bloodType);
+
+            List<Long> allergyIds = new java.util.ArrayList<>();
+            if (patient.has("allergies") && patient.get("allergies").isArray()) {
+                for (JsonNode a : patient.get("allergies")) {
+                    allergyIds.add(a.get("id").asLong());
+                }
+            }
+            dialogController.setPatientAllergies(allergyIds);
+
+             javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/css.css").toExternalForm());
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+            stage.setScene(scene);
+            stage.sizeToScene();
+
+            stage.showAndWait();
+
+            loadPatientData();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @FXML private void navigateHome() {
         FxUtils.navigateFullscreen(patientNameLabel, "/fxml/home.fxml");
     }

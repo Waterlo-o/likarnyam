@@ -27,7 +27,7 @@ public class PatientListController {
     }
 
     // Загрузка пациентов — если lastName null то все пациенты
-    private void loadPatients(String lastName) {
+    public void loadPatients(String lastName) {
         // Показываем loading пока грузим
         Platform.runLater(() ->
                 FxUtils.showLoading(patientTableContainer, "Loading patients...")
@@ -107,6 +107,13 @@ public class PatientListController {
         bloodLabel.setPrefWidth(100);
         bloodLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e53e3e;");
 
+        javafx.scene.control.Button editBtn = new javafx.scene.control.Button("Edit");
+        editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #3182ce; -fx-cursor: hand; -fx-underline: true;");
+        editBtn.setOnAction(e -> {
+            e.consume();
+            openEditDialog(patient);
+        });
+
         HBox row = new HBox(nameCell, dobLabel, genderLabel, phoneLabel, bloodLabel);
         row.getStyleClass().add("patient-row");
         row.setAlignment(Pos.CENTER_LEFT);
@@ -133,6 +140,88 @@ public class PatientListController {
         return row;
     }
 
+    @FXML
+    private void handleNewPatient() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/new-patient-dialog.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            // Передаем ссылку на текущий контроллер, чтобы обновить таблицу после сохранения
+            com.example.likarnyam.controller.NewPatientController dialogController = loader.getController();
+            dialogController.setParentController(this);
+
+            // Создаем новое всплывающее окно
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+
+            // ВАЖНО: APPLICATION_MODAL блокирует главное окно, пока врач не заполнит форму
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+            com.example.likarnyam.util.FxUtils.applyTheme(root);
+
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+
+            stage.setTitle("New Patient");
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+            // Подключаем наши стили к новому окну
+            String css = getClass().getResource("/css/css.css").toExternalForm();
+            scene.getStylesheets().add(css);
+
+            stage.setScene(scene);
+            stage.setResizable(false);
+
+            // ВАЖНО: Говорим окну сжаться до красивого размера формы (400px), а не на весь экран
+            stage.sizeToScene();
+
+            stage.showAndWait(); // Показываем окно
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditDialog(JsonNode patient) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/edit-patient-dialog.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            com.example.likarnyam.util.FxUtils.applyTheme(root);
+
+            EditPatientController dialogController = loader.getController();
+            dialogController.setParentController(this);
+
+            // Безопасно достаем данные из JSON
+            Long id = patient.get("id").asLong();
+            String firstName = patient.get("firstName").asText();
+            String lastName = patient.get("lastName").asText();
+
+            String phone = patient.hasNonNull("phone") && !patient.get("phone").asText().equals("null") ? patient.get("phone").asText() : "";
+            String email = patient.hasNonNull("email") && !patient.get("email").asText().equals("null") ? patient.get("email").asText() : "";
+            String dob = patient.hasNonNull("dateOfBirth") && !patient.get("dateOfBirth").asText().equals("null") ? patient.get("dateOfBirth").asText() : "";
+            String gender = patient.hasNonNull("gender") && !patient.get("gender").asText().equals("null") ? patient.get("gender").asText() : null;
+            String bloodType = patient.hasNonNull("bloodType") && !patient.get("bloodType").asText().equals("null") ? patient.get("bloodType").asText() : null;
+
+            // ПРЕДЗАПОЛНЯЕМ ДАННЫЕ
+            dialogController.setPatientData(id, firstName, lastName, phone, email, dob, gender, bloodType);
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/css.css").toExternalForm());
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+            stage.setScene(scene);
+            stage.sizeToScene();
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     // Навигация
@@ -155,8 +244,5 @@ public class PatientListController {
     }
     @FXML private void handleLogout() {
         javafx.application.Platform.exit();
-    }
-    @FXML private void handleNewPatient() {
-        System.out.println("New Patient — coming soon");
     }
 }

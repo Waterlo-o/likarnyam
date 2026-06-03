@@ -3,6 +3,7 @@ package com.example.likarnyambackend.dto.response;
 import com.example.likarnyambackend.model.Patient;
 import lombok.Data;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class PatientResponse {
@@ -16,7 +17,14 @@ public class PatientResponse {
     private String phone;
     private String email;
     private String bloodType;
-    private String allergies;
+    private List<AllergyDto> allergies;
+
+    @Data
+    public static class AllergyDto {
+        private Long id;
+        private String name;
+        private String icon;
+    }
     private String notes;
 
     public static PatientResponse from(Patient patient) {
@@ -30,7 +38,14 @@ public class PatientResponse {
         dto.setPhone(patient.getPhone());
         dto.setEmail(patient.getEmail());
         dto.setBloodType(patient.getBloodType());
-        dto.setAllergies(patient.getAllergies());
+        dto.setAllergies(patient.getAllergies().stream()
+                .map(a -> {
+                    PatientResponse.AllergyDto dto2 = new PatientResponse.AllergyDto();
+                    dto2.setId(a.getId());
+                    dto2.setName(a.getName());
+                    dto2.setIcon(a.getIcon());
+                    return dto2;
+                }).toList());
         dto.setNotes(patient.getNotes());
         return dto;
     }

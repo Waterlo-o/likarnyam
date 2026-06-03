@@ -19,5 +19,14 @@ public class CalendarDayResponse {
         private String reason;
         private Long appointmentId;
         private String status;
+        private List<SymptomInfo> symptoms;
+
+        @Data
+        public static class SymptomInfo {
+            private Long id;
+            private String name;
+            private String icon;
+            private String category;
+        }
     }
 }

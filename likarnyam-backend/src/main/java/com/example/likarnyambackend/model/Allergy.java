@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "symptoms")
-public class Symptom {
+@Table(name = "allergies")
+public class Allergy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +17,4 @@ public class Symptom {
 
     @Column(nullable = false)
     private String icon;
-
-    @Column(nullable = false)
-    private String category;
 }

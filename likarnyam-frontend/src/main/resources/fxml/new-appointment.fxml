@@ -3,14 +3,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
 <VBox spacing="0"
       stylesheets="@../css/css.css"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.example.likarnyam.controller.AppointmentController"
-      prefWidth="480" prefHeight="600"
+      prefWidth="560" prefHeight="700"
       VBox.vgrow="ALWAYS"
       styleClass="appointment-modal-root">
 
@@ -28,10 +27,10 @@
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="patient-scroll">
         <VBox spacing="20" style="-fx-padding: 24;">
 
+            <!-- Дата -->
             <VBox spacing="10">
                 <Label text="Select Date"
                        style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
-
                 <HBox alignment="CENTER" spacing="10">
                     <Button fx:id="prevMonthBtn" text="◀" styleClass="btn-nav"
                             onAction="#prevMonth"/>
@@ -41,8 +40,6 @@
                     <Button fx:id="nextMonthBtn" text="▶" styleClass="btn-nav"
                             onAction="#nextMonth"/>
                 </HBox>
-
-                <!-- Дни недели -->
                 <HBox spacing="4">
                     <Label text="Mo" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                     <Label text="Tu" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
@@ -52,13 +49,12 @@
                     <Label text="Sa" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                     <Label text="Su" styleClass="cal-weekday" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 </HBox>
-
                 <VBox fx:id="miniCalendarGrid" spacing="4"/>
             </VBox>
 
             <Separator/>
 
-            <!-- Выбор слота -->
+            <!-- Слоты -->
             <VBox spacing="8">
                 <Label text="Select Time Slot"
                        style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #4a5568;"/>
@@ -73,20 +69,41 @@
             <VBox spacing="8">
                 <Label text="Reason *"
                        style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #4a5568;"/>
-                <TextField fx:id="reasonField" />
+                <TextField fx:id="reasonField"/>
             </VBox>
 
             <!-- Заметки -->
             <VBox spacing="8">
                 <Label text="Notes"
                        style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
-
                 <TextArea fx:id="notesField"
                           promptText="Additional notes..."
                           prefHeight="70"
-                          style="-fx-border-radius: 10;
-                 -fx-background-radius: 10;
-                 -fx-padding: 10;"/>
+                          style="-fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10;"/>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Симптомы -->
+            <VBox spacing="10">
+                <Label text="Symptoms"
+                       style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #4a5568;"/>
+
+                <!-- Выбранные симптомы -->
+                <FlowPane fx:id="selectedSymptomsPane" hgap="6" vgap="6"
+                          style="-fx-min-height: 30;"/>
+
+                <!-- Поиск -->
+                <TextField fx:id="symptomSearchField"
+                           promptText="Search symptoms..."
+                           styleClass="search-bar"/>
+
+                <!-- Список по категориям -->
+                <ScrollPane fitToWidth="true" prefHeight="220"
+                            styleClass="patient-scroll">
+                    <VBox fx:id="symptomCategoriesContainer" spacing="10"
+                          style="-fx-padding: 4 0;"/>
+                </ScrollPane>
             </VBox>
 
             <!-- Кнопки -->

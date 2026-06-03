@@ -4,20 +4,26 @@ import com.example.likarnyambackend.dto.request.AppointmentCreateRequest;
 import com.example.likarnyambackend.dto.response.AppointmentResponse;
 import com.example.likarnyambackend.model.Appointment;
 import com.example.likarnyambackend.model.Doctor;
+import com.example.likarnyambackend.model.Symptom;
 import com.example.likarnyambackend.repository.AppointmentRepository;
 import com.example.likarnyambackend.repository.PatientRepository;
+import com.example.likarnyambackend.repository.SymptomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AppointmentService {
 
+
+    private final SymptomRepository symptomRepository;
     private final AppointmentRepository appointmentRepository;
 
     public List<Appointment> getTodayAppointments(Long doctorId) {
@@ -61,6 +67,13 @@ public class AppointmentService {
         appointment.setReason(request.getReason());
         appointment.setNotes(request.getNotes());
         appointment.setCreatedAt(java.time.LocalDateTime.now());
+
+        if (request.getSymptomIds() != null && !request.getSymptomIds().isEmpty()) {
+            Set<Symptom> symptoms = new HashSet<>(
+                    symptomRepository.findAllById(request.getSymptomIds())
+            );
+            appointment.setSymptoms(symptoms);
+        }
 
         return AppointmentResponse.from(appointmentRepository.save(appointment));
     }

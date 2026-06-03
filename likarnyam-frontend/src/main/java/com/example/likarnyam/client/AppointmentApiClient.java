@@ -10,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AppointmentApiClient {
 
@@ -48,10 +49,17 @@ public class AppointmentApiClient {
     }
 
     public static void createAppointment(Long patientId, LocalDateTime appointmentAt,
-                                         String reason, String notes) throws Exception {
+                                         String reason, String notes,
+                                         List<Long> symptomIds) throws Exception {
+        String symptomsJson = symptomIds == null || symptomIds.isEmpty()
+                ? "[]"
+                : "[" + symptomIds.stream()
+                .map(String::valueOf)
+                .collect(java.util.stream.Collectors.joining(",")) + "]";
+
         String body = String.format(
-                "{\"patientId\":%d,\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\"}",
-                patientId, appointmentAt.toString(), reason, notes
+                "{\"patientId\":%d,\"appointmentAt\":\"%s\",\"reason\":\"%s\",\"notes\":\"%s\",\"symptomIds\":%s}",
+                patientId, appointmentAt.toString(), reason, notes, symptomsJson
         );
         HttpRequest request = baseRequest("/appointments")
                 .POST(HttpRequest.BodyPublishers.ofString(body))

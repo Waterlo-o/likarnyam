@@ -10,6 +10,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import com.example.likarnyam.session.UserSession;
 
 public class FxUtils {
 
@@ -49,15 +52,19 @@ public class FxUtils {
             double width = stage.getWidth();
             double height = stage.getHeight();
 
+            // 1. Узнаем, хочет ли пользователь видеть анимации
+            boolean animationsEnabled = com.example.likarnyam.session.UserSession.getInstance().isAnimationsEnabled();
+
             // Ищем центральные карточки, чтобы анимировать только их
             Node oldContent = oldRoot.lookup(".main-content");
             Node newContent = newRoot.lookup(".main-content");
 
-            if (oldContent != null && newContent != null) {
-                // 1. Старая вкладка улетает направо (на ширину экрана)
-                TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), oldContent);
+            // 2. Запускаем слайдер ТОЛЬКО если анимации включены И найдены нужные контейнеры
+            if (animationsEnabled && oldContent != null && newContent != null) {
+                // Старая вкладка улетает направо (на ширину экрана)
+                javafx.animation.TranslateTransition slideOut = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(300), oldContent);
                 slideOut.setByX(width);
-                slideOut.setInterpolator(Interpolator.EASE_IN);
+                slideOut.setInterpolator(javafx.animation.Interpolator.EASE_IN);
 
                 slideOut.setOnFinished(e -> {
                     // Подменяем экраны, когда старый улетел
@@ -68,17 +75,19 @@ public class FxUtils {
                     // Прячем новую вкладку за правый край экрана
                     newContent.setTranslateX(width);
 
-                    // 2. Новая вкладка вылетает справа на своё место
-                    TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), newContent);
+                    // Новая вкладка вылетает справа на своё место
+                    javafx.animation.TranslateTransition slideIn = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(300), newContent);
                     slideIn.setToX(0);
-                    slideIn.setInterpolator(Interpolator.EASE_OUT);
+                    slideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
                     slideIn.play();
                 });
 
                 slideOut.play();
             } else {
-                // Если вдруг класс .main-content не найден на каком-то экране (например, логин)
+                // --- АНИМАЦИЯ ВЫКЛЮЧЕНА (или нет контейнеров) — ПРОСТО МЕНЯЕМ ЭКРАН ---
                 stage.getScene().setRoot(newRoot);
+                stage.setWidth(width);
+                stage.setHeight(height);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,5 +131,42 @@ public class FxUtils {
 
         emptyBox.getChildren().addAll(icon, label);
         container.getChildren().add(emptyBox);
+    }
+    public static String formatTime(LocalTime time) {
+        if (time == null) return "";
+
+        boolean is12Hour = "12h".equals(UserSession.getInstance().getTimeFormat());
+
+        if (is12Hour) {
+            return time.format(DateTimeFormatter.ofPattern("hh:mm a")); //  02:30 PM
+        } else {
+            return time.format(DateTimeFormatter.ofPattern("HH:mm")); //  14:30
+        }
+    }
+
+
+    public static String formatTime(String timeStr) {
+        if (timeStr == null || timeStr.isEmpty()) return "";
+
+        try {
+            // 1. Убираем дату, если есть
+            String rawTime = timeStr.contains("T") ? timeStr.split("T")[1] : timeStr;
+
+            // 2. Берем только первые 5 символов (HH:mm), чтобы избавиться от секунд
+            if (rawTime.length() > 5) {
+                rawTime = rawTime.substring(0, 5); // Делает "14:30" из "14:30:00"
+            }
+
+            java.time.LocalTime time = java.time.LocalTime.parse(rawTime);
+
+            // 3. Проверяем настройки пользователя
+            boolean is12Hour = "12h".equals(com.example.likarnyam.session.UserSession.getInstance().getTimeFormat());
+
+            return is12Hour ? time.format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a"))
+                    : time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        } catch (Exception e) {
+            // Если что-то не так, возвращаем хотя бы "HH:mm"
+            return timeStr.substring(0, 5);
+        }
     }
 }

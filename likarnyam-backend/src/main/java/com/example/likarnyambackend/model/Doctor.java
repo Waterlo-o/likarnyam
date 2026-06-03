@@ -33,4 +33,13 @@ public class Doctor {
     private String photoUrl;
     private String licenseNumber;
     private LocalDateTime createdAt;
+
+    @Column(name = "theme")
+    private String theme = "LIGHT";
+
+    @Column(name = "time_format")
+    private String timeFormat = "24h";
+
+    @Column(name = "animations_enabled")
+    private boolean animationsEnabled = true;
 }

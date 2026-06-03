@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -27,7 +29,13 @@ public class Patient {
     private String email;
     private String address;
     private String bloodType;
-    private String allergies;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "patient_allergies",
+            joinColumns = @JoinColumn(name = "patient_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+    private Set<Allergy> allergies = new HashSet<>();
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

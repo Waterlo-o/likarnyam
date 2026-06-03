@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.likarnyam.controller.EditPatientController"
+           style="-fx-background-color: transparent; -fx-padding: 25;">
+
+    <VBox styleClass="dialog-pane" spacing="15" prefWidth="700">
+    <padding>
+        <Insets top="25" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <Label text="Edit Patient" styleClass="dialog-title"/>
+    <Separator/>
+
+    <ScrollPane fitToWidth="true" prefHeight="560" styleClass="patient-scroll">
+    <VBox spacing="15">
+        <GridPane hgap="15" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50" />
+                <ColumnConstraints percentWidth="50" />
+            </columnConstraints>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <Label text="First Name *" styleClass="dialog-label"/>
+                <TextField fx:id="firstNameField" styleClass="settings-input" promptText="John"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="Last Name *" styleClass="dialog-label"/>
+                <TextField fx:id="lastNameField" styleClass="settings-input" promptText="Doe"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <Label text="Phone *" styleClass="dialog-label"/>
+                <TextField fx:id="phoneField" styleClass="settings-input" promptText="+1 234 567 890"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                <Label text="Blood Type" styleClass="dialog-label"/>
+                <ComboBox fx:id="bloodTypeComboBox" styleClass="settings-input" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <Label text="Email" styleClass="dialog-label"/>
+                <TextField fx:id="emailField" styleClass="settings-input" promptText="john@example.com"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <Label text="Birth Date" styleClass="dialog-label"/>
+                <DatePicker fx:id="birthDatePicker" styleClass="settings-input" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <Label text="Gender" styleClass="dialog-label"/>
+                <ComboBox fx:id="genderComboBox" styleClass="settings-input" maxWidth="Infinity"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Аллергии -->
+        <VBox spacing="6">
+            <Label text="Allergies" styleClass="dialog-label"/>
+            <FlowPane fx:id="selectedAllergiesPane" hgap="6" vgap="6"
+                      style="-fx-min-height: 28;"/>
+            <TextField fx:id="allergySearchField"
+                       promptText="Search allergies..."
+                       styleClass="search-bar"/>
+            <ScrollPane fitToWidth="true" prefHeight="120"
+                        styleClass="patient-scroll">
+                <VBox fx:id="allergyCategoriesContainer" spacing="6"
+                      style="-fx-padding: 4 0;"/>
+            </ScrollPane>
+        </VBox>
+    </VBox>
+    </ScrollPane>
+
+        <Label fx:id="errorLabel" styleClass="settings-result-error" visible="false" managed="false"/>
+
+        <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 15 0 0 0;">
+            <Button text="Cancel" fx:id="cancelBtn" styleClass="dialog-btn-cancel"
+                    minWidth="150" prefWidth="150" onAction="#handleCancel"/>
+            <Button text="Update Patient" fx:id="saveBtn" styleClass="settings-save-btn"
+                    minWidth="150" prefWidth="150" onAction="#handleSave"/>
+        </HBox>
+    </VBox>
+</StackPane>

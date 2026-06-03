@@ -17,6 +17,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.stage.Popup;
 import javafx.scene.control.ScrollPane;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.stage.Stage;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 import java.time.LocalDate;
@@ -355,7 +361,7 @@ public class ScheduleController {
         JsonNode appointments = day.get("appointments");
         if (appointments != null) {
             for (JsonNode apt : appointments) {
-                String timeStr = apt.get("time").asText();
+                String timeStr = FxUtils.formatTime(apt.get("time").asText());
                 String patientName = apt.get("patientName").asText();
                 String reason = apt.get("reason").asText();
                 String aptStatus = apt.has("status") ? apt.get("status").asText() : "SCHEDULED";
@@ -464,7 +470,7 @@ public class ScheduleController {
     private JsonNode currentPopupApt = null;
 
     private void buildPopup(JsonNode apt, HBox anchor, HBox card) {
-        String timeStr = apt.get("time").asText();
+        String timeStr = FxUtils.formatTime(apt.get("time").asText());
         String patientName = apt.get("patientName").asText();
         String reason = apt.get("reason").asText();
         Long aptId = apt.get("appointmentId").asLong();
@@ -644,6 +650,16 @@ public class ScheduleController {
         body.getChildren().addAll(statusButtons, resultLabel);
 
         // ── Кнопка закрыть ─────────────────────────────────
+        Button editBtn = new Button("✎ Edit Appointment");
+        editBtn.setMaxWidth(Double.MAX_VALUE);
+        editBtn.getStyleClass().add("btn-primary");
+        editBtn.setStyle("-fx-margin-bottom: 8;");
+        editBtn.setOnAction(e -> {
+            popup.hide();
+            openEditWindow(apt);
+        });
+        body.getChildren().add(editBtn);
+
         Button closeBtn = new Button("Close");
         closeBtn.setMaxWidth(Double.MAX_VALUE);
         closeBtn.getStyleClass().add("popup-close-btn");
@@ -681,6 +697,53 @@ public class ScheduleController {
         double centerX = window.getX() + window.getWidth() / 2 - 190;
         double centerY = window.getY() + window.getHeight() / 2 - 220;
         popup.show(anchor, centerX, centerY);
+    }
+
+    private void openEditWindow(JsonNode apt) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/new-appointment.fxml"));
+            Parent root = loader.load();
+
+            AppointmentController controller = loader.getController();
+
+            Long id = apt.get("appointmentId").asLong();
+            String patientName = apt.get("patientName").asText();
+            String timeStr = apt.get("time").asText();
+            LocalDate date = LocalDate.of(currentYear, currentMonth, currentOpenDay);
+            LocalDateTime dateTime = LocalDateTime.of(date,
+                    java.time.LocalTime.parse(timeStr.substring(0, 5),
+                            java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+            String reason = apt.get("reason").asText();
+
+            List<Long> symptomIds = new java.util.ArrayList<>();
+            if (apt.has("symptoms") && apt.get("symptoms").isArray()) {
+                for (JsonNode s : apt.get("symptoms")) {
+                    symptomIds.add(s.get("id").asLong());
+                }
+            }
+
+            controller.setAppointmentForEdit(id, patientName, dateTime, reason, null, symptomIds);
+
+            FxUtils.applyTheme(root);
+
+            javafx.scene.layout.StackPane wrapper = new javafx.scene.layout.StackPane(root);
+            wrapper.setStyle("-fx-background-color: transparent; -fx-padding: 20;");
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(wrapper);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Appointment");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            stage.setOnHidden(e -> reloadCalendarData());
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     // Вспомогательные методы

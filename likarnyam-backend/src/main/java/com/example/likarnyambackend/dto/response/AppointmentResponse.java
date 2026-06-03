@@ -3,6 +3,7 @@ package com.example.likarnyambackend.dto.response;
 import com.example.likarnyambackend.model.Appointment;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class AppointmentResponse {
@@ -15,6 +16,7 @@ public class AppointmentResponse {
     private LocalDateTime appointmentAt;
     private Integer durationMinutes;
     private String notes;
+    private List<SymptomDto> symptoms;
 
     public static AppointmentResponse from(Appointment appointment) {
         AppointmentResponse dto = new AppointmentResponse();
@@ -26,6 +28,22 @@ public class AppointmentResponse {
         dto.setAppointmentAt(appointment.getAppointmentAt());
         dto.setDurationMinutes(appointment.getDurationMinutes());
         dto.setNotes(appointment.getNotes() != null ? appointment.getNotes() : "No notes");
+        dto.setSymptoms(appointment.getSymptoms().stream()
+                .map(s -> {
+                    AppointmentResponse.SymptomDto symptomDto = new AppointmentResponse.SymptomDto();
+                    symptomDto.setId(s.getId());
+                    symptomDto.setName(s.getName());
+                    symptomDto.setIcon(s.getIcon());
+                    symptomDto.setCategory(s.getCategory());
+                    return symptomDto;
+                }).toList());
         return dto;
+    }
+    @Data
+    public static class SymptomDto {
+        private Long id;
+        private String name;
+        private String icon;
+        private String category;
     }
 }

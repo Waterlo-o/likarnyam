@@ -59,33 +59,33 @@
                         <Separator />
                         <GridPane hgap="10" vgap="12">
                             <Label text="Date of Birth:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="0" textFill="#888"/>
+                                   GridPane.rowIndex="0" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="dobLabel" text="—"
                                    GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
                             <Label text="Gender:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="1" textFill="#888"/>
+                                   GridPane.rowIndex="1" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="genderLabel" text="—"
                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                             <Label text="Blood Type:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="2" textFill="#888"/>
+                                   GridPane.rowIndex="2" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="bloodTypeLabel" text="—"
                                    GridPane.columnIndex="1" GridPane.rowIndex="2"
                                    style="-fx-font-weight: bold; -fx-text-fill: #e53e3e;"/>
 
                             <Label text="Phone:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="3" textFill="#888"/>
+                                   GridPane.rowIndex="3" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="phoneLabel" text="—"
                                    GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                             <Label text="Email:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="4" textFill="#888"/>
+                                   GridPane.rowIndex="4" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="emailLabel" text="—"
                                    GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
                             <Label text="Allergies:" GridPane.columnIndex="0"
-                                   GridPane.rowIndex="5" textFill="#888"/>
+                                   GridPane.rowIndex="5" textFill="#888" minWidth="-Infinity"/>
                             <Label fx:id="allergiesLabel" text="—"
                                    wrapText="true"
                                    GridPane.columnIndex="1" GridPane.rowIndex="5"/>
@@ -94,6 +94,8 @@
                         <Button text="+ New Appointment" styleClass="btn-primary"
                                 prefWidth="Infinity" onAction="#handleNewAppointment" />
                     </VBox>
+
+                    <Button text="Edit Patient" onAction="#handleEditPatient" styleClass="dialog-btn-cancel" prefWidth="Infinity" style="-fx-margin-top: 10px;"/>
                 </VBox>
 
                 <!-- Правая колонка — история визитов -->

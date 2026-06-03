@@ -87,13 +87,14 @@ public class AppointmentsListController {
         Long appointmentId = apt.get("id").asLong();
         String firstName = apt.get("patientFirstName").asText();
         String lastName = apt.get("patientLastName").asText();
-        String aptAt = apt.get("appointmentAt").asText();
+        String aptAt = FxUtils.formatTime(apt.get("appointmentAt").asText());
         String reason = apt.get("reason").asText();
         String status = apt.get("status").asText();
         String notes = apt.has("notes") && !apt.get("notes").asText().equals("null") ? apt.get("notes").asText() : "—";
 
-        String date = aptAt.substring(0, 10);
-        String time = aptAt.substring(11, 16);
+        String fullRaw = apt.get("appointmentAt").asText(); // "2026-05-27T14:30:00"
+        String date = fullRaw.substring(0, 10);            // Берем дату из "сырого" JSON
+        String time = FxUtils.formatTime(fullRaw);
 
         // Аватар (Используем класс из списка пациентов!)
         Label avatar = new Label(String.valueOf(firstName.charAt(0)) + String.valueOf(lastName.charAt(0)));
@@ -166,12 +167,22 @@ public class AppointmentsListController {
             AppointmentController controller = loader.getController();
 
             Long id = apt.get("id").asLong();
-            String patientName = apt.get("patientFirstName").asText() + " " + apt.get("patientLastName").asText();
+            String patientName = apt.get("patientFirstName").asText() + " "
+                    + apt.get("patientLastName").asText();
             LocalDateTime dateTime = LocalDateTime.parse(apt.get("appointmentAt").asText());
             String reason = apt.get("reason").asText();
-            String notes = apt.has("notes") && !apt.get("notes").asText().equals("null") ? apt.get("notes").asText() : null;
+            String notes = apt.has("notes") && !apt.get("notes").asText().equals("null")
+                    ? apt.get("notes").asText() : null;
 
-            controller.setAppointmentForEdit(id, patientName, dateTime, reason, notes);
+            // Собираем symptomIds из ответа
+            List<Long> symptomIds = new java.util.ArrayList<>();
+            if (apt.has("symptoms") && apt.get("symptoms").isArray()) {
+                for (JsonNode s : apt.get("symptoms")) {
+                    symptomIds.add(s.get("id").asLong());
+                }
+            }
+
+            controller.setAppointmentForEdit(id, patientName, dateTime, reason, notes, symptomIds);
 
             FxUtils.applyTheme(root);
 

@@ -105,7 +105,6 @@ public class ScheduleService {
                     .filter(a -> a.getAppointmentAt().toLocalDate().equals(date))
                     .toList();
 
-            // Создаём AppointmentInfo для каждого приёма
             List<CalendarDayResponse.AppointmentInfo> aptInfos = dayAppts.stream()
                     .map(a -> {
                         CalendarDayResponse.AppointmentInfo info =
@@ -118,6 +117,24 @@ public class ScheduleService {
                         info.setReason(a.getReason());
                         info.setAppointmentId(a.getId());
                         info.setStatus(a.getStatus());
+
+                        // Симптомы
+                        if (a.getSymptoms() != null && !a.getSymptoms().isEmpty()) {
+                            List<CalendarDayResponse.AppointmentInfo.SymptomInfo> symptomInfos =
+                                    a.getSymptoms().stream()
+                                            .map(s -> {
+                                                CalendarDayResponse.AppointmentInfo.SymptomInfo si =
+                                                        new CalendarDayResponse.AppointmentInfo.SymptomInfo();
+                                                si.setId(s.getId());
+                                                si.setName(s.getName());
+                                                si.setIcon(s.getIcon());
+                                                si.setCategory(s.getCategory());
+                                                return si;
+                                            })
+                                            .toList();
+                            info.setSymptoms(symptomInfos);
+                        }
+
                         return info;
                     })
                     .toList();
