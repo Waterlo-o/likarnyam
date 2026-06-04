@@ -1050,7 +1050,26 @@ public class ScheduleController {
         loadCalendar();
     }
 
+    @FXML
+    private void handleClose() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                calendarGrid.getScene().getWindow();
+        stage.close();
+    }
 
+    @FXML
+    private void handleMinimize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                calendarGrid.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    @FXML
+    private void handleMaximize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                calendarGrid.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
 
     @FXML private void navigateHome() {
         FxUtils.navigateFullscreen(calendarGrid, "/fxml/home.fxml");

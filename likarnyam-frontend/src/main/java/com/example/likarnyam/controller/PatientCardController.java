@@ -106,8 +106,38 @@ public class PatientCardController {
                         empty.getStyleClass().add("history-empty-label");
                         historyContainer.getChildren().add(empty);
                     } else {
+                        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+                        java.util.List<JsonNode> upcoming = new java.util.ArrayList<>();
+                        java.util.List<JsonNode> past     = new java.util.ArrayList<>();
+
                         for (JsonNode visit : history) {
-                            historyContainer.getChildren().add(createHistoryCard(visit));
+                            try {
+                                java.time.LocalDateTime aptAt = java.time.LocalDateTime.parse(
+                                        visit.get("appointmentAt").asText());
+                                if (aptAt.isAfter(now)) upcoming.add(visit);
+                                else past.add(visit);
+                            } catch (Exception ignored) {
+                                past.add(visit);
+                            }
+                        }
+
+                        // Upcoming
+                        if (!upcoming.isEmpty()) {
+                            historyContainer.getChildren().add(
+                                    createSectionDivider("Upcoming", upcoming.size()));
+                            for (JsonNode visit : upcoming) {
+                                historyContainer.getChildren().add(createHistoryCard(visit));
+                            }
+                        }
+
+                        // Past
+                        if (!past.isEmpty()) {
+                            historyContainer.getChildren().add(
+                                    createSectionDivider("Past", past.size()));
+                            for (JsonNode visit : past) {
+                                historyContainer.getChildren().add(createHistoryCard(visit));
+                            }
                         }
                     }
                 });
@@ -118,6 +148,54 @@ public class PatientCardController {
         }).start();
     }
 
+    private HBox createSectionDivider(String title, int count) {
+        boolean isDark = com.example.likarnyam.session.UserSession.getInstance()
+                .getTheme() != null &&
+                com.example.likarnyam.session.UserSession.getInstance()
+                        .getTheme().equalsIgnoreCase("dark");
+
+        String lineColor  = isDark ? "#2d3748" : "#e2e8f0";
+        String textColor  = isDark ? "#718096" : "#a0aec0";
+        String countColor = isDark ? "#4a5568" : "#cbd5e0";
+
+        // Левая линия
+        javafx.scene.control.Separator leftLine = new javafx.scene.control.Separator();
+        HBox.setHgrow(leftLine, javafx.scene.layout.Priority.ALWAYS);
+        leftLine.setStyle("-fx-background-color: " + lineColor + ";");
+
+        // Правая линия
+        javafx.scene.control.Separator rightLine = new javafx.scene.control.Separator();
+        HBox.setHgrow(rightLine, javafx.scene.layout.Priority.ALWAYS);
+        rightLine.setStyle("-fx-background-color: " + lineColor + ";");
+
+        // Текст (убрали -fx-padding, так как отступы теперь управляются через titleBox)
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle(
+                "-fx-font-size: 11px; -fx-font-weight: bold; " +
+                        "-fx-text-fill: " + textColor + ";"
+        );
+
+        // Счётчик
+        Label countLabel = new Label(String.valueOf(count));
+        countLabel.setStyle(
+                "-fx-font-size: 10px; -fx-text-fill: white; " +
+                        "-fx-background-color: " + countColor + "; " +
+                        "-fx-background-radius: 10; -fx-padding: 1 6;"
+        );
+
+        // Группируем текст и кружочек, задаем отступ МЕЖДУ ними (6px)
+        HBox titleBox = new HBox(6, titleLabel, countLabel);
+        titleBox.setAlignment(javafx.geometry.Pos.CENTER);
+        // Добавляем отступы в 8px перед словом и после кружочка
+        titleBox.setPadding(new javafx.geometry.Insets(0, 8, 0, 8));
+
+        // Используем сгруппированный titleBox вместо отдельных элементов
+        HBox divider = new HBox(0, leftLine, titleBox, rightLine);
+        divider.setAlignment(javafx.geometry.Pos.CENTER);
+        divider.setPadding(new javafx.geometry.Insets(6, 0, 6, 0));
+
+        return divider;
+    }
     private VBox createHistoryCard(JsonNode visit) {
         String fullRaw = visit.get("appointmentAt").asText();
         String date = fullRaw.substring(0, 10);
@@ -351,6 +429,27 @@ public class PatientCardController {
         }
     }
 
+
+    @FXML
+    private void handleClose() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientNameLabel.getScene().getWindow();
+        stage.close();
+    }
+
+    @FXML
+    private void handleMinimize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientNameLabel.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    @FXML
+    private void handleMaximize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientNameLabel.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
 
     @FXML private void navigateHome() {
         FxUtils.navigateFullscreen(patientNameLabel, "/fxml/home.fxml");

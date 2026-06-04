@@ -52,49 +52,78 @@ public class FxUtils {
             double width = stage.getWidth();
             double height = stage.getHeight();
 
-            // 1. Узнаем, хочет ли пользователь видеть анимации
-            boolean animationsEnabled = com.example.likarnyam.session.UserSession.getInstance().isAnimationsEnabled();
+            boolean animationsEnabled = UserSession.getInstance().isAnimationsEnabled();
 
-            // Ищем центральные карточки, чтобы анимировать только их
             Node oldContent = oldRoot.lookup(".main-content");
             Node newContent = newRoot.lookup(".main-content");
 
-            // 2. Запускаем слайдер ТОЛЬКО если анимации включены И найдены нужные контейнеры
             if (animationsEnabled && oldContent != null && newContent != null) {
-                // Старая вкладка улетает направо (на ширину экрана)
-                javafx.animation.TranslateTransition slideOut = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(300), oldContent);
+                javafx.animation.TranslateTransition slideOut =
+                        new javafx.animation.TranslateTransition(
+                                javafx.util.Duration.millis(300), oldContent);
                 slideOut.setByX(width);
                 slideOut.setInterpolator(javafx.animation.Interpolator.EASE_IN);
 
                 slideOut.setOnFinished(e -> {
-                    // Подменяем экраны, когда старый улетел
                     stage.getScene().setRoot(newRoot);
                     stage.setWidth(width);
                     stage.setHeight(height);
 
-                    // Прячем новую вкладку за правый край экрана
-                    newContent.setTranslateX(width);
+// Восстанавливаем перетаскивание
+                    javafx.scene.Scene scene = stage.getScene();
+                    final double[] offset = {-1, 0};
+                    scene.setOnMousePressed(ev -> {
+                        if (ev.getSceneY() < 40) {
+                            offset[0] = ev.getScreenX() - stage.getX();
+                            offset[1] = ev.getScreenY() - stage.getY();
+                        } else {
+                            offset[0] = -1;
+                        }
+                    });
+                    scene.setOnMouseDragged(ev -> {
+                        if (offset[0] >= 0 && ev.getSceneY() < 40) {
+                            stage.setX(ev.getScreenX() - offset[0]);
+                            stage.setY(ev.getScreenY() - offset[1]);
+                        }
+                    });
 
-                    // Новая вкладка вылетает справа на своё место
-                    javafx.animation.TranslateTransition slideIn = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(300), newContent);
+                    newContent.setTranslateX(width);
+                    javafx.animation.TranslateTransition slideIn =
+                            new javafx.animation.TranslateTransition(
+                                    javafx.util.Duration.millis(300), newContent);
                     slideIn.setToX(0);
                     slideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
                     slideIn.play();
                 });
-
                 slideOut.play();
             } else {
-                // --- АНИМАЦИЯ ВЫКЛЮЧЕНА (или нет контейнеров) — ПРОСТО МЕНЯЕМ ЭКРАН ---
                 stage.getScene().setRoot(newRoot);
                 stage.setWidth(width);
                 stage.setHeight(height);
+
+// Восстанавливаем перетаскивание
+                javafx.scene.Scene scene = stage.getScene();
+                final double[] offset = {-1, 0};
+                scene.setOnMousePressed(ev -> {
+                    if (ev.getSceneY() < 40) {
+                        offset[0] = ev.getScreenX() - stage.getX();
+                        offset[1] = ev.getScreenY() - stage.getY();
+                    } else {
+                        offset[0] = -1;
+                    }
+                });
+                scene.setOnMouseDragged(ev -> {
+                    if (offset[0] >= 0 && ev.getSceneY() < 40) {
+                        stage.setX(ev.getScreenX() - offset[0]);
+                        stage.setY(ev.getScreenY() - offset[1]);
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Navigation error: " + e.getMessage());
         }
     }
-
     public static void showLoading(VBox container, String message) {
         container.getChildren().clear();
         VBox loadingBox = new VBox(12);

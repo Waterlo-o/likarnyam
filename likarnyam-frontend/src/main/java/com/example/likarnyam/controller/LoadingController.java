@@ -91,18 +91,16 @@ public class LoadingController implements Initializable {
     private void loadNextScene(boolean hasToken) {
         try {
             String fxmlPath = hasToken ? "/fxml/home.fxml" : "/fxml/login.fxml";
-            Parent nextRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Parent nextRoot = FXMLLoader.load(Objects.requireNonNull(
+                    getClass().getResource(fxmlPath)));
 
-            // Плавно скрываем текущий экран (rootPane)
             FadeTransition fadeOut = new FadeTransition(Duration.millis(500), rootPane);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(e -> {
-                // Получаем текущее окно (Stage) и подменяем сцену
                 Stage stage = (Stage) rootPane.getScene().getWindow();
                 stage.getScene().setRoot(nextRoot);
 
-                // Плавно показываем новый экран
                 nextRoot.setOpacity(0.0);
                 FadeTransition fadeInRoot = new FadeTransition(Duration.millis(400), nextRoot);
                 fadeInRoot.setFromValue(0.0);

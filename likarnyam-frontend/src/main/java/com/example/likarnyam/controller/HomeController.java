@@ -659,11 +659,33 @@ public class HomeController {
         consultationReason.setText(reason);
         consultationNotes.setText(notes);
     }
+
+    @FXML
+    private void handleClose() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                totalVisitsLabel.getScene().getWindow();
+        stage.close();
+    }
+
+    @FXML
+    private void handleMinimize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                totalVisitsLabel.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    @FXML
+    private void handleMaximize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                totalVisitsLabel.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
+
+
     @FXML
     private void navigateHome() {
         // Уже на Home — ничего не делаем
     }
-
     @FXML
     private void navigatePatients() {
         FxUtils.navigateFullscreen(totalVisitsLabel, "/fxml/patient-list.fxml");

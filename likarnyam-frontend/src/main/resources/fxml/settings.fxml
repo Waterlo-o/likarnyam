@@ -13,6 +13,7 @@
     <left>
         <VBox prefWidth="80.0" styleClass="sidebar">
             <padding><Insets top="20" bottom="20"/></padding>
+
             <Region VBox.vgrow="ALWAYS" />
             <VBox alignment="CENTER" spacing="30.0">
                 <Button styleClass="menu-btn" text="⌘" onAction="#navigateHome" />

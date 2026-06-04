@@ -222,7 +222,26 @@ public class PatientListController {
         }
     }
 
+    @FXML
+    private void handleClose() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientTableContainer.getScene().getWindow();
+        stage.close();
+    }
 
+    @FXML
+    private void handleMinimize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientTableContainer.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    @FXML
+    private void handleMaximize() {
+        javafx.stage.Stage stage = (javafx.stage.Stage)
+                patientTableContainer.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
 
     // Навигация
     @FXML private void navigateHome() {
