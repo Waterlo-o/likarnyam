@@ -83,5 +83,12 @@ public class UserSession {
         }
     }
 
+    private String role = "DOCTOR";
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public boolean isAdmin() { return "ADMIN".equals(role); }
+
     
 }

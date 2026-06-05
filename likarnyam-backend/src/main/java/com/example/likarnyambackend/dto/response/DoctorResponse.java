@@ -18,6 +18,7 @@ public class DoctorResponse {
     private String theme;
     private String timeFormat;
     private boolean animationsEnabled;
+    private String role;
 
     public static DoctorResponse from(Doctor doctor) {
         DoctorResponse dto = new DoctorResponse();
@@ -29,6 +30,13 @@ public class DoctorResponse {
         dto.setPhotoUrl(doctor.getPhotoUrl());
         dto.setLicenseNumber(doctor.getLicenseNumber());
         dto.setEmail(doctor.getUser().getEmail());
+
+        if (doctor.getUser() != null && doctor.getUser().getRole() != null) {
+            dto.setRole(doctor.getUser().getRole().getName());
+        } else {
+            dto.setRole("DOCTOR");
+        }
+
 
         if (doctor.getSpecialization() != null) {
             dto.setSpecialization(doctor.getSpecialization().getName());

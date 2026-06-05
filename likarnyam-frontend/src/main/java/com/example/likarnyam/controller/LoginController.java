@@ -33,9 +33,7 @@ public class LoginController {
         loginButton.setText("Signing in...");
 
         try {
-            // Отправляем запрос на бэкенд
             String token = ApiClient.login(email, password);
-
 
             if (rememberMeCheckbox.isSelected()) {
                 UserSession.getInstance().saveToken(token);
@@ -43,7 +41,26 @@ public class LoginController {
                 UserSession.getInstance().setJwtToken(token);
             }
 
-            // Переходим на главный экран
+            try {
+                String tok = UserSession.getInstance().getJwtToken();
+                java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+                java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                        .uri(java.net.URI.create("http://localhost:8080/api/auth/me"))
+                        .header("Authorization", "Bearer " + tok)
+                        .GET().build();
+                java.net.http.HttpResponse<String> resp = client.send(req,
+                        java.net.http.HttpResponse.BodyHandlers.ofString());
+                if (resp.statusCode() == 200) {
+                    com.fasterxml.jackson.databind.JsonNode info =
+                            new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(resp.body());
+                    UserSession.getInstance().setRole(
+                            info.has("role") ? info.get("role").asText() : "DOCTOR");
+                }
+            } catch (Exception ignored) {
+                UserSession.getInstance().setRole("DOCTOR");
+            }
+
             navigateToHome();
 
         } catch (Exception e) {

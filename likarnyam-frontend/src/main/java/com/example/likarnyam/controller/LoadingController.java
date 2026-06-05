@@ -90,6 +90,16 @@ public class LoadingController implements Initializable {
 
     private void loadNextScene(boolean hasToken) {
         try {
+            // Загружаем роль если есть токен
+            if (hasToken) {
+                try {
+                    com.fasterxml.jackson.databind.JsonNode doctor =
+                            com.example.likarnyam.client.DoctorApiClient.getMe();
+                    String role = doctor.has("role") ? doctor.get("role").asText() : "DOCTOR";
+                    com.example.likarnyam.session.UserSession.getInstance().setRole(role);
+                } catch (Exception ignored) {}
+            }
+
             String fxmlPath = hasToken ? "/fxml/home.fxml" : "/fxml/login.fxml";
             Parent nextRoot = FXMLLoader.load(Objects.requireNonNull(
                     getClass().getResource(fxmlPath)));

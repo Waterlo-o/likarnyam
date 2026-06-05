@@ -64,9 +64,13 @@
                 </VBox>
 
                 <!-- Правая колонка — контент секции -->
-                <VBox fx:id="settingsContent" styleClass="white-card"
-                      HBox.hgrow="ALWAYS" spacing="20">
-                </VBox>
+                <ScrollPane HBox.hgrow="ALWAYS" fitToWidth="true" fitToHeight="false" style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <content>
+                        <VBox fx:id="settingsContent" styleClass="white-card" spacing="20">
+
+                        </VBox>
+                    </content>
+                </ScrollPane>
 
             </HBox>
         </VBox>

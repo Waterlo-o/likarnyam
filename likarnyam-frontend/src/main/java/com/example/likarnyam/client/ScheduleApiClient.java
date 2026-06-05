@@ -59,4 +59,12 @@ public class ScheduleApiClient {
         validateResponse(response);
         return objectMapper.readTree(response.body());
     }
+
+    public static JsonNode getMySchedule() throws Exception {
+        HttpRequest request = baseRequest("/schedule/me").GET().build();
+        HttpResponse<String> response = httpClient.send(request,
+                HttpResponse.BodyHandlers.ofString());
+        validateResponse(response);
+        return objectMapper.readTree(response.body());
+    }
 }
