@@ -2018,7 +2018,7 @@
     -fx-background-color: #F1F5F9;
     -fx-background-radius: 8;
     -fx-padding: 2;
-    -fx-max-width: USE_PREF_SIZE; /* Легальный способ JavaFX убрать пустой отступ! */
+    -fx-max-width: pref; /* Легальный способ JavaFX убрать пустой отступ! */
 }
 .switcher-btn-left, .switcher-btn-right {
     -fx-background-color: transparent;
@@ -2470,3 +2470,291 @@
 .symptom-cat-ent .symptom-tag-label            { -fx-text-fill: #27500A; }
 .symptom-cat-urological .symptom-tag-label     { -fx-text-fill: #0A4A6E; }
 .symptom-cat-psychological .symptom-tag-label  { -fx-text-fill: #4A1A72; }
+
+
+/* Карточка (Тень и скругления как на дашборде) */
+.login-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 25, 0, 5, 10);
+}
+
+/* Левая синяя панель */
+.login-brand-side {
+    -fx-background-color: #64B5F6; /* Мягкий голубой цвет дашборда */
+    -fx-background-radius: 20 0 0 20;
+}
+
+.login-logo-text {
+    -fx-fill: #FFFFFF;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+.login-logo-subtext {
+    -fx-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-size: 16px;
+}
+
+.login-feature-text {
+    -fx-fill: rgba(255, 255, 255, 0.85);
+    -fx-font-size: 13px;
+}
+
+/* Правая форма */
+.login-header-title {
+    -fx-fill: #2D3748; /* Темно-серый как на дашборде */
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+    /* Фоновый контейнер (Сам StackPane, но в FXML он прозрачный) */
+    .login-root-container {
+        -fx-background-color: linear-gradient(to bottom right, #E3F2FD, #BBDEFB);
+    }
+
+    /* Карточка (Тень и скругления как на дашборде) */
+    .login-card {
+        -fx-background-color: #FFFFFF;
+        -fx-background-radius: 20;
+        /* Мягкая тень */
+        -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 25, 0, 5, 10);
+    }
+
+    /* Левая синяя панель */
+    .login-brand-side {
+        -fx-background-color: #64B5F6; /* Мягкий голубой цвет дашборда */
+        -fx-background-radius: 20 0 0 20;
+    }
+
+    .login-logo-text {
+        -fx-fill: #FFFFFF;
+        -fx-font-size: 36px;
+        -fx-font-weight: bold;
+    }
+
+    .login-logo-subtext {
+        -fx-fill: rgba(255, 255, 255, 0.9);
+        -fx-font-size: 16px;
+    }
+
+    .login-feature-text {
+        -fx-fill: rgba(255, 255, 255, 0.85);
+        -fx-font-size: 13px;
+    }
+
+    /* Правая форма */
+    .login-header-title {
+        -fx-fill: #2D3748; /* Темно-серый как на дашборде */
+        -fx-font-size: 26px;
+        -fx-font-weight: bold;
+    }
+
+    .login-header-subtitle {
+        -fx-fill: #718096;
+        -fx-font-size: 14px;
+    }
+
+    .login-input-label {
+        -fx-text-fill: #4A5568;
+        -fx-font-size: 12px;
+        -fx-font-weight: bold;
+    }
+
+    /* Поля ввода в стиле дашборда (Большие и скругленные) */
+    .login-modern-input {
+        -fx-background-color: #FFFFFF;
+        -fx-border-color: #E2E8F0;
+        -fx-border-radius: 10;
+        -fx-background-radius: 10;
+        -fx-padding: 10 12; /* Увеличил паддинг для высоты */
+        -fx-text-fill: #2D3748;
+        -fx-font-size: 14px;
+    }
+
+    .login-modern-input:focused {
+        -fx-border-color: #64B5F6;
+        -fx-effect: dropshadow(gaussian, rgba(100, 181, 246, 0.2), 5, 0, 0, 0);
+    }
+
+    /* Чекбокс */
+    .login-checkbox {
+        -fx-text-fill: #718096;
+        -fx-font-size: 12px;
+    }
+
+    /* Большая голубая кнопка (Как на дашборде, но больше) */
+    .login-modern-btn {
+        -fx-background-color: #64B5F6;
+        -fx-text-fill: #FFFFFF;
+        -fx-font-size: 14px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 10;
+        -fx-padding: 12;
+        -fx-cursor: hand;
+    }
+
+    .login-modern-btn:hover {
+        -fx-background-color: #42A5F5;
+    }
+
+    .login-error-text {
+        -fx-text-fill: #E53935;
+        -fx-font-size: 12px;
+    }
+
+    /* Фоновый градиент */
+    .login-screen-bg {
+        -fx-background-color: linear-gradient(to bottom right, #F0F7FF, #FFFFFF);
+    }
+
+    /* Карточка с мягкой тенью */
+    .immersive-card {
+        -fx-background-color: white;
+        -fx-background-radius: 30;
+        -fx-effect: dropshadow(three-pass-box, rgba(100, 181, 246, 0.2), 50, 0, 0, 20);
+    }
+
+    /* Левая брендовая панель */
+    .brand-section {
+        -fx-background-color: #64B5F6;
+        -fx-background-radius: 30 0 0 30;
+        -fx-padding: 50;
+    }
+
+    .brand-logo {
+        -fx-fill: white;
+        -fx-font-size: 42px;
+        -fx-font-weight: bold;
+    }
+
+    .brand-tagline {
+        -fx-fill: rgba(255, 255, 255, 0.8);
+        -fx-font-size: 14px;
+        -fx-letter-spacing: 2px;
+    }
+
+    .brand-feature {
+        -fx-fill: white;
+        -fx-font-size: 16px;
+    }
+
+    .brand-version {
+        -fx-fill: rgba(255, 255, 255, 0.5);
+        -fx-font-size: 12px;
+    }
+
+    /* Форма */
+    .form-title {
+        -fx-font-size: 32px;
+        -fx-font-weight: bold;
+        -fx-text-fill: #1E293B;
+    }
+
+    .form-subtitle {
+        -fx-font-size: 15px;
+        -fx-text-fill: #64748B;
+    }
+
+    .field-label {
+        -fx-text-fill: #94A3B8;
+        -fx-font-size: 11px;
+        -fx-font-weight: bold;
+    }
+
+    .modern-field {
+        -fx-background-color: #F8FAFC;
+        -fx-border-color: #E2E8F0;
+        -fx-border-radius: 12;
+        -fx-background-radius: 12;
+        -fx-padding: 15;
+        -fx-font-size: 14px;
+    }
+
+    .modern-field:focused {
+        -fx-border-color: #64B5F6;
+        -fx-background-color: white;
+    }
+
+    .primary-login-btn {
+        -fx-background-color: #64B5F6;
+        -fx-text-fill: white;
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 12;
+        -fx-padding: 15;
+        -fx-cursor: hand;
+    }
+
+    .primary-login-btn:hover {
+        -fx-background-color: #42A5F5;
+        -fx-effect: dropshadow(three-pass-box, rgba(100, 181, 246, 0.4), 15, 0, 0, 5);
+    }
+
+    .form-link {
+        -fx-text-fill: #64B5F6;
+        -fx-font-size: 11px;
+        -fx-underline: false;
+    }
+
+    .form-footer-text {
+        -fx-fill: #64748B;
+        -fx-font-size: 14px;
+    }
+
+    /* 1. Главный контейнер чекбокса и текст */
+    .modern-checkbox {
+        -fx-text-fill: #64748B;
+        -fx-font-size: 13px;
+        -fx-cursor: hand;
+        -fx-label-padding: 0 0 0 8; /* Отступ текста от квадратика */
+    }
+
+    /* Текст при наведении */
+    .modern-checkbox:hover {
+        -fx-text-fill: #1E293B;
+    }
+
+    /* 2. Сам квадратик (базовое состояние) */
+    .modern-checkbox > .box {
+        -fx-background-color: #F8FAFC;
+        -fx-border-color: #E2E8F0;
+        -fx-border-width: 2;
+        -fx-border-radius: 6;       /* Скругление углов квадратика */
+        -fx-background-radius: 6;
+        -fx-padding: 4;             /* Размер самого квадратика */
+        -fx-transition: all 0.2s ease-in-out;
+    }
+
+    /* Квадратик при наведении */
+    .modern-checkbox:hover > .box {
+        -fx-border-color: #64B5F6;
+        -fx-background-color: #FFFFFF;
+    }
+
+    /* Квадратик, когда галочка СЕЙЧАС ВЫБРАНА */
+    .modern-checkbox:selected > .box {
+        -fx-background-color: #64B5F6; /* Окрашиваем в фирменный голубой */
+        -fx-border-color: #64B5F6;
+    }
+
+
+    /* 3. Сама галочка внутри квадратика */
+    .modern-checkbox > .box > .mark {
+        -fx-background-color: transparent; /* Скрываем стандартную жирную галочку */
+        /* Рисуем красивую, аккуратную тонкую галочку с помощью SVG-пути */
+        -fx-shape: "M1.5 4.5L4 7L8.5 2";
+        -fx-scale-x: 1.3;
+        -fx-scale-y: 1.3;
+    }
+
+    /* Когда чекбокс выбран — делаем нарисованную SVG-галочку БЕЛОЙ */
+    .modern-checkbox:selected > .box > .mark {
+        -fx-background-color: #FFFFFF;
+    }
+
+    /* Убираем некрасивую дефолтную рамку фокуса вокруг текста при клике */
+    .modern-checkbox:focused {
+        -fx-border-color: transparent;
+        -fx-border-width: 0;
+    }

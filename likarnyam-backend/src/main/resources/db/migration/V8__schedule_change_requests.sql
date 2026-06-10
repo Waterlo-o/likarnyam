@@ -23,3 +23,9 @@ SELECT 'admin@likarnyam.com',
 WHERE NOT EXISTS (
     SELECT 1 FROM users WHERE email = 'admin@likarnyam.com'
 );
+
+ALTER TABLE schedule_change_requests
+ADD COLUMN IF NOT EXISTS request_type VARCHAR(20) NOT NULL DEFAULT 'CHANGE';
+
+ALTER TABLE schedule_change_requests
+ADD COLUMN IF NOT EXISTS requested_date DATE;

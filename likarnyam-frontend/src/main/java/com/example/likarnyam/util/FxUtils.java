@@ -2,6 +2,7 @@ package com.example.likarnyam.util;
 
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -39,6 +40,23 @@ public class FxUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void handleAuthExpired(Node anyNode) {
+        Platform.runLater(() -> {
+            UserSession.getInstance().logout();
+            Stage stage = (Stage) anyNode.getScene().getWindow();
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            try {
+                Parent root = FXMLLoader.load(FxUtils.class.getResource("/fxml/login.fxml"));
+                applyTheme(root);
+                stage.setScene(new Scene(root, width, height));
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void navigateFullscreen(Node node, String fxmlPath) {

@@ -18,7 +18,6 @@ public class ScheduleChangeRequest {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @Column(nullable = false)
     private Integer dayOfWeek;
 
     private LocalTime requestedStart;
@@ -36,4 +35,14 @@ public class ScheduleChangeRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")
     private Doctor reviewedBy;
+
+    @Column(nullable = false)
+    private String requestType = "CHANGE"; // CHANGE или DAY_OFF
+
+
+    private java.time.LocalDate requestedDate; // для DAY_OFF
+
+    @Column(name = "hidden_by_doctor", nullable = false)
+    private boolean hiddenByDoctor = false;
+
 }

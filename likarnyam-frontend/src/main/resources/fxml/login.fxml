@@ -3,72 +3,92 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.shape.Circle?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.likarnyam.controller.LoginController"
-            stylesheets="@../css/css.css">
+<StackPane fx:id="rootPane" prefHeight="800.0" prefWidth="1200.0"
+           stylesheets="@../css/css.css" styleClass="login-screen-bg"
+           xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.likarnyam.controller.LoginController">
 
-    <center>
-        <VBox alignment="CENTER" spacing="0" styleClass="login-wrapper">
+    <Circle fx:id="bgCircle1" radius="200" fill="#64B5F622" StackPane.alignment="TOP_LEFT">
+        <StackPane.margin><Insets top="-100" left="-100"/></StackPane.margin>
+    </Circle>
+    <Circle fx:id="bgCircle2" radius="150" fill="#64B5F611" StackPane.alignment="BOTTOM_RIGHT">
+        <StackPane.margin><Insets bottom="-50" right="-50"/></StackPane.margin>
+    </Circle>
 
-            <!-- Левая синяя панель + правая белая форма -->
-            <HBox prefWidth="800" prefHeight="500">
+    <VBox alignment="CENTER" spacing="30">
+        <HBox fx:id="loginCard" maxWidth="950" maxHeight="600" styleClass="immersive-card">
 
-                <!-- Левая панель — брендинг -->
-                <VBox alignment="CENTER" spacing="15" prefWidth="350"
-                      styleClass="login-brand-panel">
-                    <Text text="Likarnyam" styleClass="login-brand-title"/>
-                    <Text text="Medical Portal" styleClass="login-brand-subtitle"/>
-                    <Text text="Your patients. Your schedule.&#10;All in one place."
-                          styleClass="login-brand-desc" textAlignment="CENTER"/>
+            <VBox alignment="CENTER" prefWidth="400" spacing="20" styleClass="brand-section">
+                <VBox alignment="CENTER" spacing="5">
+                    <Text text="Likarnyam" styleClass="brand-logo"/>
+                    <Text text="MEDICAL PORTAL" styleClass="brand-tagline"/>
                 </VBox>
 
-                <!-- Правая панель — форма -->
-                <VBox alignment="CENTER" spacing="20" prefWidth="450"
-                      styleClass="login-form-panel">
-                    <padding>
-                        <Insets top="50" bottom="50" left="50" right="50"/>
-                    </padding>
+                <Region VBox.vgrow="ALWAYS" />
 
-                    <Text text="Welcome back" styleClass="login-title"/>
-                    <Text text="Sign in to your account" styleClass="login-subtitle"/>
-
-                    <VBox spacing="8" prefWidth="320">
-                        <Label text="Email" styleClass="login-label"/>
-                        <TextField fx:id="emailField"
-                                   promptText="doctor@likarnyam.com"
-                                   styleClass="login-input"/>
-                    </VBox>
-
-                    <VBox spacing="8" prefWidth="320">
-                        <Label text="Password" styleClass="login-label"/>
-                        <PasswordField fx:id="passwordField"
-                                       promptText="••••••••"
-                                       styleClass="login-input"/>
-                    </VBox>
-
-                    <!-- Сообщение об ошибке -->
-                    <Label fx:id="errorLabel"
-                           text=""
-                           styleClass="login-error"
-                           visible="false"/>
-
-                    <HBox spacing="10" alignment="CENTER_LEFT" prefWidth="320">
-                        <CheckBox fx:id="rememberMeCheckbox" text="Remember me for 30 days" />
+                <VBox spacing="15" alignment="CENTER_LEFT" maxWidth="250">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Text text="✦" fill="white"/>
+                        <Text text="Patient Management" styleClass="brand-feature"/>
                     </HBox>
-
-                    <Button fx:id="loginButton"
-                            text="Sign In"
-                            prefWidth="320"
-                            styleClass="login-btn"
-                            onAction="#handleLogin"/>
-
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Text text="✦" fill="white"/>
+                        <Text text="Smart Scheduling" styleClass="brand-feature"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Text text="✦" fill="white"/>
+                        <Text text="Cloud Records" styleClass="brand-feature"/>
+                    </HBox>
                 </VBox>
-            </HBox>
-        </VBox>
-    </center>
-</BorderPane>
+
+                <Region VBox.vgrow="ALWAYS" />
+                <Text text="v2.4.0 Professional Edition" styleClass="brand-version"/>
+            </VBox>
+
+            <VBox prefWidth="550" spacing="30" styleClass="form-section">
+                <padding><Insets top="60" right="60" bottom="60" left="60"/></padding>
+
+                <VBox spacing="10">
+                    <Label text="Welcome Back, Doctor" styleClass="form-title"/>
+                    <Label text="Enter your credentials to access your dashboard" styleClass="form-subtitle"/>
+                </VBox>
+
+                <VBox spacing="20">
+                    <VBox spacing="8">
+                        <Label text="EMAIL ADDRESS" styleClass="field-label"/>
+                        <TextField fx:id="emailField" promptText="doctor@likarnyam.com" styleClass="modern-field"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="PASSWORD" styleClass="field-label"/>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Hyperlink text="Forgot Password?" styleClass="form-link"/>
+                        </HBox>
+                        <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="modern-field"/>
+                    </VBox>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" maxWidth="380">
+                    <CheckBox fx:id="rememberMeCheckbox" text="Keep me logged in for today" styleClass="modern-checkbox"/>
+                </HBox>
+
+                <VBox spacing="15" alignment="CENTER">
+                    <Button fx:id="loginButton" text="Sign In to Portal" onAction="#handleLogin"
+                            maxWidth="Infinity" styleClass="primary-login-btn"/>
+                    <Label fx:id="errorLabel" styleClass="error-message" visible="false" managed="false"/>
+                </VBox>
+
+                <HBox alignment="CENTER" spacing="5">
+                    <Text text="New to the platform?" styleClass="form-footer-text"/>
+                    <Hyperlink text="Contact Administrator" styleClass="form-link-bold"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <Text text="© 2026 Likarnyam Systems. All rights reserved." styleClass="copyright-text"/>
+    </VBox>
+</StackPane>

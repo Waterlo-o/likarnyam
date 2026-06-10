@@ -9,9 +9,13 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 public class SettingsController {
 
@@ -326,7 +330,7 @@ public class SettingsController {
         VBox scheduleBox = new VBox(8);
         scheduleBox.setId("scheduleBox");
 
-// Загружаем реальное расписание
+        // Загружаем реальное расписание
         new Thread(() -> {
             try {
                 JsonNode schedules = com.example.likarnyam.client.ScheduleApiClient.getMySchedule();
@@ -381,6 +385,31 @@ public class SettingsController {
         Label requestTitle = new Label("Request Schedule Change");
         requestTitle.getStyleClass().add("settings-field-label");
 
+        // Переключатель типа запроса
+        HBox typeBox = new HBox(8);
+        typeBox.setAlignment(Pos.CENTER_LEFT);
+        ToggleGroup typeGroup = new ToggleGroup();
+
+        ToggleButton changeBtn = new ToggleButton("📅 Schedule Change");
+        ToggleButton dayOffBtn = new ToggleButton("🏖 Day Off");
+
+        changeBtn.setToggleGroup(typeGroup);
+        dayOffBtn.setToggleGroup(typeGroup);
+        changeBtn.setSelected(true);
+        changeBtn.getStyleClass().add("toggle-btn-active");
+        dayOffBtn.getStyleClass().add("toggle-btn");
+        typeBox.getChildren().addAll(changeBtn, dayOffBtn);
+
+        typeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                oldVal.setSelected(true);
+                return;
+            }
+            changeBtn.getStyleClass().setAll(newVal == changeBtn ? "toggle-btn-active" : "toggle-btn");
+            dayOffBtn.getStyleClass().setAll(newVal == dayOffBtn ? "toggle-btn-active" : "toggle-btn");
+        });
+
+        // Поля для CHANGE
         ComboBox<String> dayCombo = new ComboBox<>();
         dayCombo.getItems().addAll(
                 "Monday", "Tuesday", "Wednesday", "Thursday",
@@ -403,9 +432,32 @@ public class SettingsController {
         HBox.setHgrow(endField, Priority.ALWAYS);
         timeRow.getChildren().addAll(startField, endField);
 
+        // Поля для DAY_OFF
+        javafx.scene.control.DatePicker datePicker = new javafx.scene.control.DatePicker();
+        datePicker.setPromptText("Select date...");
+        datePicker.getStyleClass().add("settings-input");
+        datePicker.setMaxWidth(Double.MAX_VALUE);
+        datePicker.setVisible(false);
+        datePicker.setManaged(false);
+
+        // Переключение видимости полей
+        typeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
+            boolean isDayOff = newVal == dayOffBtn;
+
+            dayCombo.setVisible(!isDayOff);
+            dayCombo.setManaged(!isDayOff);
+
+            timeRow.setVisible(!isDayOff);
+            timeRow.setManaged(!isDayOff);
+
+            datePicker.setVisible(isDayOff);
+            datePicker.setManaged(isDayOff);
+        });
+
         TextArea reasonArea = new TextArea();
-        reasonArea.setPromptText("Reason for change...");
-        reasonArea.setPrefHeight(80);
+        reasonArea.setPromptText("Reason...");
+        reasonArea.setPrefHeight(70);
         reasonArea.getStyleClass().add("settings-input");
 
         Label requestResult = new Label("");
@@ -413,38 +465,59 @@ public class SettingsController {
         Button submitBtn = new Button("Submit Request");
         submitBtn.getStyleClass().add("settings-save-btn");
         submitBtn.setOnAction(e -> {
-            String selectedDay = dayCombo.getValue();
-            if (selectedDay == null) {
-                requestResult.getStyleClass().setAll("settings-result-error");
-                requestResult.setText("Please select a day");
-                return;
-            }
+            boolean isDayOff = typeGroup.getSelectedToggle() == dayOffBtn;
 
-            int dayOfWeek = java.util.List.of(
-                    "", "Monday", "Tuesday", "Wednesday",
-                    "Thursday", "Friday", "Saturday", "Sunday"
-            ).indexOf(selectedDay);
+            if (isDayOff) {
+                if (datePicker.getValue() == null) {
+                    requestResult.getStyleClass().setAll("settings-result-error");
+                    requestResult.setText("Please select a date");
+                    return;
+                }
+            } else {
+                if (dayCombo.getValue() == null) {
+                    requestResult.getStyleClass().setAll("settings-result-error");
+                    requestResult.setText("Please select a day");
+                    return;
+                }
+            }
 
             submitBtn.setDisable(true);
             submitBtn.setText("Submitting...");
 
-            String start  = startField.getText().trim().isEmpty() ? null : startField.getText().trim();
-            String end    = endField.getText().trim().isEmpty() ? null : endField.getText().trim();
             String reason = reasonArea.getText().trim().isEmpty() ? null : reasonArea.getText().trim();
 
             new Thread(() -> {
                 try {
-                    com.example.likarnyam.client.ScheduleRequestApiClient
-                            .createRequest(dayOfWeek, start, end, reason);
+                    if (isDayOff) {
+                        com.example.likarnyam.client.ScheduleRequestApiClient.createDayOffRequest(
+                                datePicker.getValue().toString(), reason);
+                    } else {
+                        int dayOfWeek = java.util.List.of(
+                                "", "Monday", "Tuesday", "Wednesday",
+                                "Thursday", "Friday", "Saturday", "Sunday"
+                        ).indexOf(dayCombo.getValue());
+
+                        String start = startField.getText().trim().isEmpty()
+                                ? null : startField.getText().trim();
+                        String end = endField.getText().trim().isEmpty()
+                                ? null : endField.getText().trim();
+
+                        com.example.likarnyam.client.ScheduleRequestApiClient
+                                .createRequest(dayOfWeek, start, end, reason);
+                    }
+
                     javafx.application.Platform.runLater(() -> {
                         requestResult.getStyleClass().setAll("settings-result-success");
-                        requestResult.setText("Request submitted successfully ✓");
+                        requestResult.setText("Request submitted ✓");
                         submitBtn.setDisable(false);
                         submitBtn.setText("Submit Request");
+
                         dayCombo.setValue(null);
                         startField.clear();
                         endField.clear();
+                        datePicker.setValue(null);
                         reasonArea.clear();
+
                         loadMyRequests(settingsContent);
                     });
                 } catch (Exception ex) {
@@ -468,8 +541,8 @@ public class SettingsController {
         settingsContent.getChildren().addAll(
                 scheduleTitle, scheduleBox,
                 new Separator(),
-                requestTitle, dayCombo, timeRow, reasonArea,
-                requestResult, submitBtn,
+                requestTitle, typeBox, dayCombo, timeRow, datePicker,
+                reasonArea, requestResult, submitBtn,
                 new Separator(),
                 myRequestsTitle, myRequestsBox
         );
@@ -502,43 +575,51 @@ public class SettingsController {
                             default         -> "#d69e2e";
                         };
 
+                        boolean isDark = UserSession.getInstance().isAdmin();
+                        String rowBg = isDark ? "#f7fafc" : switch (status) {
+                            case "APPROVED" -> "#f0fff4";
+                            case "REJECTED" -> "#fff5f5";
+                            default         -> "#fffff0";
+                        };
+
                         HBox row = new HBox(10);
                         row.setAlignment(Pos.CENTER_LEFT);
                         row.setStyle(
-                                "-fx-background-color: " +
-                                        (UserSession.getInstance().isAdmin() ? "#f7fafc" :
-                                                switch (status) {
-                                                    case "APPROVED" -> "#f0fff4";
-                                                    case "REJECTED" -> "#fff5f5";
-                                                    default         -> "#fffff0";
-                                                }) +
-                                        "; -fx-border-radius: 8; -fx-background-radius: 8;" +
+                                "-fx-background-color: " + rowBg + ";" +
+                                        "-fx-border-radius: 8; -fx-background-radius: 8;" +
                                         "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 10;"
                         );
 
                         VBox info = new VBox(3);
-                        Label dayLabel = new Label(req.get("dayName").asText());
-                        dayLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+                        String requestType = req.has("requestType")
+                                ? req.get("requestType").asText() : "CHANGE";
+                        String dayInfo = "DAY_OFF".equals(requestType)
+                                ? (req.has("requestedDate") && !req.get("requestedDate").isNull()
+                                ? "🏖 Day Off · " + req.get("requestedDate").asText()
+                                : "🏖 Day Off")
+                                : req.get("dayName").asText();
+                        Label dayLabel = new Label(dayInfo);
+                        dayLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #4a5568;");
+                        info.getChildren().add(dayLabel);
 
-                        String timeStr = "";
-                        if (!req.get("requestedStart").isNull())
-                            timeStr += req.get("requestedStart").asText();
-                        if (!req.get("requestedEnd").isNull())
-                            timeStr += " — " + req.get("requestedEnd").asText();
-                        if (!timeStr.isEmpty()) {
+                        if (!req.get("requestedStart").isNull() ||
+                                !req.get("requestedEnd").isNull()) {
+                            String timeStr = "";
+                            if (!req.get("requestedStart").isNull())
+                                timeStr += req.get("requestedStart").asText();
+                            if (!req.get("requestedEnd").isNull())
+                                timeStr += " — " + req.get("requestedEnd").asText();
                             Label timeLabel = new Label(timeStr);
                             timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #4a5568;");
                             info.getChildren().add(timeLabel);
                         }
 
-                        if (!req.get("reason").isNull()) {
+                        if (req.has("reason") && !req.get("reason").isNull()) {
                             Label reasonLabel = new Label(req.get("reason").asText());
                             reasonLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096;");
                             reasonLabel.setWrapText(true);
                             info.getChildren().add(reasonLabel);
                         }
-
-                        info.getChildren().add(0, dayLabel);
 
                         Label statusBadge = new Label(status);
                         statusBadge.setStyle(
@@ -547,9 +628,40 @@ public class SettingsController {
                                         "-fx-background-radius: 10; -fx-padding: 3 8;"
                         );
 
+                        // Кнопка Clear — только для APPROVED и REJECTED
+                        Button clearBtn = new Button("✕");
+                        clearBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-text-fill: #a0aec0;" +
+                                        "-fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 2 6;"
+                        );
+                        clearBtn.setOnMouseEntered(e -> clearBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-text-fill: #e53e3e;" +
+                                        "-fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 2 6;"
+                        ));
+                        clearBtn.setOnMouseExited(e -> clearBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-text-fill: #a0aec0;" +
+                                        "-fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 2 6;"
+                        ));
+                        clearBtn.setVisible("APPROVED".equals(status) || "REJECTED".equals(status));
+                        clearBtn.setManaged("APPROVED".equals(status) || "REJECTED".equals(status));
+                        Long requestId = req.has("id") ? req.get("id").asLong() : null;
+
+                        clearBtn.setOnAction(e -> {
+                            box.getChildren().remove(row);
+                            if (requestId != null) {
+                                new Thread(() -> {
+                                    try {
+                                        com.example.likarnyam.client.ScheduleRequestApiClient.hideRequestForDoctor(requestId);
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }).start();
+                            }
+                        });
+
                         Region spacer = new Region();
                         HBox.setHgrow(spacer, Priority.ALWAYS);
-                        row.getChildren().addAll(info, spacer, statusBadge);
+                        row.getChildren().addAll(info, spacer, statusBadge, clearBtn);
                         box.getChildren().add(row);
                     }
                 });
@@ -558,7 +670,6 @@ public class SettingsController {
             }
         }).start();
     }
-
     private void showAdminSchedule() {
         Label title = new Label("Schedule Requests");
         title.getStyleClass().add("settings-section-title");
@@ -606,7 +717,12 @@ public class SettingsController {
                         Label doctorLabel = new Label("Dr. " + req.get("doctorName").asText());
                         doctorLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
 
-                        Label dayLabel = new Label(req.get("dayName").asText());
+                        String dayInfo = "DAY_OFF".equals(req.has("requestType")
+                                ? req.get("requestType").asText() : "CHANGE")
+                                ? (req.has("requestedDate") && !req.get("requestedDate").isNull()
+                                ? "Day Off · " + req.get("requestedDate").asText() : "Day Off")
+                                : req.get("dayName").asText();
+                        Label dayLabel = new Label(dayInfo);
                         dayLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #4a5568;");
 
                         String timeStr = "";
@@ -620,6 +736,25 @@ public class SettingsController {
                             Label timeLabel = new Label(timeStr);
                             timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64B5F6;");
                             infoRow.getChildren().add(timeLabel);
+                        }
+
+                        if (req.has("requestedDate") && !req.get("requestedDate").isNull()) {
+                            Label dateLabel2 = new Label("📅 " + req.get("requestedDate").asText());
+                            dateLabel2.setStyle("-fx-font-size: 12px; -fx-text-fill: #38a169; -fx-font-weight: bold;");
+                            card.getChildren().add(dateLabel2);
+
+                            // Предупреждение о существующих записях
+                            if (req.has("existingAppointments") && req.get("existingAppointments").asLong() > 0) {
+                                long count = req.get("existingAppointments").asLong();
+                                Label warningLabel = new Label("⚠ " + count + " scheduled appointment"
+                                        + (count > 1 ? "s" : "") + " on this day");
+                                warningLabel.setStyle(
+                                        "-fx-font-size: 11px; -fx-text-fill: #d69e2e; -fx-font-weight: bold;" +
+                                                "-fx-background-color: #fefcbf; -fx-background-radius: 6;" +
+                                                "-fx-padding: 3 8; -fx-border-radius: 6;"
+                                );
+                                card.getChildren().add(warningLabel);
+                            }
                         }
 
                         if (!req.get("reason").isNull()) {
@@ -661,10 +796,11 @@ public class SettingsController {
                             String statusColor = "APPROVED".equals(status) ? "#38a169" : "#e53e3e";
                             Label statusLabel = new Label(status);
                             statusLabel.setStyle(
-                                    "-fx-text-fill: " + statusColor + "; -fx-font-weight: bold;" +
-                                            "-fx-font-size: 11px;"
+                                    "-fx-text-fill: " + statusColor + "; -fx-font-weight: bold; -fx-font-size: 11px;"
                             );
-                            card.getChildren().add(statusLabel);
+
+                            HBox statusRow = new HBox(8, statusLabel);
+                            card.getChildren().add(statusRow);
                         }
 
                         box.getChildren().add(card);
@@ -773,7 +909,16 @@ public class SettingsController {
         logoutBtn.getStyleClass().add("btn-logout"); // ✅
         logoutBtn.setOnAction(e -> {
             UserSession.getInstance().logout();
-            FxUtils.navigate(settingsContent, "/fxml/login.fxml", 800, 500);
+            Stage stage = (Stage) settingsContent.getScene().getWindow();
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+                Scene scene = new Scene(root);
+
+                stage.setScene(scene);
+                stage.setFullScreen(false); // Или true, если хочешь полный эксклюзив
+                stage.centerOnScreen();
+                stage.show();
+            } catch (Exception ex) { ex.printStackTrace(); }
         });
 
         settingsContent.getChildren().addAll(
@@ -783,6 +928,7 @@ public class SettingsController {
                 sep2, dangerTitle, logoutBtn
         );
     }
+
 
     // Вспомогательные методы
     private VBox createField(String label, String value) {

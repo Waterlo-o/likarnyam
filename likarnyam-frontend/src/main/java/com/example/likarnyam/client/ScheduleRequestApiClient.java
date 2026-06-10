@@ -36,6 +36,36 @@ public class ScheduleRequestApiClient {
         return objectMapper.readTree(response.body());
     }
 
+    public static void hideRequestForDoctor(Long id) throws Exception {
+        HttpResponse<String> response = HttpClient.newHttpClient().send(
+                baseRequest("/" + id + "/hide").method("PATCH",
+                        HttpRequest.BodyPublishers.noBody()
+                ).build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to hide request: " + response.statusCode());
+        }
+    }
+
+    public static JsonNode createDayOffRequest(String requestedDate,
+                                               String reason) throws Exception {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("requestType", "DAY_OFF");
+        payload.put("requestedDate", requestedDate);
+        if (reason != null) payload.put("reason", reason);
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(
+                baseRequest("").POST(
+                        HttpRequest.BodyPublishers.ofString(payload.toString())
+                ).build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        if (response.statusCode() != 200)
+            throw new RuntimeException("Failed: " + response.statusCode());
+        return objectMapper.readTree(response.body());
+    }
+
     // Врач — создать запрос
     public static JsonNode createRequest(int dayOfWeek, String requestedStart,
                                          String requestedEnd, String reason) throws Exception {

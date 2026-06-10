@@ -4,6 +4,7 @@ import com.example.likarnyambackend.model.Appointment;
 import com.example.likarnyambackend.model.Doctor;
 import com.example.likarnyambackend.model.Schedule;
 import com.example.likarnyambackend.repository.AppointmentRepository;
+import com.example.likarnyambackend.repository.DoctorDayOffRepository; // Добавлен импорт
 import com.example.likarnyambackend.repository.ScheduleRepository;
 import com.example.likarnyambackend.dto.response.CalendarDayResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final AppointmentRepository appointmentRepository;
     private final AppointmentService appointmentService;
+    private final DoctorDayOffRepository dayOffRepository; // Добавлено поле
 
     // Получить расписание врача
     public List<Schedule> getDoctorSchedule(Long doctorId) {
@@ -36,6 +38,11 @@ public class ScheduleService {
 
     // Получить свободные слоты на дату
     public List<LocalTime> getAvailableSlots(Doctor doctor, LocalDate date) {
+
+        // Проверяем отгул в самом начале (избегаем лишних запросов к БД)
+        if (dayOffRepository.existsByDoctorIdAndDate(doctor.getId(), date)) {
+            return List.of(); // день off — нет слотов
+        }
 
         // Определяем день недели (1=Пн...7=Вс)
         int dayOfWeek = date.getDayOfWeek().getValue();
@@ -76,6 +83,7 @@ public class ScheduleService {
 
         return slots;
     }
+
     public List<CalendarDayResponse> getCalendarData(Doctor doctor, int year, int month) {
         List<Schedule> schedules = getDoctorSchedule(doctor.getId());
         List<Appointment> appointments = appointmentService.getMonthAppointments(
@@ -99,6 +107,11 @@ public class ScheduleService {
 
             boolean isWorking = schedules.stream()
                     .anyMatch(s -> s.getDayOfWeek().equals(dayOfWeek));
+
+            if (isWorking && dayOffRepository.existsByDoctorIdAndDate(doctor.getId(), date)) {
+                isWorking = false;
+            }
+
             dto.setWorkingDay(isWorking);
 
             List<Appointment> dayAppts = appointments.stream()

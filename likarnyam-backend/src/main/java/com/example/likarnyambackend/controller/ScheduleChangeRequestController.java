@@ -1,6 +1,9 @@
 package com.example.likarnyambackend.controller;
 
 import com.example.likarnyambackend.model.Doctor;
+import com.example.likarnyambackend.model.DoctorDayOff;
+import com.example.likarnyambackend.repository.AppointmentRepository;
+import com.example.likarnyambackend.repository.DoctorDayOffRepository;
 import com.example.likarnyambackend.model.ScheduleChangeRequest;
 import com.example.likarnyambackend.repository.ScheduleChangeRequestRepository;
 import com.example.likarnyambackend.repository.ScheduleRepository;
@@ -10,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -25,6 +29,8 @@ public class ScheduleChangeRequestController {
     private final ScheduleRepository scheduleRepository;
     private final DoctorService doctorService;
     private final com.example.likarnyambackend.repository.UserRepository userRepository;
+    private final DoctorDayOffRepository dayOffRepository;
+    private final AppointmentRepository appointmentRepository;
 
     // Врач — свои запросы
     @GetMapping("/my")
@@ -32,8 +38,25 @@ public class ScheduleChangeRequestController {
         return doctorService.getDoctorByEmail(principal.getName())
                 .map(doctor -> ResponseEntity.ok(
                         requestRepository.findByDoctorIdOrderByCreatedAtDesc(doctor.getId())
-                                .stream().map(this::toMap).toList()
+                                .stream()
+                                .filter(req -> !req.isHiddenByDoctor())
+                                .map(this::toMap).toList()
                 ))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/hide")
+    public ResponseEntity<Void> hideRequest(@PathVariable Long id, Principal principal) {
+        return doctorService.getDoctorByEmail(principal.getName())
+                .flatMap(doctor -> requestRepository.findById(id).map(req -> {
+                    // Проверяем, что врач скрывает именно свою заявку
+                    if (req.getDoctor().getId().equals(doctor.getId())) {
+                        req.setHiddenByDoctor(true);
+                        requestRepository.save(req);
+                        return ResponseEntity.ok().<Void>build();
+                    }
+                    return ResponseEntity.status(403).<Void>build();
+                }))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -46,7 +69,21 @@ public class ScheduleChangeRequestController {
                 .map(doctor -> {
                     ScheduleChangeRequest req = new ScheduleChangeRequest();
                     req.setDoctor(doctor);
-                    req.setDayOfWeek((Integer) body.get("dayOfWeek"));
+
+                    String requestType = (String) body.getOrDefault("requestType", "CHANGE");
+                    req.setRequestType(requestType);
+
+                    if ("DAY_OFF".equals(requestType)) {
+                        // Для отгула dayOfWeek не нужен
+                        req.setDayOfWeek(null);
+                    } else {
+                        req.setDayOfWeek((Integer) body.get("dayOfWeek"));
+                    }
+
+                    if (body.get("requestedDate") != null) {
+                        req.setRequestedDate(java.time.LocalDate.parse((String) body.get("requestedDate")));
+                    }
+
                     req.setRequestedStart(body.get("requestedStart") != null
                             ? LocalTime.parse((String) body.get("requestedStart")) : null);
                     req.setRequestedEnd(body.get("requestedEnd") != null
@@ -54,6 +91,7 @@ public class ScheduleChangeRequestController {
                     req.setReason((String) body.get("reason"));
                     req.setStatus("PENDING");
                     req.setCreatedAt(LocalDateTime.now());
+
                     return ResponseEntity.ok(toMap(requestRepository.save(req)));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -104,6 +142,27 @@ public class ScheduleChangeRequestController {
     }
 
     private void applyScheduleChange(ScheduleChangeRequest req) {
+        if ("DAY_OFF".equals(req.getRequestType())) {
+            if (req.getRequestedDate() != null) {
+                LocalDate date = req.getRequestedDate();
+                long existingAppointments = appointmentRepository
+                        .findTodayByDoctorId(
+                                req.getDoctor().getId(),
+                                date.atStartOfDay(),
+                                date.atTime(23, 59, 59)
+                        ).stream()
+                        .filter(a -> "SCHEDULED".equals(a.getStatus()))
+                        .count();
+
+                DoctorDayOff dayOff = new DoctorDayOff();
+                dayOff.setDoctor(req.getDoctor());
+                dayOff.setDate(date);
+                dayOff.setReason(req.getReason());
+                dayOffRepository.save(dayOff);
+            }
+            return;
+        }
+
         scheduleRepository.findByDoctorIdAndIsActiveTrueOrderByDayOfWeek(
                         req.getDoctor().getId()
                 ).stream()
@@ -126,7 +185,7 @@ public class ScheduleChangeRequestController {
                 req.getDoctor().getLastName());
         map.put("doctorId", req.getDoctor().getId());
         map.put("dayOfWeek", req.getDayOfWeek());
-        map.put("dayName", getDayName(req.getDayOfWeek()));
+        map.put("dayName", req.getDayOfWeek() != null ? getDayName(req.getDayOfWeek()) : null);
         map.put("requestedStart", req.getRequestedStart() != null
                 ? req.getRequestedStart().toString() : null);
         map.put("requestedEnd", req.getRequestedEnd() != null
@@ -136,6 +195,18 @@ public class ScheduleChangeRequestController {
         map.put("adminComment", req.getAdminComment());
         map.put("createdAt", req.getCreatedAt() != null
                 ? req.getCreatedAt().toString() : null);
+        map.put("requestType", req.getRequestType());
+        if ("DAY_OFF".equals(req.getRequestType()) && req.getRequestedDate() != null) {
+            LocalDate date = req.getRequestedDate();
+            long count = appointmentRepository.findTodayByDoctorId(
+                            req.getDoctor().getId(),
+                            date.atStartOfDay(),
+                            date.atTime(23, 59, 59)
+                    ).stream()
+                    .filter(a -> "SCHEDULED".equals(a.getStatus()))
+                    .count();
+            map.put("existingAppointments", count);
+        }
         return map;
     }
 

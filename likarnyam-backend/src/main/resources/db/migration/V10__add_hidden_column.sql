@@ -1,0 +1,1 @@
+ALTER TABLE schedule_change_requests ADD COLUMN hidden_by_doctor BOOLEAN NOT NULL DEFAULT FALSE;
