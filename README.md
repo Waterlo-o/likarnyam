@@ -11,13 +11,24 @@ A desktop medical CRM application for doctors built with JavaFX and Spring Boot.
 
 ## Features
 
-- **Authentication** — JWT-based login with Remember Me (30 days)
-- **Home Dashboard** — daily appointments, mini calendar, upcoming events
-- **Patient Management** — full patient list with search, patient cards with visit history
-- **Schedule** — interactive monthly calendar with appointment density visualization
-- **Appointments** — full appointment list with filtering by status
-- **New Appointment** — book appointments with available time slot selection
-- **Settings** — profile editing, password change
+### For Doctors
+- **Dashboard** — daily visit stats, patient list, mini calendar, upcoming events
+- **Patients** — full patient management with search, allergies (tagged), visit history
+- **Schedule** — interactive monthly calendar with appointment details and status management
+- **Appointments** — full list with filters (Scheduled, Completed, Cancelled, No Show)
+- **New Appointment** — symptom picker with category colors, diagnosis selection, time slots
+- **Settings** — profile editing, appearance (dark/light theme, 12h/24h time, animations), password change
+- **Schedule Requests** — request schedule changes or day offs, track approval status
+
+### For Admins
+- **Schedule Management** — view and approve/reject schedule change requests from doctors
+- **Day Off Approval** — approve day off requests with warning if appointments exist
+
+### Medical Data
+- **Symptom database** — 70+ symptoms organized by category with FontAwesome icons
+- **Allergy database** — 27 allergies with icons, linked to patient profiles
+- **Disease database** — 40+ diseases with ICD codes, linked to doctor specializations
+
 
 ## Tech Stack
 
@@ -39,8 +50,28 @@ A desktop medical CRM application for doctors built with JavaFX and Spring Boot.
 
 ```
 likarnyam/
-├── likarnyam-backend/    # Spring Boot REST API (port 8080)
-└── likarnyam-frontend/   # JavaFX desktop application
+├── likarnyam-backend/          # Spring Boot REST API
+│   └── src/main/
+│       ├── java/
+│       │   ├── config/         # Security, JWT filter
+│       │   ├── controller/     # REST endpoints
+│       │   ├── service/        # Business logic
+│       │   ├── repository/     # JPA repositories
+│       │   ├── model/          # JPA entities
+│       │   └── dto/            # Request/Response DTOs
+│       └── resources/
+│           └── db/migration/   # Flyway migrations V1-V9
+│
+└── likarnyam-frontend/         # JavaFX desktop app
+└── src/main/
+├── java/
+│   ├── client/         # API clients
+│   ├── controller/     # FXML controllers
+│   ├── session/        # User session management
+│   └── util/           # FxUtils, theme helpers
+└── resources/
+├── fxml/           # UI layouts
+└── css/            # Stylesheets
 ```
 
 The frontend communicates with the backend via HTTP REST API using JWT authentication.
