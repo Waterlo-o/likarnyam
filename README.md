@@ -63,15 +63,15 @@ likarnyam/
 │           └── db/migration/   # Flyway migrations V1-V9
 │
 └── likarnyam-frontend/         # JavaFX desktop app
-└── src/main/
-├── java/
-│   ├── client/         # API clients
-│   ├── controller/     # FXML controllers
-│   ├── session/        # User session management
-│   └── util/           # FxUtils, theme helpers
-└── resources/
-├── fxml/           # UI layouts
-└── css/            # Stylesheets
+    └── src/main/
+        ├── java/
+        │   ├── client/         # API clients
+        │   ├── controller/     # FXML controllers
+        │   ├── session/        # User session management
+        │   └── util/           # FxUtils, theme helpers
+        └── resources/
+            ├── fxml/           # UI layouts
+            └── css/            # Stylesheets
 ```
 
 The frontend communicates with the backend via HTTP REST API using JWT authentication.
